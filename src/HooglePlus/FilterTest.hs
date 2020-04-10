@@ -87,7 +87,7 @@ buildFunctionWrapper functions solutionType params@(argLine, paramDecl, argShow)
 
     buildTimeoutWrapper :: [String] -> (String, String, String) -> Int -> String 
     buildTimeoutWrapper wrapperNames (argLine, paramDecl, argShow) timeInMicro =
-      printf "let timeoutWrapper %s = (evaluateIO %d %s (map (\\f -> f %s) [%s])) in" argLine timeInMicro argShow argLine (intercalate ", " wrapperNames) :: String
+      printf "let timeoutWrapper %s = (evaluateIO %d %s (Prelude.map (\\f -> f %s) [%s])) in" argLine timeInMicro argShow argLine (intercalate ", " wrapperNames) :: String
 
 buildNotCrashProp :: String -> FunctionSignature -> (String, String)
 buildNotCrashProp solution funcSig =
@@ -104,17 +104,18 @@ buildNotCrashProp solution funcSig =
 
     formatProp propName body (argLine, argDecl, argShow) wrappedSolution = unwords
       [ wrappedSolution
-      , printf "let %s %s = monadic (%s <$> head <$> timeoutWrapper %s) in" propName argDecl body argLine
+      , printf "let %s %s = monadic (%s <$> Prelude.head <$> timeoutWrapper %s) in" propName argDecl body argLine
       , printf "runStateT (smallCheckM %d (%s)) undefined" defaultDepth propName] :: String
 
 buildDupCheckProp :: (String, [String]) -> FunctionSignature -> Int -> Depth -> String
 buildDupCheckProp (sol, otherSols) funcSig timeInMicro depth =
 
-  unwords [formatProp]
+  unwords [wrapper, formatProp]
   where
     params@(argLine, argDecl, argShow) = toParamListDecl (_argsType funcSig)
     solutionType = show funcSig
 
+    wrapper = buildFunctionWrapper solutions (show funcSig) params defaultTimeoutMicro 
     solutions = zip [printf "result_%d" x :: String | x <- [0..] :: [Int]] (sol:otherSols)
 
     formatProp = unwords
