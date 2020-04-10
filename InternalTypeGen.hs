@@ -52,19 +52,19 @@ anyDuplicate xs = length (nub xs) /= length xs
 -- * instance defined in `Types.IOFormat`
 data Example = Example {
     inputs :: [String],
-    output :: [String]
+    output :: String
 } deriving(Eq, Show)
-type IOPairState m = StateT Example m
+type IOPairState m = StateT [Example] m
 
 type IOExample = String
 type ExampleGeneration m = StateT [IOExample] m
 
 evaluateIO :: Data a => Int -> [String] -> [a] -> IOPairState IO ([CB.Result String])
 evaluateIO timeInMicro inputs vals = do
-    results <- liftIO $ mapM (CB.timeOutMicro timeInMicro . eval) vals
+    results <- liftIO $ silence $ mapM (CB.timeOutMicro timeInMicro . eval) vals
     
     let resultsStr = map showCBResult results
-    put $ Example inputs resultsStr
+    put $ map (Example inputs) resultsStr 
     return results
   where
     evalStr val = CB.approxShow defaultMaxOutputLength val

@@ -151,8 +151,6 @@ validateSolution modules solution funcSig time = do
   resultF <- evaluateProperty modules alwaysFailProp
   resultS <- evaluateProperty modules neverFailProp
 
-  liftIO $ putStrLn neverFailProp
-
   return (evaluateSmallCheckResult resultF resultS)
 
   where
@@ -165,16 +163,16 @@ validateSolution modules solution funcSig time = do
       case resultF of
         Left (UnknownError "timeout") -> Right $ AlwaysFail $ caseToInput resultS
         Right (Nothing, _) -> Right $ AlwaysFail $ caseToInput resultS
-        Right (_, exF) -> case resultS of
+        Right (_, exF:_) -> case resultS of
           Left (UnknownError "timeout") -> Right $ AlwaysSucceed exF
           Right (Nothing, _) -> Right $ AlwaysSucceed exF
 
-          Right (Just (CounterExample _ _), exS) -> Right $ PartialFunction [exF, exS]
+          Right (Just (CounterExample _ _), exS:_) -> Right $ PartialFunction [exF, exS]
           _ -> error (show resultF ++ "???" ++ show resultS)
         _ -> trace (show resultF) $ Right $ AlwaysFail $ caseToInput resultS
 
     caseToInput :: Either InterpreterError SmallCheckResult -> Example
-    caseToInput (Right (_, example)) = example
+    caseToInput (Right (_, example:_)) = example
 
     preprocessOutput :: String -> String -> String
     preprocessOutput input output = trace ("ok: " ++ input ++ ", " ++ output) (fromMaybe "N/A" (listToMaybe selectedLine))
@@ -242,12 +240,12 @@ checkDuplicates modules sigStr solution = do
         Right (Just NotExist, _) -> return False
         Right (Nothing, _) -> return False
 
-        Right (r@(Just AtLeastTwo {}), example) -> do
+        Right (r@(Just AtLeastTwo {}), examples) -> do
           let [i1, i2] = caseToInput r
           modify $ const fs {
             inputs = if null solns then is else (i1, i2):is,
             solutions = solution:solns,
-            differentiateExamples = example:examples
+            differentiateExamples = examples
           }
           return True
         _ -> return False
