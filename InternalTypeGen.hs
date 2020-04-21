@@ -33,7 +33,18 @@ isFailedResult result = case result of
   _ -> False
 
 newtype Inner a = Inner a deriving (Eq)
-instance SS.Serial m a => SS.Serial m (Inner a) where series = SS.newtypeCons Inner
+instance {-# OVERLAPPABLE #-} SS.Serial m a => SS.Serial m (Inner a) where series = SS.newtypeCons Inner
+instance {-# OVERLAPPING #-} Monad m => SS.Serial m (Inner Int) where series = SS.limit 3 (SS.newtypeCons Inner)
+instance Monad m => SS.CoSerial m (Inner Int) where
+  coseries rs =
+    rs SS.>>- \r1 ->
+    rs SS.>>- \r2 ->
+    rs SS.>>- \r3 ->
+    return $ \(Inner i) -> case i of
+                      -1 -> r1
+                      0  -> r2
+                      1  -> r3
+
 instance {-# OVERLAPPABLE #-} (SF.ShowFunction a) => Show (Inner a) where
   show (Inner fcn) = SF.showFunctionLine defaultShowFunctionDepth fcn
 instance {-# OVERLAPPING #-} (SF.ShowFunction a) => Show (Inner [a]) where
@@ -48,6 +59,7 @@ class Unwrappable a b where
 instance Unwrappable (Inner a) a where unwrap (Inner x) = x
 instance Unwrappable ([Inner a]) [a] where unwrap = map unwrap
 instance Unwrappable (Inner a, Inner b) (a, b) where unwrap (Inner x, Inner y) = (x, y)
+instance Unwrappable (Inner a -> b) (a -> b) where unwrap f = f . Inner
 
 printIOResult :: [String] -> [CB.Result String] -> IO ()
 printIOResult args rets = (putStrLn . show) result
@@ -72,16 +84,21 @@ type ExampleGeneration m = StateT [Example] m
 
 evaluateIO :: Data a => Int -> [String] -> [a] -> ExampleGeneration IO ([CB.Result String])
 evaluateIO timeInMicro inputs vals = do
-    results <- liftIO $ silence $ mapM (CB.timeOutMicro timeInMicro . eval) vals
+    ioState <- get
+    results <- liftIO $ mapM (CB.timeOutMicro timeInMicro . eval) vals
+
+    liftIO $ print inputs
     
     let resultsStr = map showCBResult results
-    modify ((++) (map (Example inputs) resultsStr))
+    modify ((++) (map (Example inputs) (filter (retIsNotInState ioState) resultsStr)))
     return results
   where
     evalStr val = CB.approxShow defaultMaxOutputLength val
     io str = ((putStrLn str) >> return str)
 
     eval val = io (evalStr val)
+    retIsNotInState state retStr = not $ (retStr `elem` (map output state))
+    
  
 waitState :: Int -> [String] -> [String] -> [[String]] -> CB.Result String -> ExampleGeneration IO Bool
 waitState numIOs args previousRets previousArgs ret = case (not $ isFailedResult ret) of

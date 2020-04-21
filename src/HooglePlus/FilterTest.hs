@@ -90,7 +90,7 @@ buildFunctionWrapper functions solutionType params@(plain, typed, shows, unwrp) 
       printf "let timeoutWrapper = \\%s -> (evaluateIO %d %s (Prelude.map (\\f -> f %s) [%s])) in" typed timeInMicro shows unwrp (intercalate ", " wrapperNames) :: String
 
 buildNotCrashProp :: String -> FunctionSignature -> String
-buildNotCrashProp solution funcSig = formatAlwaysFailProp params wrapper
+buildNotCrashProp solution funcSig = traceId $ formatAlwaysFailProp params wrapper
   where
     params@(plain, typed, shows, unwrp) = showParams (_argsType funcSig)
 

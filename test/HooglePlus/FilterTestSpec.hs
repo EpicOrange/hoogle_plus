@@ -60,7 +60,8 @@ testNotCrashCases =
   , ("Fail on invalid function 2", ["Data.List"], "a -> a", "\\x -> head []", False)
   , ("Fail on invalid function 3", ["Data.List"], "a -> (a, a)", "\\x -> (head [x], last [])", False)
   , ("Fail on invalid function 4", ["Data.List"], "a -> (a, a)", "\\x -> (head [], last [x])", False)
-  , ("Succeed on result with type class 1", [], "(Show a, Show b) => Either a b -> String", "\\x -> show x", True)]
+  , ("Succeed on result with type class 1", [], "(Show a, Show b) => Either a b -> String", "\\x -> show x", True)
+  , ("Strange case #1 by Zheng", ["GHC.List"], "Int -> a -> (a -> a) -> a", "\\arg0 arg1 arg2 -> arg2 (GHC.List.last (GHC.List.replicate arg0 arg1))", True)]
 
 testNotCrashHOFs :: [(String, [String], String, String, Bool)]
 testNotCrashHOFs =
