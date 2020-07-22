@@ -82,7 +82,7 @@ synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
 synthesize searchParams goal examples messageChan = do
     let rawEnv = gEnvironment goal
     let goalType = gSpec goal :: RSchema
-    let destinationType = lastType (toMonotype goalType)
+    let destinationType = lastType (toMonotype goalType) :: RType
     let useHO = _useHO searchParams
     let rawSyms = rawEnv ^. symbols
     let hoCands = rawEnv ^. hoCandidates
@@ -107,224 +107,61 @@ synthesize searchParams goal examples messageChan = do
 
     -- call dfs with iterativeDeepening
     -- iterativeDeepening envWithHo messageChan searchParams examples goalType
-    program <- evalBottomUpSolver messageChan $ dothing envWithHo
+    printf "===============\nStarting....\n===============\n"
+
+    program <- evalBottomUpSolver messageChan $ do
+      program' <- dothing messageChan envWithHo (shape destinationType)
+      checkResult <- liftIO $ check' program' envWithHo goalType
+      guard checkResult
+      return program'
+    
+    
     printf "===============\n\nRESULT: %s \n\n===============\n" (show program)
     writeChan messageChan (MesgClose CSNormal)
     return ()
+    
+    where
+      -- wrapper for `check` function
+      check' :: RProgram -> Environment -> RSchema -> IO Bool
+      check' program env goalType
+        -- check if the program has all the arguments that it should have (avoids calling check)
+        | filterParams program env = do
+            liftIO $ printf "calling check on program: %s\n" $ show program
+            checkResult <- evalStateT (check env searchParams examples program goalType messageChan) emptyFilterState
+            case checkResult of
+              Nothing  -> return False
+              Just exs -> do
+                out <- toOutput env program exs
+                printResult $ encodeWithPrefix out
+                return True
+        | otherwise = return False
+        
+      -- determines if the result has all the appropriate arguments
+      filterParams :: RProgram -> Environment -> Bool
+      filterParams program env = all (`isInfixOf` (show program)) $ Map.keys $ env ^. arguments
 
 
-{-
+type BottomUpSolver m = StateT CheckerState (LogicT m)
 
-bottom up example
------------------
-
-Query: Int -> Int
-
-Ground programs: arg0 :: Int
-Other components: 
-    length :: [a]  -> Int
-    f      :: Bool -> Int
-    g      :: Int  -> [Int]
-    !!     :: [a]  -> Int -> a
-
-Depth 1 ground programs: (arg0 :: Int)
-Depth 2 ground programs: (g arg0 :: [Int])
-Depth 3 ground programs: (length (g arg0) :: Int)    (!! [a] arg0 :: a)
-
-a :: Int
-b :: Int
-c :: Bool 
-d :: Bool
-
-g :: Int -> Bool -> [Int] -> Int
-
-grow (func = g) P = do
-  -- g a c
-  -- g b d
-
-  arg0 <- matches int  -- stream of components that match with Int from P 
-  arg1 <- matches bool -- stream of components that match with Int from p
-  arg2 <- matches [Int]
-
-  -- build up program
-  return program -- e.g.   g a c
-
-loop :: [RProgram] ->     -- P
-        [RProgram] ->     -- P
-        [RProgram]
-
-     P not_returned_yet       P' already_returned 
-loop (P = stream [a,b,c,d])  (P' = [])            = do
-
-  func <- components from env -- stream of [f,g,h]
-  let P'' = grow func (P mplus P')        -- stream of [g a c, g a d, g b c, g b d]
-  
-  return $ P            = stream [a,b,c,d]) 
-           `mplus`
-          loop P''       =  grow func (P mplus P') = 
-              (P mplus P')   -- try to produce a stream [g a c, g a d, g b c, g b d, ] `mplus` [a,b,c,d] 
-  
-  
---- can't really separate returned and not returned programs
---- what if we use a set? but it might not work well with streams
-
-
-     P not_returned_yet                          P' already_returned 
-loop (P = stream [g a c, g a d, g b c, g b d])  (P' = [a,b,c,d])            = do
-
-  func <- components from env -- stream of [f,g,h]
-  let P'' = grow func (P mplus P')        -- stream of [g a c, g a d, g b c, g b d]
-  
-
-P'' = [g (g a c) c, g (g a d) c, ... g a c, g a d, g b c, g b d]
-
-  return $ P            = stream [a,b,c,d]) 
-           `mplus`
-          loop P''       =  grow func (P mplus P') = 
-              (P mplus P')   -- try to produce a stream [g a c, g a d, g b c, g b d, ] `mplus` [a,b,c,d] 
-  
-  
-
-
-main = do
-  program <- loop ....
-  guard $ check program
-
-
-  
-
-matches function:
-  - uses getUnified (or similar logic)
-      instead of going through all components in env, we'd go through 
-      all components in P (so built up components thus far)
-
-
-0. check all {components} and see if you can return them as solutions
-1. grow {components} to get {components + more things} ??? ?How though
-2. repeat
-
-
-
-0   1
-x + sort(x)
-
----------------------------
-T - terminals 
-N - non-terminals
-R - rules (productions)
-S - starting nonterminal
-
-Nullary: 
-In computer programming, a nullary constructor is a constructor 
-that takes no arguments. Also known as a 0-argument constructor 
-or no-argument constructors. 
-
-bottom-up (<T, N, R, S>, [i→o]) {         dfs T = do
-  P := [t | t in T && t is nullary]         let P = [t | t <- T, isNullary t]
-  while(true)                               results <- do
-    forall(p in P)                            p <- P -- list monad
-      if(whole(p) && p([i]) = [o])            guard $ (whole p && check p)
-        return p;                             return p
-    P += grow(P);                           return $ results ++ dfs (grow P)
-}
-
-looks like a fold over R
-grow 
-
-grow (P) {                                grow P = do
-  P’ := []                                  let P' = []
-  forall((_ ::= rhs) in R)                  comp <- components (from env)
-    P’ += [rhs[B -> p] | p in P, B→∗𝑝]      ?????????????????????????????????????????
-  return P’;                                return P'
-}
-
-
-
----------------------------
-
-
--}
-
-
-
-
--- TODO make new state!!!!!!!
--- data PState = PState {
---     _P :: [RProgram]
--- } deriving(Eq)
-
--- emptyP :: PState
--- emptyP = PState {
---     _P = []
--- }
-
--- st <- lift get  
--- st :: [RProgram]
-
-type PState = [RProgram]
-
-type BottomUpSolver m = StateT CheckerState (LogicT (StateT PState m))
-
-evalBottomUpSolver :: Monad m => Chan Message -> BottomUpSolver m a -> m [a]
+evalBottomUpSolver :: Monad m => Chan Message -> BottomUpSolver m a -> m a
 evalBottomUpSolver messageChan m = do
-  (`evalStateT` []) $
-    observeAllT $
+  observeT $
     (`evalStateT` emptyChecker {_checkerChan = messageChan}) $ m
 
-
--- evalBottomUpSolver :: Monad m => Chan Message -> BottomUpSolver m a -> m [a]
--- evalBottomUpSolver messageChan m = do
---   observeAllT $ m `evalStateT` emptyChecker {_checkerChan = messageChan}
-
--- evalBottomUpSolverList :: Monad m => Chan Message -> [BottomUpSolver m a] -> m a
--- evalBottomUpSolverList messageChan m = do
---   observeT $ msum $ map (`evalStateT` emptyChecker {_checkerChan = messageChan}) m
+evalBottomUpSolverList :: Monad m => Chan Message -> BottomUpSolver m a -> m [a]
+evalBottomUpSolverList messageChan m = do
+    observeManyT 20 $
+      (`evalStateT` emptyChecker {_checkerChan = messageChan}) $ m
 
 
 -- TODO this
-dothing :: Environment -> BottomUpSolver IO RProgram
-dothing env = do
--- dothing :: BottomUpSolver IO RProgram
--- dothing = do
+dothing :: Chan Message -> Environment -> SType -> BottomUpSolver IO RProgram
+dothing messageChan env goalType = do
 
   -- collect all the component types (which we might use to fill the holes)
   -- component <- choices $ Map.toList (env ^. symbols)
+  let components = Map.toList (env ^. symbols)
   -- _symbols :: Map Id RSchema,          -- ^ Variables and constants (with their refinement types), indexed by arity
-
--- this is initial env i think?????????
--- a :: Int
--- b :: Int
--- c :: Bool 
--- d :: Bool
--- f :: Bool -> Int
--- g :: Int  -> [Int]
--- h :: Int -> Bool -> [Int] -> Int
--- next iteration should give: f c :: Int, f d :: Int, g a :: [Int], g b :: [Int]
--- next iteration should give: g (f c) :: [Int], g (f d) :: [Int],
---   h a c (g a) :: Int
---   h a d (g a) :: Int
---   h b c (g a) :: Int
---   h b d (g a) :: Int
---   h a c (g b) :: Int
---   h a d (g b) :: Int
---   h b c (g b) :: Int
---   h b d (g b) :: Int
-    
-  let myInt = ScalarT (DatatypeT "Int" [] []) ftrue :: RType
-  let myBool = ScalarT (DatatypeT "Bool" [] []) ftrue :: RType
-  let myList a = ScalarT (DatatypeT "List" [a] []) ftrue :: RType
-  let myIntSchema = Monotype myInt :: RSchema
-  let myBoolSchema = Monotype myBool :: RSchema
-  let myFn a b = FunctionT "" a b
-  --let myTVar = refineTop
-  let fType = Monotype $ myFn myBool myInt :: RSchema
-  let gType = Monotype $ myFn myInt (myList myInt) :: RSchema
-  let hType = Monotype $ myFn myInt (myFn myBool (myFn (myList myInt) myInt)) :: RSchema
-  let myComponents = Map.fromList [("a", myIntSchema),("b", myIntSchema),("c", myBoolSchema),("d", myBoolSchema),
-                      ("f", fType),("g", gType),("h", hType)] :: Map Id RSchema
-  
-  -- temp env with fewer components
-  let env' = set symbols myComponents env
 
   -- populates P with all the ground types from env
   -- and turns them into functions
@@ -334,62 +171,114 @@ dothing env = do
           isGround schema' = Program { content = PSymbol id, typeOf = refineTop env schema' } : acc
         | otherwise       = acc
   
-  let myP = foldr buildP [] (Map.toList myComponents) :: [RProgram]
+  let myP = foldr buildP [] (components) :: [RProgram]
 
   -- liftIO $ printf "myComponents: %s\n" (show myComponents)
-  component@(id, schema) <- choices (Map.toList myComponents)
+
+  liftIO $ putStrLn $ "we are here omg"
+  let growWrapper :: BottomUpSolver IO RProgram -> Int -> BottomUpSolver IO RProgram
+      -- growWrapper pSt 5 = pSt
+      growWrapper pSt depth = do  
+        
+        -- pair@(pSt, comptype) <- pSt
+        liftIO $ printf "depths %d... \n" depth
   
-  -- replaces "a" with "tau1"
-  freshVars <- freshType (env ^. boundTypeVars) schema :: BottomUpSolver IO RType
+        -- liftIO $ printf "component: %s \n" (show component)
 
-  -- lift $ put (myP)
-  -- pSt <- lift get :: BottomUpSolver IO PState
+        pStList <- liftIO $ evalBottomUpSolverList messageChan pSt :: BottomUpSolver IO [RProgram]
+        liftIO $ printf "pSt: %s\n" (show pStList)
 
-  -- myP <- get myP
-  
-  -- stream of components that unify with goal type
-  -- let growWrapper = do
-  --       pSt <- lift $ get
-  --       grow env' (id, shape freshVars) pSt
+        -- growWRapper assigns comptype
+        -- grow returns rprograms, which are all 'new'
+        let pSt' = grow components pSt
 
-  let growWrapper :: BottomUpSolver IO RProgram -> BottomUpSolver IO RProgram
-      growWrapper pSt = do
-        let pSt' = grow env' (id, shape freshVars) pSt
-        pSt' `mplus` growWrapper pSt'
-  
-  grownProgram <- growWrapper (choices myP) :: BottomUpSolver IO RProgram
-  -- pSt <- lift get :: BottomUpSolver IO PState
-  -- liftIO $ printf "pSt: %s \n" (show pSt)
 
-  -- pSt <- lift $ get
-  -- -- like the fixpoint function but for grow
-  -- let growWrapper :: m RProgram -> m RProgram
-  --     growWrapper pSt = do
-  --       let pSt' = grow env' (id, shape freshVars) pSt
-  --       return pSt' `mplus` growWrapper pSt'
+        pSt'List <- liftIO $ evalBottomUpSolverList messageChan pSt' :: BottomUpSolver IO [RProgram]
+        liftIO $ printf "pSt': %s\n" (show pSt'List)
 
-  lift $ modify (\pSt -> pSt ++ [grownProgram])
+        
+        -- first iteration: growWrapper [ a,b,c,d ]
+        -- pSt is [a, b, c, d] 
+        -- pSt' is [f c, f d, g a, g b] 
+        -- returns [a, b, c, d] `mplus` growWrapper [ a,b,c,d,f c,f d,g a,g b ]
+
+        -- second iteration: growWrapper [ a,b,c,d,f c,f d,g a,g b ]
+        -- pSt is [ a,b,c,d,f c,f d,g a,g b ]
+        -- pSt' is [f c, f d, g a, g b, g (f c) ... ] 
+        -- returns [ a,b,c,d,f c,f d,g a,g b ] `mplus` growWrapper [ a,b,c,d,f c,f d,g a,g b] `mplus` [f c, f d, g a, g b, g (f c) ... ] 
+
+        -- [a, b, c, d] `mplus`  .....
+        -- [a, b, c, d] `mplus`  ([a, b, c, d, f c, f d, g a, g b ] `mplus` ...)
+
+        -- idea: add old to pst
+              -- add new to pst'
+        pSt `mplus` growWrapper (pSt `mplus` pSt') (depth + 1)
+
+
+        -- pSt `mplus` growWrapper pSt' (depth + 1)
+
+        -- grow [new] [old]
+        -- grow [(f a, new), (a, old)]
+        -- guard (is there at least one new???)
+
+        -- grow [ f c,f d,g a,g b ] [ a,b,c,d, ]
+        -- somehow force grow to use at least one program from the last depth, to synthesize the next depth
+
+  grownProgram <- growWrapper (choices myP) 1 :: BottomUpSolver IO RProgram
+
   
   -- want to add grownProgram to myP 
   -- how do we do this if we need to backtrack to get the next grownProgram????????????
-
+  guard =<< isUnifiedComp grownProgram goalType
+  
+  liftIO $ printf "found program: %s \n" (show grownProgram)
+  
   return grownProgram
   
   where
+    myInt        = ScalarT (DatatypeT "Int" [] []) ftrue :: RType
+    myBool       = ScalarT (DatatypeT "Bool" [] []) ftrue :: RType
+    myList a     = ScalarT (DatatypeT "List" [a] []) ftrue :: RType
+    myIntSchema  = Monotype myInt :: RSchema
+    myBoolSchema = Monotype myBool :: RSchema
+    myFn a b     = FunctionT "" a b
+    -- myTVar = refineTop
+    fType = Monotype $ myFn myBool myInt :: RSchema
+    gType = Monotype $ myFn myInt (myList myInt) :: RSchema
+    hType = Monotype $ myFn myInt (myFn myBool (myFn (myList myInt) myInt)) :: RSchema
+    myComponents = Map.fromList [("a", myIntSchema),("b", myIntSchema),("c", myBoolSchema),("d", myBoolSchema),
+                        ("f", fType),("g", gType),("h", hType)] :: Map Id RSchema
+    -- let components = Map.toList myComponents :: [(Id, RSchema)]
+    -- temp env with fewer components
+    env' = set symbols myComponents env
+    
     -- fill in args of schema using the ground programs we already have
     -- (instead of calling dfs on each argument)
     -- g ?? ?? ??    <- fill these holes :: SType
     --    using programs in P
     --    returning a program
     -- comp represents 1 component from the environment 
-    grow :: Environment -> (Id, SType) -> BottomUpSolver IO RProgram -> BottomUpSolver IO RProgram
-    grow    env comp@(id, schema) programs = do
+    grow :: [(Id, RSchema)] -> BottomUpSolver IO RProgram -> BottomUpSolver IO RProgram
+    grow    components         programs = do
+
+      component@(id, schema) <- choices components
+  
+      -- when (isInfixOf "ength" id ) $ do
+      --   liftIO $ printf "length exists i guess\n"
+
+      -- when (id == "h") $ do
+
+      --   liftIO $ 
+      -- replaces "a" with "tau1"
+      freshVars <- freshType (env ^. boundTypeVars) schema :: BottomUpSolver IO RType
+      let schema' = shape freshVars
+
       -- stream of solutions to the (id, schema) returned from getUnifiedComponent
 
       -- TODO filter these ones out at the beginning so that they are not repeated
-      guard (not $ isGround schema)
+      guard (not $ isGround schema')
       
-      liftIO $ printf "Growing.... compId: %s \n" (id)
+      -- liftIO $ printf "Growing.... compId: %s \n" (id)
 
       -- program <- choices myP :: BottomUpSolver IO RProgram
       
@@ -397,31 +286,29 @@ dothing env = do
       -- let retType = shape $ lastType programType :: SType
       
       -- collect all the argument types (the holes ?? we need to fill)
-      let args = allArgTypes schema :: [SType]
-
-
--- P
--- a :: Int
--- b :: Int
--- c :: Bool 
--- d :: Bool
-
--- f :: Bool -> Int -> [Int]
--- next iteration should give: f c a :: Int, f c b :: Int, f d a :: Int, f d b :: Int
+      let args = allArgTypes schema' :: [SType]
 
       let func1 :: SType -> BottomUpSolver IO RProgram
           func1 argType = do
-            liftIO $ printf "func1.... arg: %s \n" (show argType)
 
             program <- programs
             isUnified <- isUnifiedComp program argType
+            -- when (isInfixOf "ength" id ) $ do
+        -- liftIO $ printf "length exists i guess\n"
+              -- liftIO $ printf "component: %s, argType: %s, program: %s, isUnified: %s \n" (show component) (show argType) (show program) (show isUnified)
             
-            guard (isUnified)
+            guard isUnified
             return program
       -- TODO change to matching everything from p that it unifies with
       -- let func = getUnifiedComponent myP :: SType -> BottomUpSolver IO [RProgram]
       argsFilled <- mapM func1 args :: BottomUpSolver IO [RProgram]
-      return Program { content = PApp id argsFilled, typeOf = refineTop env schema } 
+
+      -- when (isInfixOf "ength" id ) $ do
+      --   liftIO $ printf "component: %s, argsFilled: %s \n" (show component) (show argsFilled)
+            
+
+      let programNew = Program { content = PApp id argsFilled, typeOf = refineTop env schema' } 
+      return programNew
         
     -- checks if a program is ground (has no more arguments to synthesize - aka function w/o args)
     isGround :: SType -> Bool
@@ -432,18 +319,18 @@ dothing env = do
     choices :: MonadPlus m => [a] -> m a
     choices = msum . map return
 
-    -- todo change comment
+    -- return whether or not the program type unifies with the return type of the goal
     isUnifiedComp :: RProgram -> SType -> BottomUpSolver IO Bool
     isUnifiedComp program goalType = do
-                          
-      let programType = typeOf program :: RType
-      let retType = shape $ lastType programType :: SType
+                   
+                   
+      let programType = shape $ typeOf program :: SType
 
       -- -- replaces "a" with "tau1"
       -- freshVars <- freshType (env ^. boundTypeVars) schema
 
       -- let t1 = shape (lastType freshVars) :: SType
-      let t1 = retType :: SType
+      let t1 = programType :: SType
       let t2 = goalType :: SType
 
       solveTypeConstraint env t1 t2 :: BottomUpSolver IO ()
@@ -452,7 +339,7 @@ dothing env = do
       -- TODO what can we do with sub? 
       -- let sub = st' ^. typeAssignment
       let checkResult = st' ^. isChecked
-      
+      -- liftIO $ printf "program: %s, programType: %s, goalType: %s, checkResult: %s \n" (show program) (show programType) (show goalType) (show checkResult)
       -- guard checkResult
       -- return (id, stypeSubstitute sub (shape freshVars))
       return checkResult
