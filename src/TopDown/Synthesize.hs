@@ -93,7 +93,6 @@ synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
 synthesize searchParams goal examples messageChan = do
     let rawEnv = gEnvironment goal
     -- printf "rawEnv: %s\n" (show $ rawEnv ^. symbols)
-    -- print $ map show $ Map.toList $ rawEnv ^. symbols
     let goalType = gSpec goal :: RSchema
     let destinationType = lastType (toMonotype goalType)
     let useHO = _useHO searchParams
@@ -118,13 +117,28 @@ synthesize searchParams goal examples messageChan = do
       --     }
     --------------------------
 
+    -- TODO this list still includes some 'ho stuff with Fun types, get rid of them!
+    -- ("GHC.List.head",<a> . ([a] -> a))
+    -- ("GHC.List.head_0'ho'",<a> . Fun (([a])) (a))
+    -- ("Data.Function.id",<a> . (a -> a))
+    -- ("Data.Function.id_0'ho'",<a> . Fun (a) (a))
+    -- ("Data.Either.Left",<b> . <a> . (a -> Either (a) (b)))
+    -- ("Data.Either.Left_0'ho'",<b> . <a> . Fun (a) ((Either (a) (b))))
+    -- ("Data.Either.Right",<b> . <a> . (b -> Either (a) (b)))
+    -- ("Data.Either.Right_0'ho'",<b> . <a> . Fun (b) ((Either (a) (b))))
+    -- ("(Data.Eq./=)",<a> . (@@hplusTC@@Eq (a) -> (a -> (a -> Bool))))
+    -- ("(Data.Eq./=)_0'ho'",<a> . (@@hplusTC@@Eq (a) -> (a -> Fun (a) (Bool))))
+    -- ("(Data.Eq./=)_1'ho'",<a> . (@@hplusTC@@Eq (a) -> Fun (a) ((Fun (a) (Bool)))))
+    -- ("(Data.Eq./=)_2'ho'",<a> . Fun ((@@hplusTC@@Eq (a))) ((Fun (a) ((Fun (a) (Bool))))))
+    mapM print $ Map.toList $ envWithHo ^. symbols
+
     putStrLn "\n=================="
     putStrLn "Starting!"
     print $ Map.keys $ envWithHo ^. arguments
     putStrLn "=================="
 
     -- call dfs with iterativeDeepening
-    iterativeDeepening envWithHo messageChan searchParams examples goalType
+    -- iterativeDeepening envWithHo messageChan searchParams examples goalType
 
     writeChan messageChan (MesgClose CSNormal)
     return ()
