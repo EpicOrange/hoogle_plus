@@ -140,7 +140,7 @@ evalTopDownSolverList messageChan m = do
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO ()
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan (map helper [1..]) >> return ()
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan (map helper [1..20]) >> return ()
 -- iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan (map helper [5..]) >> return ()
   where
     -- filters out type classes (@@type_class@@) so that numArgs can be correct when used
@@ -157,7 +157,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
       let goalType = shape $ lastType (toMonotype goal) :: SType
       solution <- dfs env messageChan quota goalType :: TopDownSolver IO RProgram
       
-      guard (isInfixOf "filter" (show solution))
+      -- guard (isInfixOf "filter" (show solution))
       liftIO $ printf "solution: %s\n" (show solution)
       isChecked <- liftIO $ check' solution
       guard isChecked -- gets the first valid program
@@ -199,6 +199,7 @@ dfs env messageChan quota goalType
     -- stream of components that unify with goal type
     (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
     
+    liftIO $ printf "goalType: %s, id: %s (%s)\n" (show goalType) id (show schema) 
     -- stream of solutions to the (id, schema) returned from getUnifiedComponent
     if isGround schema
       then return Program { content = PSymbol id, typeOf = refineTop env schema }
@@ -206,68 +207,8 @@ dfs env messageChan quota goalType
         -- collect all the argument types (the holes ?? we need to fill)
         let args = allArgTypes schema :: [SType]
 
--- stack run -- hplus --json='{"query": "[a] -> (a -> Bool) -> Int", "inExamples": []}'
--- \arg0 arg1 -> GHC.List.length (GHC.List.filter arg1 arg0)
--- \arg0 arg1 -> GHC.List.length (GHC.List.filter ?? :: a -> Bool   ?? :: [a])
+        -- liftIO $ printf "goalType: %s, id: %s (%s)\n" (show goalType) id (show schema) 
 
-{-
-
-  if any of the args are a function type, we basically have to run interrative deepening of that ( [quota, quota-1, quota-2, ... 1])
-  (a -> Bool) :: arg1
-
-  env: 
-    arg1 :: (a -> Bool)
--- stack run -- hplus --json='{"query": "(a -> Bool)", "inExamples": []}'
-(GHC.List.filter (\arg2 -> arg1 arg2) arg0) (eta reduction?) 
-
-(a:arg0 -> (a -> a -> Bool):arg1 -> Int)
-a:arg2
-\arg2 arg3 -> 
-
-env 
-  add to arguments
-  add to symbols
-
-
--- | Typing environment
-data Environment = Environment {
-  _symbols :: Map Id RSchema,          -- ^ Variables and constants (with their refinement types), indexed by arity
-  _arguments :: Map Id RSchema,            -- ^ Function arguments, required in all the solutions
-  _typeClasses :: Map Id (Set Id),         -- ^ Type class instances
-  _boundTypeVars :: [Id],                  -- ^ Bound type variables
-  -- | Constant part:
-  _constants :: Set Id,                    -- ^ Subset of symbols that are constants
-  _datatypes :: Map Id DatatypeDef,        -- ^ Datatype definitions
-  _typeSynonyms :: Map Id ([Id], RType),   -- ^ Type synonym definitions
-  _unresolvedConstants :: Map Id RSchema,  -- ^ Unresolved types of components (used for reporting specifications with macros)
-  _included_modules :: Set String,          -- ^ The set of modules any solution would need to import
-  _typClassInstances :: [(String, String)],
-  _condTypClasses :: [([(String, [Set String])], (String, String))],
-  _hoCandidates :: [Id],
-  _queryCandidates :: Map RSchema [Example]
-  } deriving(Generic)
-
-query: [Int] -> (Int -> Bool) -> [Int]
-arg0 :: [Int]
-arg1 :: (Int -> Bool)
-   |
-18 | ghcCheckedFunction = \arg0 arg1 -> (\_ -> Data.Function.fix arg1) $ arg0
-   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<interactive>:1:16: error:
-    • Couldn't match expected type ‘[a1] -> [a1]’
-                  with actual type ‘Bool’
-    • The first argument of ($) takes one argument,
-      but its type ‘Bool’ has none
-      In the expression: (fix arg1) $ arg0
-      In the expression:
-          (\ arg0 arg1 -> (fix arg1) $ arg0) :: [a] -> ((a -> Bool)) -> [a]
-    • Relevant bindings include
-        arg1 :: a1 -> Bool (bound at <interactive>:1:8)
-        arg0 :: [a1] (bound at <interactive>:1:3)
-
-
-
--}
         -- do basically this:
         -- dfsstuff0 <- dfs ... arg0 (quota - 1) :: RProgram
         -- dfsstuff1 <- dfs ... arg1 (quota - 1 - sizeOf dfsstuff0) :: RProgram
@@ -275,32 +216,14 @@ arg1 :: (Int -> Bool)
         -- argsFilled = [dfsstuff0, dfsstuff1, dfsstuff2]
         let func :: (Int, [RProgram]) -> SType -> TopDownSolver IO (Int, [RProgram])
             func (quota', programs) arg = do
+              -- liftIO $ printf "\t* arg: %s\n" (show arg)
               if (isFunctionType arg) -- arg is e.g. a -> Bool
                 then do
                   (newEnv, newQuery) <- do
                     let monospec = refineTop env arg :: RType
                     -- when (id == "Data.Function.fix") $ liftIO $ printf "id: %s (%s), arg: %s, monospec: %s\n" id (show schema) (show $ arg) (show $ monospec)
+                    -- liftIO $ printf "\t*** arg: %s, monospec: %s\n" (show schema) (show $ arg) (show $ monospec)
 
--- "[a] -> (a -> Bool) -> Int"
--- id: Data.Function.fix ((Int -> Int) -> Int), arg: Int -> Int, monospec: (Int -> {Int|False})
--- id: Data.Function.fix (<a> . (((a -> a)) -> a))
--- id: Data.Function.fix ((Int -> Int) -> Int), arg: Int -> Int, monospec: ({Int|False} -> Int)
-
--- solution: GHC.List.filter (\_ -> Data.Bool.False) []
--- solution: GHC.List.filter (\_ -> Data.Bool.False) arg0
--- solution: GHC.List.filter (\_ -> Data.Bool.True) []
--- solution: GHC.List.filter (\_ -> Data.Bool.True) arg0
--- solution: GHC.List.filter (\_ -> Data.Bool.otherwise) []
--- solution: GHC.List.filter (\_ -> Data.Bool.otherwise) arg0
--- solution: GHC.List.foldl1 [] []
--- solution: GHC.List.foldl1 arg0 []
--- solution: GHC.List.foldl1 arg2 []
--- solution: GHC.List.foldl1 arg3 []
-
---                 arg1 ::   a -> Int
---                 arg1 arg2 = ????
--- id: GHC.List.foldr1 ((Int -> Int -> Int) -> [Int] -> Int), arg: Int -> Int -> Int, monospec: ({Int|False} -> ({Int|False} -> Int))
--- id: GHC.List.foldr1 ((Int -> Int -> Int) -> [Int] -> Int), arg: Int -> Int -> Int, monospec: (Int -> (Int -> {Int|False}))
                     -- let (env', monospec::RType) = updateEnvWithBoundTyVars polyspecquery env
                     let (env', destinationType) = updateEnvWithSpecArgs monospec env
                     -- difference :: Ord k => Map k a -> Map k b -> Map k a
@@ -316,7 +239,25 @@ arg1 :: (Int -> Bool)
                     return $ (env', destinationType)
                   body <- dfs newEnv messageChan quota' (shape newQuery)
                   let newArgs = Map.toList (Map.difference (newEnv ^. arguments) (env ^. arguments)) :: [(Id, RSchema)]
-                  -- guard (filter)
+
+
+                  -- try to eta reduce:
+                  -- if body looks like ((f b) c) d
+                  --  = PApp "f" [PSymbol "b", PSymbol "c", PSymbol "d"]
+                  -- and newArgs looks like [a,c,d]
+                  -- change them to look like
+                  --   body: f b
+                  --   newArgs: [a]
+
+                  -- daniel's attempt????
+                  -- let etareduce (Program (PApp id xs) t, args)
+                  --       | null xs              -> (PSymbol id, args)
+                  --       | last xs == last args -> etareduce (Program (PApp Id (init xs)) t) (init args)
+                  --     etareduce (prog, args) = (prog, args)
+                  -- let (body', newArgs') = etareduce (body, newArgs)
+                        
+
+
                   -- liftIO $ printf "id %s, program: %s\n" id (show program)
                   -- todo: add in the arguments to program
                   -- return undefined
@@ -326,9 +267,8 @@ arg1 :: (Int -> Bool)
                           typeOf = FunctionT id' (toMonotype t') (bodyType)
                         }
                   let program = foldr foo body newArgs
-                  -- liftIO $ printf "weird program; $"
-                  -- expected: arg0:[Int] -> arg1:(Int -> Bool) -> [Int]
-                  -- should give: GHC.List.filter (\arg2 -> arg1 arg2) arg0
+                  -- TODO eta reduce this result
+
                   -- return (quota' - sizeOf body, programs ++ [program])
                   return (quota' - sizeOf program, programs ++ [program])
                   -- call dfs with newEnv
@@ -358,10 +298,10 @@ arg1 :: (Int -> Bool)
     --  returns updated schema w/ sub if unifies 
     getUnifiedComponent :: (Id, RSchema) -> TopDownSolver IO (Id, SType)
     getUnifiedComponent (id, schema) = do
-                        -- should give: length (GHC.List.filter (\arg2 -> arg1 arg2) arg0)
-      -- \xs f -> Data.List.head (Data.List.filter f xs)
-      -- when (id == "Data.Function.fix") $ liftIO $ printf "id: %s (%s)\n" id (show schema) 
-      guard (id == "GHC.List.filter" || id == "GHC.List.head" || "arg" `isPrefixOf` id )
+          
+      -- when (id == "Data.List.map") $ liftIO $ printf "id: %s (%s)\n" id (show schema) 
+      -- guard ( id == "GHC.List.map" || "Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
+      -- liftIO $ putStrLn $ "matched! " ++ id
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema
 
