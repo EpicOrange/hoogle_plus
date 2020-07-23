@@ -195,7 +195,7 @@ dfs env messageChan quota goalType
 
     -- collect all the component types (which we might use to fill the holes)
     component <- choices $ Map.toList (env ^. symbols)
-    
+
     -- stream of components that unify with goal type
     (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
     
@@ -247,6 +247,26 @@ data Environment = Environment {
   _queryCandidates :: Map RSchema [Example]
   } deriving(Generic)
 
+query: [Int] -> (Int -> Bool) -> [Int]
+arg0 :: [Int]
+arg1 :: (Int -> Bool)
+   |
+18 | ghcCheckedFunction = \arg0 arg1 -> (\_ -> Data.Function.fix arg1) $ arg0
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<interactive>:1:16: error:
+    • Couldn't match expected type ‘[a1] -> [a1]’
+                  with actual type ‘Bool’
+    • The first argument of ($) takes one argument,
+      but its type ‘Bool’ has none
+      In the expression: (fix arg1) $ arg0
+      In the expression:
+          (\ arg0 arg1 -> (fix arg1) $ arg0) :: [a] -> ((a -> Bool)) -> [a]
+    • Relevant bindings include
+        arg1 :: a1 -> Bool (bound at <interactive>:1:8)
+        arg0 :: [a1] (bound at <interactive>:1:3)
+
+
+
 -}
         -- do basically this:
         -- dfsstuff0 <- dfs ... arg0 (quota - 1) :: RProgram
@@ -294,12 +314,22 @@ data Environment = Environment {
 
                     -- liftIO $ print $ env' ^. arguments
                     return $ (env', destinationType)
-                  program <- dfs newEnv messageChan quota' (shape newQuery)
-
+                  body <- dfs newEnv messageChan quota' (shape newQuery)
+                  let newArgs = Map.toList (Map.difference (newEnv ^. arguments) (env ^. arguments)) :: [(Id, RSchema)]
                   -- guard (filter)
                   -- liftIO $ printf "id %s, program: %s\n" id (show program)
                   -- todo: add in the arguments to program
                   -- return undefined
+                  let foo (id',t') body'@(Program _ bodyType) =
+                        Program { 
+                          content = PFun id' body', 
+                          typeOf = FunctionT id' (toMonotype t') (bodyType)
+                        }
+                  let program = foldr foo body newArgs
+                  -- liftIO $ printf "weird program; $"
+                  -- expected: arg0:[Int] -> arg1:(Int -> Bool) -> [Int]
+                  -- should give: GHC.List.filter (\arg2 -> arg1 arg2) arg0
+                  -- return (quota' - sizeOf body, programs ++ [program])
                   return (quota' - sizeOf program, programs ++ [program])
                   -- call dfs with newEnv
                 else do
@@ -328,9 +358,10 @@ data Environment = Environment {
     --  returns updated schema w/ sub if unifies 
     getUnifiedComponent :: (Id, RSchema) -> TopDownSolver IO (Id, SType)
     getUnifiedComponent (id, schema) = do
-      
+                        -- should give: length (GHC.List.filter (\arg2 -> arg1 arg2) arg0)
+      -- \xs f -> Data.List.head (Data.List.filter f xs)
       -- when (id == "Data.Function.fix") $ liftIO $ printf "id: %s (%s)\n" id (show schema) 
-
+      guard (id == "GHC.List.filter" || id == "GHC.List.head" || "arg" `isPrefixOf` id )
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema
 
