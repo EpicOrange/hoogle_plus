@@ -1,61 +1,65 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Synthesize(synthesize, envToGoal) where
+module TopDown.Synthesize(synthesize, envToGoal, syn, syn', sizeOf) where
 
-import Database.Environment
-import Database.Util
-import qualified HooglePlus.Abstraction as Abstraction
-import PetriNet.PNSolver
 import HooglePlus.TypeChecker
 import HooglePlus.GHCChecker (check)
 import Synquid.Error
-import Synquid.Logic
 import Synquid.Parser
 import Synquid.Pretty
 import Synquid.Program
 import Synquid.Resolver
 import Synquid.Type
-import Synquid.Util
-import Types.CheckMonad
 import Types.Common
 import Types.Environment
 import Types.Experiments
 import Types.Filtering
 import Types.Program
-import Types.Solver
 import Types.TypeChecker
 import Types.Type
 import Types.IOFormat
 import HooglePlus.Utils
 import HooglePlus.IOFormat
-import Examples.ExampleChecker
 import PetriNet.Util
 
-import Control.Applicative ((<$>))
-import Control.Concurrent.Chan
+import Control.Concurrent
 import Control.Exception
 import Control.Lens
 import Control.Monad
 import Control.Monad.Except
 import Control.Monad.Logic
-import Control.Monad.Reader
 import Control.Monad.State
-import Data.Either
 import Data.List
-import Data.List.Extra (nubOrdOn)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Data.Maybe
-import qualified Data.Set as Set
-import Data.Set (Set)
-import Data.Time.Clock
-import Data.Time.Format
-import System.CPUTime
-import System.Exit
 import Text.Parsec.Indent
 import Text.Parsec.Pos
 import Text.Printf (printf)
+
+-- a wrapper for synthesize that you can run from stack ghci
+-- usage: syn "Int -> Int"
+-- or:    program <- syn "Int -> Int"
+syn :: String -> IO RProgram
+syn inStr = syn' inStr []
+
+-- usage:
+-- :{
+-- syn' "(a -> b) -> (a -> c) -> a -> (b, c)" $ [
+--   [ (["\\x -> x + 1", "\\x -> x * 3", "3"], "(4, 9)")
+--   , (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")
+--   ]
+-- :}
+syn' :: String -> [([String], String)] -> IO RProgram
+syn' inStr ex = do
+  env' <- readEnv $ envPath defaultSynquidParams
+  env <- readBuiltinData defaultSynquidParams env'
+  goal <- envToGoal env inStr
+  solverChan <- newChan
+  let examples = map (uncurry Example) ex
+  synthesize' defaultSearchParams goal examples solverChan
+
 
 
 envToGoal :: Environment -> String -> IO Goal
@@ -91,6 +95,11 @@ envToGoal env queryStr = do
 
 synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
 synthesize searchParams goal examples messageChan = do
+  synthesize' searchParams goal examples messageChan
+  return ()
+
+synthesize' :: SearchParams -> Goal -> [Example] -> Chan Message -> IO RProgram
+synthesize' searchParams goal examples messageChan = do
     let rawEnv = gEnvironment goal
     -- printf "rawEnv: %s\n" (show $ rawEnv ^. symbols)
     let goalType = gSpec goal :: RSchema
@@ -130,74 +139,60 @@ synthesize searchParams goal examples messageChan = do
     -- ("(Data.Eq./=)_0'ho'",<a> . (@@hplusTC@@Eq (a) -> (a -> Fun (a) (Bool))))
     -- ("(Data.Eq./=)_1'ho'",<a> . (@@hplusTC@@Eq (a) -> Fun (a) ((Fun (a) (Bool)))))
     -- ("(Data.Eq./=)_2'ho'",<a> . Fun ((@@hplusTC@@Eq (a))) ((Fun (a) ((Fun (a) (Bool))))))
-    mapM print $ Map.toList $ envWithHo ^. symbols
+    -- mapM_ print $ Map.toList $ envWithHo ^. symbols
 
     putStrLn "\n=================="
     putStrLn "Starting!"
-    print $ Map.keys $ envWithHo ^. arguments
+    -- print $ Map.keys $ envWithHo ^. arguments
     putStrLn "=================="
 
     -- call dfs with iterativeDeepening
-    -- iterativeDeepening envWithHo messageChan searchParams examples goalType
+    program <- iterativeDeepening envWithHo messageChan searchParams examples goalType
 
     writeChan messageChan (MesgClose CSNormal)
-    return ()
+    return program
 
 
 type TopDownSolver m = StateT CheckerState (LogicT m)
 
 evalTopDownSolverList :: Monad m => Chan Message -> [TopDownSolver m a] -> m a
-evalTopDownSolverList messageChan m = do
+evalTopDownSolverList messageChan m =
   observeT $ msum $ map (`evalStateT` emptyChecker {_checkerChan = messageChan}) m
 
 -- 
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
-iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO ()
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan (map helper [1..20]) >> return ()
--- iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan (map helper [5..]) >> return ()
-  where
-    -- filters out type classes (@@type_class@@) so that numArgs can be correct when used
-    -- in filterParams
-    filterOutTypeClass :: [Id] -> [Id]
-    filterOutTypeClass xs = filter (not . \x -> "tc" `isPrefixOf` (show x)) xs
+iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [5..20]) $ \quota -> do
+  liftIO $ printf "running dfs on %s at size %d\n" (show goal) quota
 
+  let goalType = shape $ lastType $ toMonotype goal :: SType
+  solution <- dfs env messageChan quota goalType :: TopDownSolver IO RProgram
   
-    -- calls dfs at a certain depth and checks to see if there is a solution
-    helper :: Int -> TopDownSolver IO RProgram
-    helper quota = do
-      liftIO $ printf "running dfs on %s at size %d\n" (show goal) quota
+  -- check if the program has all the arguments that it should have (avoids calling check)
+  liftIO $ printf "size %d/%d solution: %s\n" (sizeOf solution) quota (show solution)
+  guard (filterParams solution env)
+  
+  -- call check on the program
+  liftIO $ printf "solution: %s\n" $ show solution
+  guard =<< liftIO (check' solution)
 
-      let goalType = shape $ lastType (toMonotype goal) :: SType
-      solution <- dfs env messageChan quota goalType :: TopDownSolver IO RProgram
-      
-      -- guard (isInfixOf "filter" (show solution))
-      liftIO $ printf "solution: %s\n" (show solution)
-      isChecked <- liftIO $ check' solution
-      guard isChecked -- gets the first valid program
-      return solution
-    -- fix :: (a->a) -> a
-    --        SType   a1 -> a2
-    -- arg1 :: a -> Bool
-    -- goal  is   Int
+  return solution
+  where
     -- wrapper for `check` function
     check' :: RProgram -> IO Bool
-    check' program
-      -- check if the program has all the arguments that it should have (avoids calling check)
-      | filterParams program env = do
-          -- liftIO $ printf "program: %s\n" $ show program
-          checkResult <- evalStateT (check env searchParams examples program goal messageChan) emptyFilterState
-          case checkResult of
-            Nothing  -> return False
-            Just exs -> do
-              out <- toOutput env program exs
-              printResult $ encodeWithPrefix out
-              return True
-      | otherwise = return False
+    check' program = do
+      checkResult <- check env searchParams examples program goal messageChan `evalStateT` emptyFilterState
+      case checkResult of
+        Nothing  -> return False
+        Just exs -> do
+          out <- toOutput env program exs
+          printResult $ encodeWithPrefix out
+          return True
 
 -- determines if the result has all the appropriate arguments
 filterParams :: RProgram -> Environment -> Bool
-filterParams program env = all (`isInfixOf` (show program)) $ Map.keys $ env ^. arguments
+filterParams program env = all (`isInfixOf` show program) $ Map.keys $ env ^. arguments
 
 --
 -- does DFS stuff, with max size of program given as a quota
@@ -208,12 +203,17 @@ dfs env messageChan quota goalType
   | otherwise  = do
 
     -- collect all the component types (which we might use to fill the holes)
-    component <- choices $ Map.toList (env ^. symbols)
+    -- component <- choices $ Map.toList (env ^. symbols)
+
+    -- daniel:
+    --   i reversed it so args come first and it's a bit faster for some tests.
+    --   it looks bad but it's great for testing
+    component <- choices $ reverse $ Map.toList (env ^. symbols)
 
     -- stream of components that unify with goal type
     (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
     
-    liftIO $ printf "goalType: %s, id: %s (%s)\n" (show goalType) id (show schema) 
+    -- liftIO $ printf "goalType: %s, id: %s (%s)\n" (show goalType) id (show schema) 
     -- stream of solutions to the (id, schema) returned from getUnifiedComponent
     if isGround schema
       then return Program { content = PSymbol id, typeOf = refineTop env schema }
@@ -229,63 +229,22 @@ dfs env messageChan quota goalType
         -- dfsstuff2 <- dfs ... arg2 (quota - 1 - sizeOf dfsstuff0 - sizeOf dfsstuff1) :: RProgram
         -- argsFilled = [dfsstuff0, dfsstuff1, dfsstuff2]
         let func :: (Int, [RProgram]) -> SType -> TopDownSolver IO (Int, [RProgram])
-            func (quota', programs) arg = do
+            func (quota', programs) arg =
               -- liftIO $ printf "\t* arg: %s\n" (show arg)
-              if (isFunctionType arg) -- arg is e.g. a -> Bool
+              if isFunctionType arg -- arg is e.g. a -> Bool
                 then do
-                  (newEnv, newQuery) <- do
-                    let monospec = refineTop env arg :: RType
-                    -- when (id == "Data.Function.fix") $ liftIO $ printf "id: %s (%s), arg: %s, monospec: %s\n" id (show schema) (show $ arg) (show $ monospec)
-                    -- liftIO $ printf "\t*** arg: %s, monospec: %s\n" (show schema) (show $ arg) (show $ monospec)
-
-                    -- let (env', monospec::RType) = updateEnvWithBoundTyVars polyspecquery env
-                    let (env', destinationType) = updateEnvWithSpecArgs monospec env
-                    -- difference :: Ord k => Map k a -> Map k b -> Map k a
-                    -- let newArgs = Map.difference (env' ^. arguments) (env ^. arguments)
-                    
-                    -- liftIO $ printf "symbols: %s\n" (show $ env' ^. symbols)
-                    -- liftIO $ printf "id: %s, arguments: %s\n" id (show $ env' ^. arguments)
-                    -- -- liftIO $ printf "newArgs: %s\n" (show newArgs)
-                    -- liftIO $ printf "destinationType: %s\n" (show destinationType)
-                    -- liftIO $ printf "arg: %s\n" (show arg)
-
-                    -- liftIO $ print $ env' ^. arguments
-                    return $ (env', destinationType)
+                  let newArgs = fnTypeArgs arg :: [(Id, SType)]
+                  let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
                   body <- dfs newEnv messageChan quota' (shape newQuery)
-                  let newArgs = Map.toList (Map.difference (newEnv ^. arguments) (env ^. arguments)) :: [(Id, RSchema)]
 
-
-                  -- try to eta reduce:
-                  -- if body looks like ((f b) c) d
-                  --  = PApp "f" [PSymbol "b", PSymbol "c", PSymbol "d"]
-                  -- and newArgs looks like [a,c,d]
-                  -- change them to look like
-                  --   body: f b
-                  --   newArgs: [a]
-
-                  -- daniel's attempt????
-                  -- let etareduce (Program (PApp id xs) t, args)
-                  --       | null xs              -> (PSymbol id, args)
-                  --       | last xs == last args -> etareduce (Program (PApp Id (init xs)) t) (init args)
-                  --     etareduce (prog, args) = (prog, args)
-                  -- let (body', newArgs') = etareduce (body, newArgs)
-                        
-
-
+                  -- construct the program itself
+                  let program = mkLambda newArgs body
+                  let quota'' = quota' - sizeOf program
+                  guard (quota >= 0)
+                  -- liftIO $ printf "newArgs: %s, body: %s\n" (show newArgs) (show body)
                   -- liftIO $ printf "id %s, program: %s\n" id (show program)
-                  -- todo: add in the arguments to program
-                  -- return undefined
-                  let foo (id',t') body'@(Program _ bodyType) =
-                        Program { 
-                          content = PFun id' body', 
-                          typeOf = FunctionT id' (toMonotype t') (bodyType)
-                        }
-                  let program = foldr foo body newArgs
-                  -- TODO eta reduce this result
 
-                  -- return (quota' - sizeOf body, programs ++ [program])
-                  return (quota' - sizeOf program, programs ++ [program])
-                  -- call dfs with newEnv
+                  return (quota'', programs ++ [program])
                 else do
                   program <- dfs env messageChan quota' arg
                   return (quota' - sizeOf program, programs ++ [program])
@@ -300,13 +259,38 @@ dfs env messageChan quota goalType
     isGround (FunctionT id arg0 arg1) = False
     isGround _ = True
     
+    -- turn a function type to a list of its arguments
+    fnTypeArgs :: SType -> [(Id, SType)]
+    fnTypeArgs (FunctionT id t body) = (id, t) : fnTypeArgs body
+    fnTypeArgs _ = []
+    
     -- converts [a] to a Logic a
     choices :: MonadPlus m => [a] -> m a
     choices = msum . map return
 
-    -- gets the size of a program, used for checking quota
-    sizeOf :: RProgram -> Int
-    sizeOf = length . words . show
+    -- build a lambda function given args and body
+    mkLambda :: [(Id, SType)] -> RProgram -> RProgram
+    mkLambda args body =
+      let (body', args') = etareduce (body, args)
+      in foldr addArg body' args'
+      where
+        -- remove unnecessary lambdas: (\arg1 -> arg0 arg1) becomes (arg0)
+        etareduce :: (RProgram, [(Id, SType)]) -> (RProgram, [(Id, SType)])
+        etareduce (Program (PApp id xs) t, args)
+          | not (null xs || null args),
+            (ps, Program (PSymbol p) _) <- (init xs, last xs),
+            (as, (a, _))                <- (init args, last args),
+            p == a
+          = etareduce (Program (PApp id ps) t, as)
+        etareduce p = p
+
+        -- add the given argument to body
+        addArg :: (Id, SType) -> RProgram -> RProgram
+        addArg (id',t') body''@(Program _ bodyType) =
+          Program { 
+            content = PFun id' body'', 
+            typeOf = FunctionT id' (refineTop env t') bodyType
+          }
 
     -- Given a component (id, schema) like ("length", <a>. [a] -> Int)
     --  returns updated schema w/ sub if unifies 
@@ -330,3 +314,17 @@ dfs env messageChan quota goalType
       
       guard checkResult
       return (id, stypeSubstitute sub (shape freshVars))
+
+-- gets the size of a program, used for checking quota
+sizeOf :: RProgram -> Int
+-- sizeOf = length . words . show
+sizeOf p =
+  case content p of
+    PSymbol _       -> 1
+    PApp _ ps       -> 1 + sum (map sizeOf ps)
+    PFun _ p1       -> 1 + sizeOf p1
+    PIf p1 p2 p3    -> sizeOf p1 + sizeOf p2 + sizeOf p3
+    PMatch p1 cases -> sizeOf p1 + sum (map (sizeOf . expr) cases)
+    PFix _ p1       -> sizeOf p1
+    PLet _ p1 p2    -> sizeOf p1 + sizeOf p2
+    _               -> 0
