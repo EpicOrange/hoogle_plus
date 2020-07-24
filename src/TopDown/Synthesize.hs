@@ -73,17 +73,6 @@ envToGoal env queryStr = do
       Pos _ (SynthesisGoal id uprog) -> do
         let Pos _ (FuncDecl _ sch) = funcDecl
         let goal = Goal id env sch uprog 3 $ initialPos "goal"
-
--- -- | Synthesis goal
--- data Goal = Goal {
---   gName :: Id,                  -- ^ Function name
---   gEnvironment :: Environment,  -- ^ Enclosing environment
---   gSpec :: RSchema,             -- ^ Specification
---   gImpl :: UProgram,            -- ^ Implementation template
---   gDepth :: Int,                -- ^ Maximum level of auxiliary goal nesting allowed inside this goal
---   gSourcePos :: SourcePos       -- ^ Source Position
--- } deriving (Eq, Ord)
-
         let spec = runExcept $ evalStateT (resolveSchema (gSpec goal)) (initResolverState { _environment = env })
         case spec of
           Right sp -> do
@@ -127,14 +116,6 @@ synthesize' searchParams goal examples messageChan = do
     --------------------------
 
     -- TODO this list still includes some 'ho stuff with Fun types, get rid of them!
-    -- ("GHC.List.head",<a> . ([a] -> a))
-    -- ("GHC.List.head_0'ho'",<a> . Fun (([a])) (a))
-    -- ("Data.Function.id",<a> . (a -> a))
-    -- ("Data.Function.id_0'ho'",<a> . Fun (a) (a))
-    -- ("Data.Either.Left",<b> . <a> . (a -> Either (a) (b)))
-    -- ("Data.Either.Left_0'ho'",<b> . <a> . Fun (a) ((Either (a) (b))))
-    -- ("Data.Either.Right",<b> . <a> . (b -> Either (a) (b)))
-    -- ("Data.Either.Right_0'ho'",<b> . <a> . Fun (b) ((Either (a) (b))))
     -- ("(Data.Eq./=)",<a> . (@@hplusTC@@Eq (a) -> (a -> (a -> Bool))))
     -- ("(Data.Eq./=)_0'ho'",<a> . (@@hplusTC@@Eq (a) -> (a -> Fun (a) (Bool))))
     -- ("(Data.Eq./=)_1'ho'",<a> . (@@hplusTC@@Eq (a) -> Fun (a) ((Fun (a) (Bool)))))
@@ -163,18 +144,18 @@ evalTopDownSolverList messageChan m =
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [5..20]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [1..20]) $ \quota -> do
   liftIO $ printf "running dfs on %s at size %d\n" (show goal) quota
 
   let goalType = shape $ lastType $ toMonotype goal :: SType
   solution <- dfs env messageChan quota goalType :: TopDownSolver IO RProgram
   
   -- check if the program has all the arguments that it should have (avoids calling check)
-  liftIO $ printf "size %d/%d solution: %s\n" (sizeOf solution) quota (show solution)
+  -- liftIO $ printf "size %d/%d solution: %s\n" (sizeOf solution) quota (show solution)
   guard (filterParams solution env)
   
   -- call check on the program
-  liftIO $ printf "solution: %s\n" $ show solution
+  liftIO $ printf "size %d/%d solution: %s\n" (sizeOf solution) quota (show solution)
   guard =<< liftIO (check' solution)
 
   return solution
@@ -203,13 +184,8 @@ dfs env messageChan quota goalType
   | otherwise  = do
 
     -- collect all the component types (which we might use to fill the holes)
-    -- component <- choices $ Map.toList (env ^. symbols)
-
-    -- daniel:
-    --   i reversed it so args come first and it's a bit faster for some tests.
-    --   it looks bad but it's great for testing
-    component <- choices $ reverse $ Map.toList (env ^. symbols)
-
+    component <- choices $ Map.toList (env ^. symbols)
+    
     -- stream of components that unify with goal type
     (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
     
@@ -240,7 +216,7 @@ dfs env messageChan quota goalType
                   -- construct the program itself
                   let program = mkLambda newArgs body
                   let quota'' = quota' - sizeOf program
-                  guard (quota >= 0)
+                  guard (quota'' >= 0)
                   -- liftIO $ printf "newArgs: %s, body: %s\n" (show newArgs) (show body)
                   -- liftIO $ printf "id %s, program: %s\n" id (show program)
 
@@ -299,7 +275,7 @@ dfs env messageChan quota goalType
           
       -- when (id == "Data.List.map") $ liftIO $ printf "id: %s (%s)\n" id (show schema) 
       -- guard ( id == "GHC.List.map" || "Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
-      -- liftIO $ putStrLn $ "matched! " ++ id
+      
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema
 
