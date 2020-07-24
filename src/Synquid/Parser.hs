@@ -127,13 +127,11 @@ fixIndex _ = -1
 fixArgName :: Int -> RType -> RType
 fixArgName _ typ = let (_, res) = fixArgName' ((fixIndex typ) + 1) typ in res
   where
-    fixArgName' idx (FunctionT x tArg tRes)
-      | x == "" = let
-          (idx'', tRes') = fixArgName' (idx + 1) tRes
-          in (idx'', FunctionT ("arg"++show idx) tArg tRes')
-      | otherwise = let
-          (idx'', tRes') = fixArgName' idx tRes
-          in (idx'', FunctionT x tArg tRes')
+    fixArgName' idx (FunctionT "" tArg tRes) = (idx'', FunctionT ("arg"++show idx) tArg' tRes')
+      where (idx',  tRes') = fixArgName' (idx + 1) tRes
+            (idx'', tArg') = fixArgName' (idx' + 1) tArg
+    fixArgName' idx (FunctionT x tArg tRes) = (idx'', FunctionT x tArg tRes')
+      where (idx'', tRes') = fixArgName' idx tRes
     fixArgName' idx t = (idx, t)
 
 parseDataDecl :: Parser BareDeclaration
