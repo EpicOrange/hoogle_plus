@@ -22,8 +22,11 @@ import Database.Generate
 import Database.Download
 import Database.Util
 import Synquid.Util (showme)
-import TopDown.Synthesize
--- import HooglePlus.Synthesize
+
+import HooglePlus.Synthesize
+-- import TopDown.Synthesize
+-- import BottomUp.Synthesize
+
 import HooglePlus.Stats
 import Types.Encoder
 import HooglePlus.GHCChecker
@@ -258,11 +261,17 @@ precomputeGraph opts = generateEnv opts >>= writeEnv (Types.Generate.envPath opt
 executeSearch :: SynquidParams -> SearchParams -> String -> IO ()
 executeSearch synquidParams searchParams inStr = catch (do
   let input = decodeInput (LB.pack inStr)
-  let tquery = query input
+  let tquery = query input -- Int -> Int -> Int ?????
+  -- printf "tquery: %s\n" (show tquery)
   let exquery = inExamples input
+  -- printf "exquery: %s\n" (show exquery)
   env' <- readEnv $ Types.Experiments.envPath synquidParams
+  -- printf "env': %s\n" (show $ env' ^. symbols)
   env <- readBuiltinData synquidParams env'
+  -- printf "env: %s\n" (show $ env ^. symbols)
+
   goal <- envToGoal env tquery
+
   solverChan <- newChan
   checkerChan <- newChan
   forkIO $ synthesize searchParams goal exquery solverChan

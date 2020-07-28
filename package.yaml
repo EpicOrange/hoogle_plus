@@ -20,6 +20,7 @@ ghc-options:
 - -A128m
 - -n2m
 - -RTS
+# - -fwarn-unused-imports
 
 dependencies:
 - aeson

@@ -184,10 +184,10 @@ antiUnification' t AnyT = return t
 antiUnification' t1@(ScalarT (TypeVarT _ id1) _) t2@(ScalarT (TypeVarT _ id2) _)
   | univTypeVarPrefix == head id1 = return $ vart_ id2
   | univTypeVarPrefix == head id2 = return $ vart_ id1
-  -- | otherwise = findWithDefaultAntiVariable t1 t2
+-- | otherwise = findWithDefaultAntiVariable t1 t2
 antiUnification' t1@(ScalarT (TypeVarT _ id) _) t
   | univTypeVarPrefix == head id = return t
-  -- | otherwise = findWithDefaultAntiVariable t1 t
+-- | otherwise = findWithDefaultAntiVariable t1 t
 antiUnification' t tv@(ScalarT (TypeVarT {}) _) = do
     swapAssignments
     result <- antiUnification' tv t

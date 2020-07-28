@@ -155,7 +155,7 @@ evalTopDownSolverList messageChan m =
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [5..20]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [1..20]) $ \quota -> do
   liftIO $ printf "running dfs on %s at size %d\n" (show goal) quota
 
   let goalType = shape $ lastType $ toMonotype goal :: SType
@@ -211,10 +211,6 @@ dfs env messageChan quota goalType
           -- collect all the component types (which we might use to fill the holes)
           component <- choices $ Map.toList (env ^. symbols)
 
-          -- make sure only $ unifies at quota >= 5
-          -- but allow anything at quota < 5
-          -- guard $ quota < 5 || fst component == "Data.Function.$"
-          
           -- stream of components that unify with goal type
           (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
           
@@ -302,6 +298,7 @@ dfs env messageChan quota goalType
 
     -- call dfs with b, with (a) as argument in env
     let program2 = do
+        -- mzero
           if isFunctionType goalType
             then do
               -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
@@ -319,8 +316,9 @@ dfs env messageChan quota goalType
             else do
               mzero
   
-    program <- program1 `interleave` program2
-    liftIO $ printf "goal: %s\t\tprogram: %s\n" (show goalType) (show program)
+    -- program <- program1 `interleave` program2
+    program <- program1
+    -- liftIO $ printf "goal: %s\t\tprogram: %s\n" (show goalType) (show program)
     return program
 
 
@@ -375,7 +373,7 @@ dfs env messageChan quota goalType
       -- guard ( id == "GHC.List.map" || "Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
       -- guard ("Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
       -- guard ( id == "GHC.List.foldr" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
-      guard ( id == "Data.Tuple.fst" || id == "Data.Tuple.snd" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
+      -- guard ( id == "Data.Tuple.fst" || id == "Data.Tuple.snd" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
 
       -- \arg0 ->
       --   (Data.Tuple.fst arg0 (Data.Tuple.snd arg0)) :: a -> b
@@ -398,9 +396,18 @@ dfs env messageChan quota goalType
       --                                          arg4))) arg1)) $ arg0
     --   (\arg2 -> GHC.List.foldr (\arg3 -> \arg4 -> arg1) arg1 arg2) $ arg0
       
+  --     - name: test
+  -- query: "Bool -> a -> Maybe a"
+  -- solution: "\\arg0 arg1 -> Data.Bool.bool Nothing (Just arg1) arg0"
+  -- source: "original"
+  -- example:
+  --   - inputs: ["True", "1"]
+  --     output: Just 1
+  --   - inputs: ["False", "2"]
+  --     output: Nothing
       
-      
-      
+-- syn' "Bool -> a -> Maybe a" [(["True", "1"], "Just 1"),( ["False", "2"], "Nothing")]
+
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema
 

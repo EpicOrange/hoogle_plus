@@ -13,7 +13,8 @@ from colorama import init, Fore, Back, Style
 
 HPLUS_CMD = ['stack', 'exec', '--', 'hplus'] # Command to call hoogle+
 TIMEOUT_CMD = 'timeout' # Timeout command
-TIMEOUT = 600 # Timeout value (seconds)
+TIMEOUT = 300 # Timeout value (seconds)
+# TIMEOUT = 10 # Timeout value (seconds)
 # TIMEOUT = 75 # Timeout value (seconds)
 # CMD_OPTS = ['--stop-refine', '--stop-threshold=10', '--solver-name=z3smt']
 CMD_OPTS = []
@@ -144,6 +145,12 @@ def load_queries():
     with open(DEFAULT_QUERY_FILE) as f:
         queries = yaml.full_load(f)
         for q in queries:
+            # blacklist = ["mapEither", "mapMaybes", "cartProduct", "multiAppPair", "map", "repl-funcs", "mbAppFirst", "2partApp", "resolveEither", "inverseMap", "pred-match", "splitStr", "firstMatch", "zipWithResult", "applyNtimes", "pipe", "applyPair"]
+            # if q['name'] in blacklist:
+            #     continue
+            # whitelist = ["singleList"]
+            # if q['name'] not in whitelist:
+            #     continue
             # print(q['name'])
             # print(json.dumps(q['example']))
             group_name = q['source']
@@ -181,6 +188,11 @@ if __name__ == '__main__':
                 run_benchmark(b.name, b.query, b.example, group.default_options)
                 with open(DUMPFILE, 'wb') as data_dump:
                     pickle.dump(results, data_dump)
+    # results.pop("head-rest", None)
+    # results.pop("pred-match", None)
+    # results.pop("indexesOf", None)
+    # with open(DUMPFILE, 'wb') as data_dump:
+    #     pickle.dump(results, data_dump)
 
     # Generate CSV
     write_csv()
