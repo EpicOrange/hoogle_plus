@@ -4,7 +4,8 @@
 
 module TopDown.Synthesize(synthesize, envToGoal, syn, syn', sizeOf) where
 
-import HooglePlus.TypeChecker
+-- import HooglePlus.TypeChecker
+import TopDown.TypeChecker
 import HooglePlus.GHCChecker (check)
 import Synquid.Error
 import Synquid.Parser
@@ -156,7 +157,7 @@ evalTopDownSolverList messageChan m =
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
 iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [1..20]) $ \quota -> do
-  liftIO $ printf "running dfs on %s at size %d\n" (show goal) quota
+  liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
 
   let goalType = shape $ lastType $ toMonotype goal :: SType
   solution <- dfs env messageChan quota goalType :: TopDownSolver IO RProgram
@@ -214,12 +215,20 @@ dfs env messageChan quota goalType
           -- stream of components that unify with goal type
           (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
           
-          -- liftIO $ printf "goalType: %s, id: %s (%s)\n" (show goalType) id (show schema) 
+          -- liftIO $ printf "-------\ngoalType: %s \t======> (%s \t%s)\n-------\n" (show goalType) id (show schema)
+
+          -- goalType: tau1 -> Maybe (a)     ======> (GHC.List.sum   @@hplusTC@@Num (tau1 -> Maybe (a)) -> [tau1 -> Maybe (a)] -> tau1 -> Maybe (a))
+          --  tau1 -> tau2
+          -- problem: tau1 (as a goal) will never unify with (a->b)
+          
           -- stream of solutions to the (id, schema) returned from getUnifiedComponent
           if isGround schema
             then return Program { content = PSymbol id, typeOf = refineTop env schema }
             else do
+
+              liftIO $ printf "goal: %s\tsplitting up args for function %s: %s\n" (show goalType) id (show schema)
               -- collect all the argument types (the holes ?? we need to fill)
+              -- let args = fnTypeArgs schema :: [(Id, SType)]
               let args = allArgTypes schema :: [SType]
               -- .$ unified
               -- args: [ (a -> b), b]
@@ -232,12 +241,30 @@ dfs env messageChan quota goalType
               -- argsFilled = [dfsstuff0, dfsstuff1, dfsstuff2]
               let func :: (Int, [RProgram]) -> SType -> TopDownSolver IO (Int, [RProgram])
                   func (quota', programs) arg = do
-                    program <- dfs env messageChan quota' arg
-                    return (quota' - sizeOf program, programs ++ [program])
+                    -- program <- dfs env messageChan quota' arg
+                    liftIO $ printf "\tdoing stuff for arg: %s\n" (show arg)
+                    if isFunctionType arg -- arg is e.g. a -> Bool
+                      then do
+                  --       -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
+                        let newArgs = fnTypeArgs arg :: [(Id, SType)]
+                        -- liftIO $ printf "newArgs: %s\n" (show newArgs)
 
+                        let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
+
+                        body <- dfs newEnv messageChan (quota' - (length newArgs)) (shape newQuery)
+                  --       -- arg: tau4 -> tau2, newArgs:  [("arg2",tau4)], newQuery: tau2
+                  --       -- construct the program itself
+                        let program = mkLambda newArgs body
+                        let quota'' = quota' - sizeOf program
+                        guard (quota'' >= 0)
+                        return (quota'', programs ++ [program]) 
+                        
                     -- liftIO $ printf "\t* arg: %s\n" (show arg)
-                    -- if isFunctionType arg -- arg is e.g. a -> Bool
-                      -- then do
+                      else do
+                        program <- dfs env messageChan quota' arg
+                        return (quota' - sizeOf program, programs ++ [program])
+
+                        -- return (quota' - sizeOf program, programs ++ [program])
                         
                         -- [("arg2",a)], a -> b -> c
                         -- when (isInfixOf "$" id) $ liftIO $ printf "(%s, %s) => arg: %s, newArgs: %s, newQuery: %s\n" id (show schema) (show arg) (show newArgs) (show newQuery)
@@ -258,20 +285,21 @@ dfs env messageChan quota goalType
                         
                         -- -- call dfs with b, with (a) as argument in env
                         -- let program2 = do
-                        --       -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
+                        -- --       -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
                         --       let newArgs = fnTypeArgs arg :: [(Id, SType)]
 
                         --       let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
 
                         --       body <- dfs newEnv messageChan quota' (shape newQuery)
-                        --       -- arg: tau4 -> tau2, newArgs:  [("arg2",tau4)], newQuery: tau2
-                        --       -- construct the program itself
+                        -- --       -- arg: tau4 -> tau2, newArgs:  [("arg2",tau4)], newQuery: tau2
+                        -- --       -- construct the program itself
                         --       let program = mkLambda newArgs body
                         --       let quota'' = quota' - sizeOf program
                         --       guard (quota'' >= 0)
                         --       return (quota'', program) :: TopDownSolver IO (Int, RProgram)
                         
                         -- (quota'', program) <- program1 `interleave` program2
+                        
                         -- return (quota'', programs ++ [program])
                         -- return undefined 
                         -------------------
@@ -293,34 +321,79 @@ dfs env messageChan quota goalType
 
               (_, argsFilled) <- foldM func (quota - 1, []) args :: TopDownSolver IO (Int, [RProgram])
 
+              -- when (id == "Data.Maybe.fromJust") $
+              --   liftIO $ printf "schema: %s\t\targ holes: %s\t\targs found: %s\n" (show schema) (show args) (show argsFilled) 
+                
+                
+                -- schema: Maybe (tau1 -> b) -> tau1 -> b          arg holes: [Maybe (tau1 -> b),tau1]             args found: [arg0,arg1]
+                -- schema: Maybe tau2 -> Tau2
+                -- sum :: Int -> (Int -> Int)
+                -- (\arg2 arg3 -> sum 1 2 )
+                
+                -- what we get rn: (\arg2 -> fromJust arg0 arg2) $ arg1
+                  -- ==================
+                  -- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 1
+                  -- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 2
+                  -- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 3
+                  -- goal: Maybe (tau1 -> b)         program: arg0
+                  -- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 4
+                  -- goal: Maybe (tau1 -> b)         program: arg0
+                  -- goal: tau1              program: arg1
+                  -- schema: Maybe (tau1 -> b) -> tau1 -> b          arg holes: [Maybe (tau1 -> b),tau1]             args found: [arg0,arg1]
+                  -- goal: tau1 -> b         program: Data.Maybe.fromJust arg0 arg1
+                  -- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 5
+                  -- goal: Maybe (tau1 -> b)         program: arg0
+                  -- goal: tau1              program: arg1
+                  -- schema: Maybe (tau1 -> b) -> tau1 -> b          arg holes: [Maybe (tau1 -> b),tau1]             args found: [arg0,arg1]
+                  -- goal: tau1 -> b         program: Data.Maybe.fromJust arg0 arg1
+                  -- goal: tau1              program: arg1
+                  -- goal: b         program: (Data.Maybe.fromJust arg0 arg1) $ arg1
+                  -- found... (Data.Maybe.fromJust arg0 arg1) $ arg1 
+
               return Program { content = PApp id argsFilled, typeOf = refineTop env schema } 
 
 
-    -- call dfs with b, with (a) as argument in env
-    let program2 = do
-        -- mzero
-          if isFunctionType goalType
-            then do
-              -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-              let newArgs = fnTypeArgs goalType :: [(Id, SType)]
+    -- -- call dfs with b, with (a) as argument in env
+    -- let program2 = do
+    --     -- mzero
+    --       if isFunctionType goalType
+    --         then do
+    --           -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
+    --           let newArgs = fnTypeArgs goalType :: [(Id, SType)]
 
-              let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env goalType) env :: (Environment, RType)
+    --           let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env goalType) env :: (Environment, RType)
 
-              body <- dfs newEnv messageChan quota (shape newQuery)
-              -- arg: tau4 -> tau2, newArgs:  [("arg2",tau4)], newQuery: tau2
-              -- construct the program itself
-              let program = mkLambda newArgs body
-              let quota' = quota - sizeOf program
-              guard (quota' >= 0)
-              return program
-            else do
-              mzero
+    --           body <- dfs newEnv messageChan (quota - 1) (shape newQuery)
+    --           -- arg: tau4 -> tau2, newArgs:  [("arg2",tau4)], newQuery: tau2
+    --           -- construct the program itself
+    --           let program = mkLambda newArgs body :: RProgram
+    --           let quota' = quota - sizeOf program
+    --           guard (quota' >= 0)
+
+    --           liftIO $ printf "newArgs: %s, body: %s\n" (show newArgs) (show body)
+    --           -- liftIO $ printf "id %s, program: %s\n" id (show program)
+
+    --           return program
+    --         else do
+    --           mzero
   
     -- program <- program1 `interleave` program2
     program <- program1
-    -- liftIO $ printf "goal: %s\t\tprogram: %s\n" (show goalType) (show program)
+    liftIO $ printf "goal: %s\t\tprogram: %s\n" (show goalType) (show program)
     return program
 
+
+-- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 9
+-- goal: Maybe (tau1 -> b)         program: arg0
+-- goal: tau1              program: arg1
+-- goal: tau1 -> b         program: Data.Maybe.fromJust arg0 arg1
+-- goal: tau1              program: arg1
+-- goal: b         program: (Data.Maybe.fromJust arg0 arg1) $ arg1
+-- found... (Data.Maybe.fromJust arg0 arg1) $ arg1 
+-- found... (\arg2 -> Data.Maybe.fromJust arg0 arg2) $ arg1 
+
+-- /tmp/ac8d8df2-4d1d-4f69-915d-8d96130fbe27.hs:16:36: error:
+--     • Occurs check: cannot construct the infinite type: b ~ a -> b
 
   where
     -- checks if a program is ground (has no more arguments to synthesize - aka function w/o args)
@@ -374,12 +447,59 @@ dfs env messageChan quota goalType
       -- guard ("Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
       -- guard ( id == "GHC.List.foldr" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
       -- guard ( id == "Data.Tuple.fst" || id == "Data.Tuple.snd" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
+      guard ( id == "Data.Maybe.fromJust" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
+
+-- goal: Maybe (Maybe (Maybe (b)))         program: arg2
+-- goal: Maybe (Maybe (b))         program: Data.Maybe.fromJust arg2
+-- goal: Maybe (b)         program: Data.Maybe.fromJust (Data.Maybe.fromJust arg2)
+-- goal: b         program: Data.Maybe.fromJust (Data.Maybe.fromJust (Data.Maybe.fromJust arg2))
+-- goal: b         program: 
+-- (\arg2 -> Data.Maybe.fromJust (Data.Maybe.fromJust (Data.Maybe.fromJust arg2))) $ arg2
+
+      {-
+        syn "arg0:Maybe (a -> b) -> arg1:a -> b"
+        (fromJust arg0) arg1
+
+                                            ?? :: b
+                              $ ?? :: (tau1 -> b) -> (?? :: a) -> b
+                                  /                           \
+              fromJust ?? :: Maybe (tau1 -> b) -> (a -> b)   arg1 :: a
+                              /
+                          arg0  :: Maybe (a -> b)
+
+
+        solution:       (Data.Maybe.fromJust arg0) $ arg1
+        we got:         (Data.Maybe.fromJust arg0 arg1) $ arg1
+        
+        
+        
+        overall goal: b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (b) -> b
+        overall goal: tau1 -> b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (tau1 -> b) -> tau1 -> b
+
+        their solution: (Data.Maybe.fromJust arg0) $ arg1
+        starting goal type: b
+        component: arg0     :: Maybe (a -> b)
+        component: fromJust :: Maybe tau1 -> tau1
+        component: $        :: (((tau1 -> tau2)) -> (tau1 -> tau2))
+
+        component: fromJust :: Maybe (tau1 -> tau2) -> (tau1 -> tau2)
+
+        currently, we only check this:
+          unified: fromJust :: Maybe b -> b
+        but really we wanna check this too:
+          unified: fromJust :: Maybe (tau1 -> b) -> (tau1 -> b)
+        
+      -}
+
 
       -- \arg0 ->
       --   (Data.Tuple.fst arg0 (Data.Tuple.snd arg0)) :: a -> b
       --   $
       --   (Data.Tuple.snd arg0) :: b
 
+      -- fst :: (a -> b, tau2) -> a -> b
+
+      -- 
 
       -- GHC.List.foldr (\acc x -> []) [] arg0
       -- \xs x -> Data.List.foldr ($) x xs
@@ -420,7 +540,13 @@ dfs env messageChan quota goalType
       let sub = st' ^. typeAssignment
       let checkResult = st' ^. isChecked
       
+      -- when ("$" `isInfixOf` id) $ liftIO $ printf "%s\n" (show freshVars) -- "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
+      -- when ("$" `isInfixOf` id && (show t2) == "b") $ liftIO $ printf "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
+      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\ngoalType: %s \t====> (%s \t%s) \t====> %s\n-------\n" (show goalType) id (show schema) (show checkResult)
+
       guard checkResult
+      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\noverall goal: %s\t component: %s (freshvars: %s) \t====> %s\n-------\n" (show t2) (show t1) (show freshVars) (show $ stypeSubstitute sub (shape freshVars))
+
       return (id, stypeSubstitute sub (shape freshVars))
 
 -- gets the size of a program, used for checking quota
@@ -436,3 +562,117 @@ sizeOf p =
     PFix _ p1       -> sizeOf p1
     PLet _ p1 p2    -> sizeOf p1 + sizeOf p2
     _               -> 0
+
+
+
+{-
+
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 3
+splitting up args for function (Data.Function.$): (tau1 -> b) -> tau1 -> b
+        doing stuff for arg: tau1 -> b
+splitting up args for function (Data.Function.$): (tau3 -> b) -> tau3 -> b
+        doing stuff for arg: tau3 -> b
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+goal: b         program: arg2
+        doing stuff for arg: tau1
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+splitting up args for function (Data.Function.$): (tau2 -> Maybe (b)) -> tau2 -> Maybe (b)
+        doing stuff for arg: tau2 -> Maybe (b)
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (b)) -> Maybe (b)
+        doing stuff for arg: Maybe (Maybe (b))
+splitting up args for function (Data.Function.$): (tau3 -> Maybe (Maybe (b))) -> tau3 -> Maybe (Maybe (b))
+        doing stuff for arg: tau3 -> Maybe (Maybe (b))
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (Maybe (b))) -> Maybe (Maybe (b))
+        doing stuff for arg: Maybe (Maybe (Maybe (b)))
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 4
+splitting up args for function (Data.Function.$): (tau1 -> b) -> tau1 -> b
+        doing stuff for arg: tau1 -> b
+splitting up args for function (Data.Function.$): (tau3 -> b) -> tau3 -> b
+        doing stuff for arg: tau3 -> b
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+splitting up args for function (Data.Function.$): (tau4 -> Maybe (b)) -> tau4 -> Maybe (b)
+        doing stuff for arg: tau4 -> Maybe (b)
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (b)) -> Maybe (b)
+        doing stuff for arg: Maybe (Maybe (b))
+goal: Maybe (b)         program: arg2
+goal: b         program: Data.Maybe.fromJust arg2
+        doing stuff for arg: tau1
+goal: b         program: arg2
+        doing stuff for arg: tau1
+splitting up args for function (Data.Function.$): (tau3 -> b) -> tau3 -> b
+        doing stuff for arg: tau3 -> b
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+splitting up args for function (Data.Function.$): (tau2 -> Maybe (b)) -> tau2 -> Maybe (b)
+        doing stuff for arg: tau2 -> Maybe (b)
+splitting up args for function (Data.Function.$): (tau4 -> Maybe (b)) -> tau4 -> Maybe (b)
+        doing stuff for arg: tau4 -> Maybe (b)
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (b)) -> Maybe (b)
+        doing stuff for arg: Maybe (Maybe (b))
+goal: Maybe (b)         program: arg2
+        doing stuff for arg: tau2
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (b)) -> Maybe (b)
+        doing stuff for arg: Maybe (Maybe (b))
+splitting up args for function (Data.Function.$): (tau3 -> Maybe (Maybe (b))) -> tau3 -> Maybe (Maybe (b))
+        doing stuff for arg: tau3 -> Maybe (Maybe (b))
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (Maybe (b))) -> Maybe (Maybe (b))
+        doing stuff for arg: Maybe (Maybe (Maybe (b)))
+splitting up args for function (Data.Function.$): (tau4 -> Maybe (Maybe (Maybe (b)))) -> tau4 -> Maybe (Maybe (Maybe (b)))
+        doing stuff for arg: tau4 -> Maybe (Maybe (Maybe (b)))
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (Maybe (Maybe (b)))) -> Maybe (Maybe (Maybe (b)))
+        doing stuff for arg: Maybe (Maybe (Maybe (Maybe (b))))
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 5
+splitting up args for function (Data.Function.$): (tau1 -> b) -> tau1 -> b
+        doing stuff for arg: tau1 -> b
+splitting up args for function (Data.Function.$): (tau3 -> b) -> tau3 -> b
+        doing stuff for arg: tau3 -> b
+splitting up args for function (Data.Function.$): (tau5 -> b) -> tau5 -> b
+        doing stuff for arg: tau5 -> b
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+goal: b         program: arg2
+        doing stuff for arg: tau3
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+splitting up args for function (Data.Function.$): (tau4 -> Maybe (b)) -> tau4 -> Maybe (b)
+        doing stuff for arg: tau4 -> Maybe (b)
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (b)) -> Maybe (b)
+        doing stuff for arg: Maybe (Maybe (b))
+splitting up args for function (Data.Function.$): (tau5 -> Maybe (Maybe (b))) -> tau5 -> Maybe (Maybe (b))
+        doing stuff for arg: tau5 -> Maybe (Maybe (b))
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (Maybe (b))) -> Maybe (Maybe (b))
+        doing stuff for arg: Maybe (Maybe (Maybe (b)))
+goal: Maybe (Maybe (b))         program: arg2
+goal: Maybe (b)         program: Data.Maybe.fromJust arg2
+goal: b         program: Data.Maybe.fromJust (Data.Maybe.fromJust arg2)
+        doing stuff for arg: tau1
+goal: Maybe (b)         program: arg2
+goal: b         program: Data.Maybe.fromJust arg2
+        doing stuff for arg: tau1
+splitting up args for function (Data.Function.$): (tau4 -> Maybe (b)) -> tau4 -> Maybe (b)
+        doing stuff for arg: tau4 -> Maybe (b)
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (b)) -> Maybe (b)
+        doing stuff for arg: Maybe (Maybe (b))
+goal: b         program: arg2
+        doing stuff for arg: tau1
+splitting up args for function (Data.Function.$): (tau3 -> b) -> tau3 -> b
+        doing stuff for arg: tau3 -> b
+splitting up args for function Data.Maybe.fromJust: Maybe (b) -> b
+        doing stuff for arg: Maybe (b)
+splitting up args for function (Data.Function.$): (tau4 -> Maybe (b)) -> tau4 -> Maybe (b)
+        doing stuff for arg: tau4 -> Maybe (b)
+splitting up args for function Data.Maybe.fromJust: Maybe (Maybe (b)) -> Maybe (b)
+        doing stuff for arg: Maybe (Maybe (b))
+
+
+
+
+-}
