@@ -27,7 +27,8 @@
       output: Just 1
     - inputs: ["False", "2"]
       output: Nothing
-
+# syn' "Bool -> a -> Maybe a" [(["True", "1"], "Just 1"), (["False", "2"], "Nothing")]
+# synO' "Bool -> a -> Maybe a" [(["True", "1"], "Just 1"), (["False", "2"], "Nothing")]
 # stack run -- hplus --json='{"query": "Bool -> a -> Maybe a", "inExamples": [{"inputs": ["True", "1"], "output":  "Just 1"}, {"inputs": ["False", "2"], "output":  "Nothing"}]}'
 
 - name: both

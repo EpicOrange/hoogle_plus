@@ -164,6 +164,10 @@ updateEnvWithSpecArgs :: RType -> Environment -> (Environment, RType)
 updateEnvWithSpecArgs ty@(ScalarT _ _) env = (env, ty)
 updateEnvWithSpecArgs (FunctionT x tArg tRes) env = updateEnvWithSpecArgs tRes $ addVariable x tArg $ addArgument x tArg env
 
+-- updateEnvWithSpecArgs' :: RType -> [(Id, SType)] -> Environment -> (Environment, RType)
+-- updateEnvWithSpecArgs' ty@(ScalarT _ _) xs env = (env, ty)
+-- updateEnvWithSpecArgs' (FunctionT x tArg tRes) (xArg:xs) env = updateEnvWithSpecArgs' tRes xs $ addVariable x tArg $ addArgument x tArg env
+
 preprocessEnvFromGoal :: Goal -> (Environment, RType)
 preprocessEnvFromGoal goal = updateEnvWithSpecArgs monospec env''
     where

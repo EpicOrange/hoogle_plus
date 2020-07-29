@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Synthesize(synthesize, envToGoal, syn, syn', sizeOf) where
+module TopDown.SynthesizeOutside(synthesize, envToGoal, synO, synO', sizeOf) where
 
 -- import HooglePlus.TypeChecker
 import TopDown.TypeChecker
@@ -42,8 +42,8 @@ import Text.Printf (printf)
 -- a wrapper for synthesize that you can run from `stack ghci`
 -- usage: syn "Int -> Int"
 -- or:    program <- syn "Int -> Int"
-syn :: String -> IO RProgram
-syn inStr = syn' inStr []
+synO :: String -> IO RProgram
+synO inStr = synO' inStr []
 
 -- usage:
 -- :{
@@ -52,8 +52,8 @@ syn inStr = syn' inStr []
 --   , (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")
 --   ]
 -- :}
-syn' :: String -> [([String], String)] -> IO RProgram
-syn' inStr ex = do
+synO' :: String -> [([String], String)] -> IO RProgram
+synO' inStr ex = do
   env' <- readEnv $ envPath defaultSynquidParams
   env <- readBuiltinData defaultSynquidParams env'
   goal <- envToGoal env inStr
@@ -156,7 +156,7 @@ evalTopDownSolverList messageChan m =
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [6]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [1..20]) $ \quota -> do
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
 
   let goalType = shape $ lastType $ toMonotype goal :: SType
@@ -165,7 +165,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   -- check if the program has all the arguments that it should have (avoids calling check)
   -- liftIO $ printf "size %d/%d solution: %s\n" (sizeOf solution) quota (show solution)
   
---   liftIO $ printf "found... %s \n" (show solution)
+  liftIO $ printf "found... %s \n" (show solution)
 
   guard (filterParams solution env)
   
@@ -198,66 +198,108 @@ dfs :: Environment -> Chan Message -> Int -> SType -> TopDownSolver IO RProgram
 dfs env messageChan quota goalType
   | quota <= 0 = mzero
   | otherwise  = do
-
-
-    -- stream of components that unify with goal type (which we might use to fill the holes)
-    component <- choices $ Map.toList (env ^. symbols)
-    when (quota == 6) $ guard ("$" `isInfixOf` fst component)
-    when (quota <= 5) $ guard (fst component == "Data.Maybe.fromJust" || "arg" `isPrefixOf` fst component)
-    
-    liftIO $ printf "!!!! quota %d, component is %s,\n" quota (show component)
-    (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
-
-    -- component is fromJust :: <a> . Maybe (a)->a
-    -- problem: this should unify to schema = Maybe (tau3->tau4)->tau3->tau4
-    -- but it only becomes Maybe (b) -> b
-
-    liftIO $ printf "!!!! quota %d, component is %s, unified to %s\n" quota (show component) (show schema)
+    -- liftIO $ printf "\tdfs'ing the following goal: %s\n" (show goalType)
+    when (isFunctionType goalType) $ liftIO $ printf "omg it's function type: %s \n" (show goalType)
 
     -- regular (a) goaltype
     let program1 = do
-          -- program <- dfs env messageChan quota' arg
-          -- let quota'' = quota' - sizeOf program
-          -- return (quota'', program) :: TopDownSolver IO (Int, RProgram)
-
           -- liftIO $ printf "goalType: %s\n" (show goalType)
-
+          -- stream of components that unify with goal type (which we might use to fill the holes)
+          component <- choices $ Map.toList (env ^. symbols)
           
+          -- replace type vars with 
+          (id, freshVars) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
+          -- if ("$" `isInfixOf` id) 
+          --   then liftIO $ printf "\tdoing stuff for: %s\n" id 
+          --   else liftIO $ printf "\tdoing stuff for ****** other\n" 
+          
+          st' <- get
+          let sub = st' ^. typeAssignment
+          let schema' = stypeSubstitute sub freshVars
+
           -- liftIO $ printf "-------\ngoalType: %s \t======> (%s \t%s)\n-------\n" (show goalType) id (show schema)
           
           -- stream of solutions to the (id, schema) returned from getUnifiedComponent
-          if isGround schema
-            then return Program { content = PSymbol id, typeOf = refineTop env schema }
+          if isGround schema'
+            then do
+              -- liftIO $ printf "heere\n"
+              return Program { content = PSymbol id, typeOf = refineTop env schema' }
             else do
 
-        --       liftIO $ printf "goal: %s\tsplitting up args for function %s: %s\n" (show goalType) id (show schema)
+              -- liftIO $ printf "heere2\n"
               -- collect all the argument types (the holes ?? we need to fill)
-              let args = allArgTypes schema :: [SType]
-              -- let args = namedArgTypes schema :: [(Id, SType)]
+              
+              -- TODO go through this and check if it's right
+              -- let args = allArgTypes schema' :: [SType]
+              -- Maybe (tau1) -> tau1
+              -- [(a->b)] -> (a->b)
+              -- args: [tau1]
+              let args = allArgTypes freshVars :: [SType]
+              -- liftIO $ printf "goal: %s\tsplitting up args for function %s: %s, args: %s\n" (show goalType) id (show schema') (show args)
+              -- liftIO $ printf "goal: %s\tsplitting up args for function %s: %s, args: %s\n" (show goalType) id (show freshVars) (show args)
+
+              -- let args = fnTypeArgs schema :: [(Id, SType)]
 
               let func :: (Int, [RProgram]) -> SType -> TopDownSolver IO (Int, [RProgram])
                   func (quota', programs) arg
-                    | not (isFunctionType arg) = do
-                        program <- dfs env messageChan quota' arg
+                    
+                    | not (isFunctionType arg) = do -- regular argument
+                        
+                        let typedArg = stypeSubstitute sub arg
+                        -- when ("$" `isInfixOf` id) $ liftIO $ printf "\tturning the following arg (%s) into (%s)\n" (show arg) (show typedArg)
+                        program <- dfs env messageChan quota' typedArg
                         return (quota' - sizeOf program, programs ++ [program])
+                    
                     | otherwise = do -- arg is e.g. a -> Bool
-                        -- we can do this in two ways
-                        -- either call dfs with arg as a goal directly,
-                        -- or introduce args into the env and then synthesize the return type as a lambda body
-                        let method1 = dfs newEnv messageChan quota' arg
-                        let method2 = do
-                          let newArgs = namedArgTypes arg :: [(Id, SType)]
-                          -- add these args as components
-                          let (newEnv, retType) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
-                          mkLambda newArgs <$> dfs newEnv messageChan quota' (shape retType)
-                        program <- method1 `interleave` method2
+                        let typedArg = stypeSubstitute sub arg
 
+                        -- liftIO $ printf "\tturning the following arg (%s) into (%s)\n" (show arg) (show typedArg)
+                        -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
+                        let newArgs = fnTypeArgs arg :: [(Id, SType)] -- [Maybe tau1]
+                        let newArgsTyped = map (\(id, schema) -> (id, stypeSubstitute sub schema)) newArgs :: [(Id, SType)]
+                        -- liftIO $ printf "newArgs: %s\n" (show newArgs)
+
+                        -- add these args as components
+                        -- TODO this is where the problem is bummer!!!! 
+                        -- TODO idea: rewrite this to not use updateEnvWithSpecArgs
+                        --   but instead manually do what updateEnvWithSpecArgs does
+                        --   and in the end, get newArgsTyped into the env
+                        --   (hint: look at:
+												--        addVariable x tArg $ addArgument x tArg env)
+                        
+                        -- Maybe (tau1) -> tau1
+                        
+                        let updateEnvWithSpecArgs' :: RType -> Environment -> (Environment, RType)
+														updateEnvWithSpecArgs' ty@(ScalarT _ _) env = (env, ty)
+														updateEnvWithSpecArgs' (FunctionT x tArg tRes) env = updateEnvWithSpecArgs' tRes $ addVariable x tArg $ addArgument x tArg env
+
+
+                        let (newEnv, newQuery) = updateEnvWithSpecArgs' (refineTop env typedArg) env :: (Environment, RType)
+                        
+                        let newSymbols = Map.toList $ newEnv ^. symbols
+
+                        let matchesIt :: Id -> [(Id, SType)] -> Bool
+                            matchesIt _  []          = False
+                            matchesIt id ((x, _):xs) = id == x || matchesIt id xs
+
+												let mapF :: (Id, RSchema) -> (Id, RSchema)
+													  mapF c@(id, schema) = if (matchesIt id newArgs) then (id, stypeSubstitute sub (shape schema))
+																																					  else c
+                        let newSymbols' = map filterF newSymbols
+                        
+                        -- arg: tau4 -> tau2, newArgs:  [("arg2",tau4)], newQuery: tau2
+                        body <- dfs newEnv messageChan (quota' - (length newArgs)) (shape newQuery)
+                        
+                        -- construct the program itself
+                        let program = mkLambda newArgs body
                         let quota'' = quota' - sizeOf program
                         guard (quota'' >= 0)
-                        return (quota'', programs ++ [program])
+                        return (quota'', programs ++ [program]) 
+                        
+                    -- liftIO $ printf "\t* arg: %s\n" (show arg)
 
               (_, argsFilled) <- foldM func (quota - 1, []) args :: TopDownSolver IO (Int, [RProgram])
-              return Program { content = PApp id argsFilled, typeOf = refineTop env schema } 
+              return Program { content = PApp id argsFilled, typeOf = refineTop env schema' } 
 
 
     -- call dfs with b, with (a) as argument in env
@@ -266,7 +308,7 @@ dfs env messageChan quota goalType
           if isFunctionType goalType
             then do
               -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-              let newArgs = namedArgTypes goalType :: [(Id, SType)]
+              let newArgs = fnTypeArgs goalType :: [(Id, SType)]
 
               let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env goalType) env :: (Environment, RType)
 
@@ -284,9 +326,9 @@ dfs env messageChan quota goalType
             else do
               mzero
   
-    program <- program1 `interleave` program2
-    -- program <- program1
---     liftIO $ printf "goal: %s\t\tprogram: %s\n" (show goalType) (show program)
+    -- program <- program1 `interleave` program2
+    program <- program1
+    -- liftIO $ printf "goal: %s\t\tprogram: %s\n" (show goalType) (show program)
     return program
 
   where
@@ -296,9 +338,9 @@ dfs env messageChan quota goalType
     isGround _ = True
     
     -- turn a function type to a list of its arguments
-    namedArgTypes :: SType -> [(Id, SType)]
-    namedArgTypes (FunctionT id t body) = (id, t) : namedArgTypes body
-    namedArgTypes _ = []
+    fnTypeArgs :: SType -> [(Id, SType)]
+    fnTypeArgs (FunctionT id t body) = (id, t) : fnTypeArgs body
+    fnTypeArgs _ = []
     
     -- converts [a] to a Logic a
     choices :: MonadPlus m => [a] -> m a
@@ -341,9 +383,54 @@ dfs env messageChan quota goalType
       -- guard ("Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
       -- guard ( id == "GHC.List.foldr" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
       -- guard ( id == "Data.Tuple.fst" || id == "Data.Tuple.snd" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
---       guard ( id == "Data.Maybe.fromJust" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
---       guard ( id == "Data.Maybe.Just" || id == "Data.Bool.bool"  || id == "Data.Maybe.Nothing" || "arg" `isPrefixOf` id )
+      guard ( id == "Data.Maybe.fromJust" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
+      -- guard ( id == "Data.Maybe.Just" || id == "Data.Bool.bool"  || id == "Data.Maybe.Nothing" || "arg" `isPrefixOf` id )
 
+
+
+      -- replaces "a" with "tau1"
+      freshVars <- freshType (env ^. boundTypeVars) schema :: TopDownSolver IO RType
+
+      let t1 = shape (lastType freshVars) :: SType
+      let t2 = goalType :: SType
+
+      solveTypeConstraint env t1 t2 :: TopDownSolver IO ()
+      st' <- get
+      
+    --   let sub = st' ^. typeAssignment
+      let checkResult = st' ^. isChecked
+      
+      -- when ("$" `isInfixOf` id) $ liftIO $ printf "%s\n" (show freshVars) -- "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
+      -- when ("$" `isInfixOf` id && (show t2) == "b") $ liftIO $ printf "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
+      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\ngoalType: %s \t====> (%s \t%s) \t====> %s\n-------\n" (show goalType) id (show schema) (show checkResult)
+
+      guard checkResult
+      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\noverall goal: %s\t component: %s (freshvars: %s) \t====> %s\n-------\n" (show t2) (show t1) (show freshVars) (show $ stypeSubstitute sub (shape freshVars))
+
+    --   return (id, stypeSubstitute sub (shape freshVars))
+      return (id, (shape freshVars))
+
+-- gets the size of a program, used for checking quota
+sizeOf :: RProgram -> Int
+-- sizeOf = length . words . show
+sizeOf p =
+  case content p of
+    PSymbol _       -> 1
+    PApp _ ps       -> 1 + sum (map sizeOf ps)
+    PFun _ p1       -> 1 + sizeOf p1
+    PIf p1 p2 p3    -> sizeOf p1 + sizeOf p2 + sizeOf p3
+    PMatch p1 cases -> sizeOf p1 + sum (map (sizeOf . expr) cases)
+    PFix _ p1       -> sizeOf p1
+    PLet _ p1 p2    -> sizeOf p1 + sizeOf p2
+    _               -> 0
+
+
+
+
+
+
+
+{-
 -- goal: Maybe (Maybe (Maybe (b)))         program: arg2
 -- goal: Maybe (Maybe (b))         program: Data.Maybe.fromJust arg2
 -- goal: Maybe (b)         program: Data.Maybe.fromJust (Data.Maybe.fromJust arg2)
@@ -388,50 +475,6 @@ dfs env messageChan quota goalType
         
       -}
 
-      -- replaces "a" with "tau1"
-      freshVars <- freshType (env ^. boundTypeVars) schema
-
-      let t1 = shape (lastType freshVars) :: SType
-      let t2 = goalType :: SType
-
-      solveTypeConstraint env t1 t2 :: TopDownSolver IO ()
-      st' <- get
-      
-      let sub = st' ^. typeAssignment
-      let checkResult = st' ^. isChecked
-      
-      -- when ("$" `isInfixOf` id) $ liftIO $ printf "%s\n" (show freshVars) -- "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
-      -- when ("$" `isInfixOf` id && (show t2) == "b") $ liftIO $ printf "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
-      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\ngoalType: %s \t====> (%s \t%s) \t====> %s\n-------\n" (show goalType) id (show schema) (show checkResult)
-
-      guard checkResult
-      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\noverall goal: %s\t component: %s (freshvars: %s) \t====> %s\n-------\n" (show t2) (show t1) (show freshVars) (show $ stypeSubstitute sub (shape freshVars))
-
-      return (id, stypeSubstitute sub (shape freshVars))
-
--- gets the size of a program, used for checking quota
-sizeOf :: RProgram -> Int
--- sizeOf = length . words . show
-sizeOf p =
-  case content p of
-    PSymbol _       -> 1
-    PApp _ ps       -> 1 + sum (map sizeOf ps)
-    PFun _ p1       -> 1 + sizeOf p1
-    PIf p1 p2 p3    -> sizeOf p1 + sizeOf p2 + sizeOf p3
-    PMatch p1 cases -> sizeOf p1 + sum (map (sizeOf . expr) cases)
-    PFix _ p1       -> sizeOf p1
-    PLet _ p1 p2    -> sizeOf p1 + sizeOf p2
-    _               -> 0
-
-
-
-
-
-
-
-{-
-
-
 --
 -- does DFS stuff, with max size of program given as a quota
 --
@@ -469,7 +512,7 @@ dfs env messageChan quota goalType
 
               liftIO $ printf "goal: %s\tsplitting up args for function %s: %s\n" (show goalType) id (show schema)
               -- collect all the argument types (the holes ?? we need to fill)
-              -- let args = namedArgTypes schema :: [(Id, SType)]
+              -- let args = fnTypeArgs schema :: [(Id, SType)]
               let args = allArgTypes schema :: [SType]
               -- .$ unified
               -- args: [ (a -> b), b]
@@ -487,7 +530,7 @@ dfs env messageChan quota goalType
                     if isFunctionType arg -- arg is e.g. a -> Bool
                       then do
                   --       -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-                        let newArgs = namedArgTypes arg :: [(Id, SType)]
+                        let newArgs = fnTypeArgs arg :: [(Id, SType)]
                         -- liftIO $ printf "newArgs: %s\n" (show newArgs)
 
                         let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
@@ -527,7 +570,7 @@ dfs env messageChan quota goalType
                         -- -- call dfs with b, with (a) as argument in env
                         -- let program2 = do
                         -- --       -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-                        --       let newArgs = namedArgTypes arg :: [(Id, SType)]
+                        --       let newArgs = fnTypeArgs arg :: [(Id, SType)]
 
                         --       let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
 
@@ -600,7 +643,7 @@ dfs env messageChan quota goalType
     --       if isFunctionType goalType
     --         then do
     --           -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-    --           let newArgs = namedArgTypes goalType :: [(Id, SType)]
+    --           let newArgs = fnTypeArgs goalType :: [(Id, SType)]
 
     --           let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env goalType) env :: (Environment, RType)
 
