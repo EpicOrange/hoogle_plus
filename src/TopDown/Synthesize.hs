@@ -128,17 +128,7 @@ synthesize' searchParams goal examples messageChan = do
 
     printf "Goal: %s\n" (show goal)
     putStrLn "=================="
-    -- syn "(Int -> Bool) -> ((Int -> Bool) -> Char) -> Char" 
-    -- expected: \arg0 arg1 -> arg1 arg0
--- - name: applyPair
---   query: "(a -> b, a) -> b"
---   solution: "\\arg0 -> (Data.Tuple.fst arg0) $ (Data.Tuple.snd arg0)"
---   source: "stackOverflow"
---   example:
---     - syn' "(a -> b, a) -> b" [(["(\\x -> x * x, 10)"], "100")]
---   goal is b, use $
---      a -> b
---      a
+
     -- call dfs with iterativeDeepening
     program <- iterativeDeepening envWithHo messageChan searchParams examples goalType
 
@@ -206,7 +196,7 @@ dfs env messageChan quota goalType
     
     -- when (quota >= 4) $ liftIO $ printf "!!!! quota %d, goal %s, component is %s,\n" quota (show goalType) (show component)
     (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
-    when (quota >= 4) $ liftIO $ printf "!!!! quota %d, goal %s, component is %s, unified to %s\n" quota (show goalType) (show component) (show schema)
+--     when (quota >= 4) $ liftIO $ printf "!!!! quota %d, goal %s, component is %s, unified to %s\n" quota (show goalType) (show component) (show schema)
 
     -- stream of solutions to the (id, schema) returned from getUnifiedComponent
     if isGround schema
@@ -224,20 +214,6 @@ dfs env messageChan quota goalType
               return (quota' - sizeOf program, programs ++ [program])
             fillArg (quota', programs) arg = do -- arg is a function type, e.g. a -> Bool
               let newArgs = namedArgTypes arg :: [(Id, SType)]
-              -- liftIO $ printf "  Calling method2 with arg %s, which has args %s\n" (show arg) (show newArgs)
-              -- add these args as components
-              -- tau1 -> tau1
-              -- tau1 => (a -> b -> c)
-              -- arg1:(a -> b -> c) -> (a -> b -> c)
-              -- newArgs = [ (a -> b -> c), a , b ]
-              -- newEnv [arg0:(a -> b -> c), arg1:  a, arg2: b]
-              -- goalType: (a -> b -> c) -> (a -> b -> c)
-              -- arg0 arg1 arg2
-
-              -- fromJust :: Maybe ((a->b)) -> (a -> b)
-              -- [tau1]
-              -- [(a -> b -> c)]
-            
               let (newEnv, _) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
 
               body <- dfs newEnv messageChan quota' arg -- call dfs with this function as a goal
@@ -267,23 +243,8 @@ dfs env messageChan quota goalType
 
     -- build a lambda function given args and body
     mkLambda :: [(Id, SType)] -> RProgram -> RProgram
-    mkLambda args body =
-      -- let (body', args') = etareduce (body, args)
-      -- in foldr addArg body' args'
-      foldr addArg body args
-
+    mkLambda args body = foldr addArg body args
       where
-        -- remove unnecessary lambdas: (\arg1 -> arg0 arg1) becomes (arg0)
-        -- TODO need to make sure arg1 not used anywhere else in body
-        etareduce :: (RProgram, [(Id, SType)]) -> (RProgram, [(Id, SType)])
-        etareduce (Program (PApp id xs) t, args)
-          | not (null xs || null args),
-            (ps, Program (PSymbol p) _) <- (init xs, last xs),
-            (as, (a, _))                <- (init args, last args),
-            p == a
-          = etareduce (Program (PApp id ps) t, as)
-        etareduce p = p
-
         -- add the given argument to body
         addArg :: (Id, SType) -> RProgram -> RProgram
         addArg (id',t') body''@(Program _ bodyType) =
@@ -293,66 +254,12 @@ dfs env messageChan quota goalType
           }
 
     -- Given a component (id, schema) like ("length", <a>. [a] -> Int)
-    --  returns updated schema w/ sub if unifies 
+    --  returns a reified version of schema (no type vars) w/ sub if unifies 
     getUnifiedComponent :: (Id, RSchema) -> TopDownSolver IO (Id, SType)
     getUnifiedComponent (id, schema) = do
-        --   \arg0 arg1 -> Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg1) arg0
-      -- when (id == "Data.List.map") $ liftIO $ printf "id: %s (%s)\n" id (show schema) 
-      -- guard ( id == "GHC.List.map" || "Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
-      -- guard ("Pair" `isInfixOf` id || "arg" `isPrefixOf` id )
-
       -- helper fn for guards
       let guardAll = guard . all (`isInfixOf` id) :: [String] -> TopDownSolver IO ()
       guardAll ["foldr", "$", "arg"]
-
-      guard ( id == "GHC.List.foldr" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
-      -- guard ( id == "Data.Tuple.fst" || id == "Data.Tuple.snd" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
---       guard ( id == "Data.Maybe.fromJust" || "$" `isInfixOf` id || "arg" `isPrefixOf` id )
---       guard ( id == "Data.Maybe.Just" || id == "Data.Bool.bool"  || id == "Data.Maybe.Nothing" || "arg" `isPrefixOf` id )
-
--- goal: Maybe (Maybe (Maybe (b)))         program: arg2
--- goal: Maybe (Maybe (b))         program: Data.Maybe.fromJust arg2
--- goal: Maybe (b)         program: Data.Maybe.fromJust (Data.Maybe.fromJust arg2)
--- goal: b         program: Data.Maybe.fromJust (Data.Maybe.fromJust (Data.Maybe.fromJust arg2))
--- goal: b         program: 
--- (\arg2 -> Data.Maybe.fromJust (Data.Maybe.fromJust (Data.Maybe.fromJust arg2))) $ arg2
-
-      {-
-        syn "arg0:Maybe (a -> b) -> arg1:a -> b"
-        (fromJust arg0) arg1
-
-                                            ?? :: b
-                                               \
-                              $ ?? :: (tau1 -> b) -> (?? :: a) -> b
-                                  /                           \
-              fromJust ?? :: Maybe (tau1 -> b) -> (a -> b)   arg1 :: a
-                              /
-                          arg0  :: Maybe (a -> b)
-
-
-        solution:       (Data.Maybe.fromJust arg0) $ arg1
-        we got:         (Data.Maybe.fromJust arg0 arg1) $ arg1
-        we prob want:   (\arg2 -> Data.Maybe.fromJust arg0 arg2) $ arg1
-        
-        
-        
-        overall goal: b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (b) -> b
-        overall goal: tau1 -> b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (tau1 -> b) -> tau1 -> b
-
-        their solution: (Data.Maybe.fromJust arg0) $ arg1
-        starting goal type: b
-        component: arg0     :: Maybe (a -> b)
-        component: fromJust :: Maybe tau1 -> tau1
-        component: $        :: (((tau1 -> tau2)) -> (tau1 -> tau2))
-
-        component: fromJust :: Maybe (tau1 -> tau2) -> (tau1 -> tau2)
-
-        currently, we only check this:
-          unified: fromJust :: Maybe b -> b
-        but really we wanna check this too:
-          unified: fromJust :: Maybe (tau1 -> b) -> (tau1 -> b)
-        
-      -}
 
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema
@@ -366,12 +273,9 @@ dfs env messageChan quota goalType
       let sub = st' ^. typeAssignment
       let checkResult = st' ^. isChecked
       
-      -- when ("$" `isInfixOf` id) $ liftIO $ printf "%s\n" (show freshVars) -- "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
-      -- when ("$" `isInfixOf` id && (show t2) == "b") $ liftIO $ printf "-------\nt1: %s\t t2: %s\t====> %s\n-------\n" (show t1) (show t2) (show checkResult)
-      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\ngoalType: %s \t====> (%s \t%s) \t====> %s\n-------\n" (show goalType) id (show schema) (show checkResult)
-
       guard checkResult
-      -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "-------\noverall goal: %s\t component: %s (freshvars: %s) \t====> %s\n-------\n" (show t2) (show t1) (show freshVars) (show $ stypeSubstitute sub (shape freshVars))
+      -- when ("fromJust" `isInfixOf` id) $
+        -- liftIO $ printf "-------\noverall goal: %s\t component: %s (freshvars: %s) \t====> %s\n-------\n" (show t2) (show t1) (show freshVars) (show $ stypeSubstitute sub (shape freshVars))
 
       return (id, stypeSubstitute sub (shape freshVars))
 
@@ -383,9 +287,11 @@ sizeOf p =
     PSymbol _       -> 1
     PApp _ ps       -> 1 + sum (map sizeOf ps)
     PFun _ p1       -> 1 + sizeOf p1
-    PIf p1 p2 p3    -> sizeOf p1 + sizeOf p2 + sizeOf p3
-    PMatch p1 cases -> sizeOf p1 + sum (map (sizeOf . expr) cases)
-    PFix _ p1       -> sizeOf p1
-    PLet _ p1 p2    -> sizeOf p1 + sizeOf p2
-    _               -> 0
+    _               -> error $ "sizeOf doesn't support this thing: " ++ (show p)
+    -- the rest aren't being synthesized
+--     PIf p1 p2 p3    -> sizeOf p1 + sizeOf p2 + sizeOf p3
+--     PMatch p1 cases -> sizeOf p1 + sum (map (sizeOf . expr) cases)
+--     PFix _ p1       -> sizeOf p1
+--     PLet _ p1 p2    -> sizeOf p1 + sizeOf p2
+--     _               -> 0
 
