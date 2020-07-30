@@ -243,18 +243,19 @@ dfs env messageChan quota goalType
                     | otherwise = do -- arg is e.g. a -> Bool
                         -- we can do this in two ways
                         -- either call dfs with arg as a goal directly,
-                        -- or introduce args into the env and then synthesize the return type as a lambda body
-                        let method1 = dfs newEnv messageChan quota' arg
-                        let method2 = do
-                          let newArgs = namedArgTypes arg :: [(Id, SType)]
-                          -- add these args as components
-                          let (newEnv, retType) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
-                          mkLambda newArgs <$> dfs newEnv messageChan quota' (shape retType)
-                        program <- method1 `interleave` method2
+                        -- -- or introduce args into the env and then synthesize the return type as a lambda body
+                        -- let method1 = dfs newEnv messageChan quota' arg
+                        -- let method2 = do
+                        --     let newArgs = namedArgTypes arg :: [(Id, SType)]
+                        --     -- add these args as components
+                        --     let (newEnv, retType) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
+                        --     mkLambda newArgs <$> dfs newEnv messageChan quota' (shape retType)
+                        -- program <- method1 `interleave` method2
 
-                        let quota'' = quota' - sizeOf program
-                        guard (quota'' >= 0)
-                        return (quota'', programs ++ [program])
+                        -- let quota'' = quota' - sizeOf program
+                        -- guard (quota'' >= 0)
+                        -- return (quota'', programs ++ [program])
+                        return undefined
 
               (_, argsFilled) <- foldM func (quota - 1, []) args :: TopDownSolver IO (Int, [RProgram])
               return Program { content = PApp id argsFilled, typeOf = refineTop env schema } 

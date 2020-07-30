@@ -126,6 +126,11 @@ synthesize' searchParams goal examples messageChan = do
     printf "Arguments: %s\n" (show $ envWithHo ^. arguments)
     let goal = shape $ lastType $ toMonotype goalType :: SType
 
+    -- let arg0Type = toMonotype $ (envWithHo ^. symbols) Map.! "arggggg0" :: RType
+    -- let (ScalarT (DatatypeT _ [fnType] _) _) = arg0Type
+    -- let (FunctionT arg0argname _ _) = fnType
+    -- printf "arg2????????: _%s_\n" arg0argname
+
     printf "Goal: %s\n" (show goal)
     putStrLn "=================="
     -- syn "(Int -> Bool) -> ((Int -> Bool) -> Char) -> Char" 
@@ -143,7 +148,8 @@ synthesize' searchParams goal examples messageChan = do
     program <- iterativeDeepening envWithHo messageChan searchParams examples goalType
 
     writeChan messageChan (MesgClose CSNormal)
-    return program
+    -- return program
+    return undefined
 
 
 type TopDownSolver m = StateT CheckerState (LogicT m)
@@ -235,10 +241,27 @@ dfs env messageChan quota goalType
               -- [(a->b)] -> (a->b)
               -- args: [tau1]
               let args = allArgTypes freshVars :: [SType]
+              when (id == "Data.Maybe.fromJust") $ do
+                let args = allArgTypes schema' :: [SType]   -- [tau]
+                liftIO $ printf "args: _%s_\n" (show args)
+                let (arg0Type:xs) = args
+                -- when fromJust unifies to be type Maybe ( arg2: tau1 -> b) -> tau1 -> b
+                -- i want the name of the tau1               ^
+                case arg0Type of
+                  (ScalarT (DatatypeT _ [fnType] _) _) -> do
+                    case fnType of
+                       (FunctionT arg0argname _ _) -> liftIO $ printf "arg2????????: _%s_\n" arg0argname
+                       _ -> return ()
+                  _ -> return ()
+
+              -- freshVars: [("arg0",arg2:tau5 -> tau4),("arg1",tau5)]
+              --- arg0:Maybe (arg2:a -> b) -> arg1:a -> b
+              liftIO $ printf "\t 0000: env has %s\n" (show $ Map.filterWithKey (\k v -> "arg" `isPrefixOf` k) $ env ^. symbols) 
+
               -- liftIO $ printf "goal: %s\tsplitting up args for function %s: %s, args: %s\n" (show goalType) id (show schema') (show args)
               -- liftIO $ printf "goal: %s\tsplitting up args for function %s: %s, args: %s\n" (show goalType) id (show freshVars) (show args)
 
-              -- let args = fnTypeArgs schema :: [(Id, SType)]
+              -- let args = namedArgTypes schema :: [(Id, SType)]
 
               let func :: (Int, [RProgram]) -> SType -> TopDownSolver IO (Int, [RProgram])
                   func (quota', programs) arg
@@ -253,11 +276,19 @@ dfs env messageChan quota goalType
                     | otherwise = do -- arg is e.g. a -> Bool
                         let typedArg = stypeSubstitute sub arg
 
+
+-- newEnv: [...("snd",<b> . <a> . ((a , b) -> b)),("fst",<b> . <a> . ((a , b) -> a)),("arg1",a),("arg0",Maybe (((a -> b)))),("Text.Show.showsPrec",<a> . (@@hplusTC@@Show (a) -> (Int -> (a -> ([Char] -> [Char])))))]
+
+
+
                         -- liftIO $ printf "\tturning the following arg (%s) into (%s)\n" (show arg) (show typedArg)
                         -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-                        let newArgs = fnTypeArgs arg :: [(Id, SType)] -- [Maybe tau1]
+                        -- liftIO $ printf "\tenv before has %s, newEnv has %s\n" (show $ filter ("arg" `isPrefixOf`) $ Map.keys $ env ^. symbols) (show $ filter ("arg" `isPrefixOf`) $ Map.keys $ newEnv ^. symbols)
+
+                        let newArgs = namedArgTypes arg :: [(Id, SType)] -- [Maybe tau1]
                         let newArgsTyped = map (\(id, schema) -> (id, stypeSubstitute sub schema)) newArgs :: [(Id, SType)]
-                        -- liftIO $ printf "newArgs: %s\n" (show newArgs)
+                        let newArgsTyped' = ("argblahhhhhhhhhhhh", ScalarT (DatatypeT "Bool" [] []) ()) : newArgsTyped
+                        let retType = stypeSubstitute sub $ lastType arg :: SType
 
                         -- add these args as components
                         -- TODO this is where the problem is bummer!!!! 
@@ -265,30 +296,41 @@ dfs env messageChan quota goalType
                         --   but instead manually do what updateEnvWithSpecArgs does
                         --   and in the end, get newArgsTyped into the env
                         --   (hint: look at:
-												--        addVariable x tArg $ addArgument x tArg env)
-                        
+                        --        addVariable x tArg $ addArgument x tArg env)
+
                         -- Maybe (tau1) -> tau1
+                        -- (Maybe( a -> b)) -> (a -> b) 
+                          -- newArgs: [("arg2",tau1)], newArgsTyped: [("arg2",tau1)], retType: tau0, arg: tau1 -> tau0, typedArg: tau1 -> b
+                          -- difference: fromList []
+                        -- let newEnv = foldr (\(x, t) env -> addArgument x (refineTop env t) env) env newArgsTyped
+                        let newEnv = foldr (\(x, t) env' -> addVariable x (refineTop env' t) env') env newArgsTyped'
+                        -- liftIO $ printf "\tnewArgs: %s, newArgsTyped: %s, retType: %s, arg: %s, typedArg: %s\n" (show newArgs) (show newArgsTyped) (show retType) (show arg) (show typedArg)
+                        -- liftIO $ printf "\tfreshVars: %s\n" (show $ namedArgTypes $ freshVars)
+                        -- liftIO $ printf "\tcontains symbols old: %s: %s\n" (show (take 1 newArgsTyped)) (show (Map.member (fst (newArgsTyped !! 0)) (env ^. symbols)))
+                        -- liftIO $ printf "\tcontains symbols new: %s: %s\n" (show (take 1 newArgsTyped)) (show (Map.member (fst (newArgsTyped !! 0)) (newEnv ^. symbols)))
+                        -- liftIO $ printf "\tcontains args: %s: %s\n" (show (take 1 newArgsTyped)) (show (Map.member (fst (newArgsTyped !! 0)) (newEnv ^. arguments)))
+                        -- liftIO $ printf "\tenv has %d things, newEnv has %d things\n" (Map.size $ env ^. arguments) (Map.size $ newEnv ^. arguments)
+                        liftIO $ printf "\tenv has %s, newEnv has %s\n" (show $ filter ("arg" `isPrefixOf`) $ Map.keys $ env ^. symbols) (show $ filter ("arg" `isPrefixOf`) $ Map.keys $ newEnv ^. symbols)
+                        -- liftIO $ printf "\tdifference: %s\n" (show $ Map.difference (newEnv ^. arguments) (env ^. arguments))
+
+                        -- let (newEnv, newQuery) = updateEnvWithSpecArgs' (refineTop env typedArg) env' :: (Environment, RType)
+        --                         newArgs: [("arg2",tau8)], newArgsTyped: [("arg2",tau8)], retType: Maybe (b), arg: tau8 -> tau7, typedArg: tau8 -> Maybe (b)
+        -- freshVars: [("arg0",tau8 -> tau7),("arg1",tau8)]
+        -- contains symbols: [("arg2",tau8)]: True
+        -- contains args: [("arg2",tau8)]: False
+        -- env has 2 things, newEnv has 2 things
+                        -- let newSymbols = Map.toList $ newEnv ^. symbols
+
+                        -- let matchesIt :: Id -> [(Id, SType)] -> Bool
+                        --     matchesIt _  []          = False
+                        --     matchesIt id ((x, _):xs) = id == x || matchesIt id xs
+
+                        -- let mapF :: (Id, RSchema) -> (Id, RSchema)
+                        --     mapF c@(id, schema) = if (matchesIt id newArgs) then (id, stypeSubstitute sub (shape schema))
+                        --                                                     else c
+                        -- let newSymbols' = map filterF newSymbols
                         
-                        let updateEnvWithSpecArgs' :: RType -> Environment -> (Environment, RType)
-														updateEnvWithSpecArgs' ty@(ScalarT _ _) env = (env, ty)
-														updateEnvWithSpecArgs' (FunctionT x tArg tRes) env = updateEnvWithSpecArgs' tRes $ addVariable x tArg $ addArgument x tArg env
-
-
-                        let (newEnv, newQuery) = updateEnvWithSpecArgs' (refineTop env typedArg) env :: (Environment, RType)
-                        
-                        let newSymbols = Map.toList $ newEnv ^. symbols
-
-                        let matchesIt :: Id -> [(Id, SType)] -> Bool
-                            matchesIt _  []          = False
-                            matchesIt id ((x, _):xs) = id == x || matchesIt id xs
-
-												let mapF :: (Id, RSchema) -> (Id, RSchema)
-													  mapF c@(id, schema) = if (matchesIt id newArgs) then (id, stypeSubstitute sub (shape schema))
-																																					  else c
-                        let newSymbols' = map filterF newSymbols
-                        
-                        -- arg: tau4 -> tau2, newArgs:  [("arg2",tau4)], newQuery: tau2
-                        body <- dfs newEnv messageChan (quota' - (length newArgs)) (shape newQuery)
+                        body <- dfs newEnv messageChan quota' retType
                         
                         -- construct the program itself
                         let program = mkLambda newArgs body
@@ -308,7 +350,7 @@ dfs env messageChan quota goalType
           if isFunctionType goalType
             then do
               -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-              let newArgs = fnTypeArgs goalType :: [(Id, SType)]
+              let newArgs = namedArgTypes goalType :: [(Id, SType)]
 
               let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env goalType) env :: (Environment, RType)
 
@@ -338,9 +380,9 @@ dfs env messageChan quota goalType
     isGround _ = True
     
     -- turn a function type to a list of its arguments
-    fnTypeArgs :: SType -> [(Id, SType)]
-    fnTypeArgs (FunctionT id t body) = (id, t) : fnTypeArgs body
-    fnTypeArgs _ = []
+    namedArgTypes :: SType -> [(Id, SType)]
+    namedArgTypes (FunctionT id t body) = (id, t) : namedArgTypes body
+    namedArgTypes _ = []
     
     -- converts [a] to a Logic a
     choices :: MonadPlus m => [a] -> m a
@@ -390,6 +432,8 @@ dfs env messageChan quota goalType
 
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema :: TopDownSolver IO RType
+
+
 
       let t1 = shape (lastType freshVars) :: SType
       let t2 = goalType :: SType
@@ -512,7 +556,7 @@ dfs env messageChan quota goalType
 
               liftIO $ printf "goal: %s\tsplitting up args for function %s: %s\n" (show goalType) id (show schema)
               -- collect all the argument types (the holes ?? we need to fill)
-              -- let args = fnTypeArgs schema :: [(Id, SType)]
+              -- let args = namedArgTypes schema :: [(Id, SType)]
               let args = allArgTypes schema :: [SType]
               -- .$ unified
               -- args: [ (a -> b), b]
@@ -530,7 +574,7 @@ dfs env messageChan quota goalType
                     if isFunctionType arg -- arg is e.g. a -> Bool
                       then do
                   --       -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-                        let newArgs = fnTypeArgs arg :: [(Id, SType)]
+                        let newArgs = namedArgTypes arg :: [(Id, SType)]
                         -- liftIO $ printf "newArgs: %s\n" (show newArgs)
 
                         let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
@@ -570,7 +614,7 @@ dfs env messageChan quota goalType
                         -- -- call dfs with b, with (a) as argument in env
                         -- let program2 = do
                         -- --       -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-                        --       let newArgs = fnTypeArgs arg :: [(Id, SType)]
+                        --       let newArgs = namedArgTypes arg :: [(Id, SType)]
 
                         --       let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
 
@@ -643,7 +687,7 @@ dfs env messageChan quota goalType
     --       if isFunctionType goalType
     --         then do
     --           -- turns (arg2:a -> arg3:b -> c) into [("arg2",a), ("arg3",b)]
-    --           let newArgs = fnTypeArgs goalType :: [(Id, SType)]
+    --           let newArgs = namedArgTypes goalType :: [(Id, SType)]
 
     --           let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env goalType) env :: (Environment, RType)
 
@@ -793,6 +837,183 @@ goal: Maybe (Maybe (b)) splitting up args for function Data.Maybe.fromJust: Mayb
         doing stuff for arg: Maybe (Maybe (Maybe (b)))
 goal: Maybe (Maybe (b))         program: arg2
 goal: Maybe (b)         program: Data.Maybe.fromJust arg2
+
+
+
+-}
+
+
+
+
+{-
+
+when unifying with fromJust :: <a> . Maybe a -> a
+tau1 -> b
+
+fromJust :: Maybe (tau1 -> b) -> tau1 -> b
+
+unify with arg0 :: Maybe (arg2:a -> b)
+
+
+
+==================
+Starting!
+Arguments: fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+Goal: b
+==================
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 1
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 2
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 3
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau2),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau2),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 4
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau2),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau2),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau2),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau2),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 5
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau7),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau7),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau6),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau6),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau6),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau6),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau4),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau5),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau1),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arg2","arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [("arg2",tau3),("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+         0000: env has fromList [("arggggg0",Maybe (((a -> b)))),("arggggg1",a)]
+        env has ["arggggg0","arggggg1"], newEnv has ["arg2","arggggg0","arggggg1"]
+         0000: env has fromList [^C("arggggg0",MInterrupted.
 
 
 
