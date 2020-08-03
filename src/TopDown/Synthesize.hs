@@ -148,7 +148,7 @@ evalTopDownSolverList messageChan m =
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [4]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [1..]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
   let goalType = shape $ lastType $ toMonotype goal :: SType
@@ -200,9 +200,9 @@ dfs env messageChan quota goalType
 
     -- stream of components that unify with goal type (which we might use to fill the holes)
     component <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
-    when (fst component == "arg1" && "a" == (show goalType)) $ liftIO $ printf "comparing (a) to %s\n" (show component)
+    -- when (fst component == "arg1" && "a" == (show goalType)) $ liftIO $ printf "comparing (a) to %s\n" (show component)
     -- when (quota == 6) $ guard ("$" `isInfixOf` fst component)
-    -- when (quota >= 4) $ liftIO $ printf "quota %d, at component: %s\n" quota (show component)
+    when (quota >= 3) $ liftIO $ printf "quota %d, at component: %s\n" quota (show component)
     -- when (quota <= 5) $ guard (fst component == "Data.Maybe.fromJust" || "arg" `isPrefixOf` fst component)
     
 -- arg1 in env is of type Just a
@@ -217,7 +217,7 @@ dfs env messageChan quota goalType
 
     -- when (quota >= 4) $ liftIO $ printf "!!!! quota %d, goal %s, component is %s,\n" quota (show goalType)
     (id, schema) <- getUnifiedComponent component :: TopDownSolver IO (Id, SType)
-    when (id == "arg1" && "a" == (show goalType)) $ liftIO $ printf "(a) unified with %s\n" (show id)
+    -- when (id == "arg1" && "a" == (show goalType)) $ liftIO $ printf "(a) unified with %s\n" (show id)
     -- when (quota >= 3) $ liftIO $ printf "!!!! quota %d, goal %s\n\tcomponent is %s\n\tunified to %s\n" quota (show goalType) (show component) (show schema)
     -- liftIO $ printf "goal %s, component is %s, unified to %s\n" (show goalType) (show component) (show schema)
 -- \arg0 -> (:) arg0 []
@@ -267,14 +267,14 @@ dfs env messageChan quota goalType
                   let sub = st'' ^. typeAssignment
 
                   let arg' = stypeSubstitute sub arg
-                  when ("$" `isInfixOf` id) $ liftIO $ printf "doing dfs on: %s\n\twith sub %s\n" (show arg') (show sub)
-                  when ("$" `isInfixOf` id) $ liftIO $ printf "arg1 in env is of type %s\n" (show $ Map.lookup "arg1" $ env ^. symbols)
+                  -- when ("$" `isInfixOf` id) $ liftIO $ printf "doing dfs on: %s\n\twith sub %s\n" (show arg') (show sub)
+                  -- when ("$" `isInfixOf` id) $ liftIO $ printf "arg1 in env is of type %s\n" (show $ Map.lookup "arg1" $ env ^. symbols)
 -- doing dfs on: tau1
 --         with sub fromList [("tau0",b),("tau1",a),("tau2",a -> b)]
                 
                   program <- dfs env messageChan quota arg'
                   let quota' = quota - sizeOf program
-                  when ("$" `isInfixOf` id) $ liftIO $ printf "before guard %s\n" (show program)
+                  -- when ("$" `isInfixOf` id) $ liftIO $ printf "before guard %s\n" (show program)
                   guard (quota' >= 0)
                   -- when ("$" `isInfixOf` id) $ liftIO $ printf "here2 %s\n" (show program)
 
@@ -283,13 +283,16 @@ dfs env messageChan quota goalType
                   -- if goal is tau1 -> b
                   -- and we fill args and find that the rest of the type is tau1 -> b
                   -- then return this as a partial application
+                  
+                  -- modify (\st' -> st' { _isChecked = True})
+                  modify $ set isChecked True
                   solveTypeConstraint env rest goalType :: TopDownSolver IO ()
                   -- solveTypeConstraint env goalType rest :: TopDownSolver IO ()
                   st' <- get
 
                   let checkResult = st' ^. isChecked
                   -- when ("fromJust" `isInfixOf` id) $ liftIO $ printf "unifying fromJust, rest :: %s, goal :: %s, result = %s\n" (show rest) (show goalType) (show checkResult)
-                  when ("$" `isInfixOf` id) $ liftIO $ printf "unifying $, rest :: %s, goal :: %s, result = %s\n" (show rest) (show goalType) (show checkResult)
+                  -- when ("$" `isInfixOf` id) $ liftIO $ printf "unifying $, rest :: %s, goal :: %s, result = %s\n" (show rest) (show goalType) (show checkResult)
                   
                   if checkResult 
                     -- if the rest unifies with goalType
@@ -297,9 +300,10 @@ dfs env messageChan quota goalType
 
                     -- if we need to unify further
                     else do
-                      when ("$" `isInfixOf` id) $ liftIO $ printf "fillArgs rest (%s) quota' (%s)\n" (show rest) (show quota')
+                      -- TODO need to reset isChecked?
+                      -- when ("$" `isInfixOf` id) $ liftIO $ printf "fillArgs rest (%s) quota' (%s)\n" (show rest) (show quota')
                       programs <- fillArgs rest quota'
-                      when ("$" `isInfixOf` id) $ liftIO $ printf "afterwards %s \n" (show programs)
+                      -- when ("$" `isInfixOf` id) $ liftIO $ printf "afterwards %s \n" (show programs)
                       return (program : programs)
         {-
        
@@ -432,12 +436,18 @@ full schema: (tau7 -> tau5 -> tau3 -> tau1 -> b) -> tau7 -> tau5 -> tau3 -> tau1
 
       let t1 = shape (lastType freshVars) :: SType
       let t2 = goalType :: SType
+      
+      modify $ set isChecked True
       solveTypeConstraint env t1 t2 :: TopDownSolver IO ()
+      
       st' <- get
 
 -- comparing (a) to ("arg1",a)
 -- shape (lastType freshVars): a, goalType: a, result: False
 -- doing dfs on: tau5 -> Maybe (Maybe (tau1 -> b))
+-- TODO WHAT
+-- try destructing the type? see if both a are the same?
+-- try even checking t1 == t2?
 
       let sub = st' ^. typeAssignment
       let checkResult = st' ^. isChecked
@@ -452,7 +462,7 @@ full schema: (tau7 -> tau5 -> tau3 -> tau1 -> b) -> tau7 -> tau5 -> tau3 -> tau1
 
 -- gets the size of a program, used for checking quota
 sizeOf :: RProgram -> Int
-sizeOf p = sizeOf' p -- + (sizeOfType $ typeOf p)
+sizeOf p = sizeOf' p + (sizeOfType $ typeOf p)
   where
     -- doesn't consider the size of the type
     sizeOf' :: RProgram -> Int

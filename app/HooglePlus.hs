@@ -24,8 +24,8 @@ import Database.Util
 import Synquid.Util (showme)
 
 -- import HooglePlus.Synthesize
--- import TopDown.Synthesize
-import TopDown.SynthesizeOutside
+import TopDown.Synthesize
+-- import TopDown.SynthesizeOutside
 -- import BottomUp.Synthesize
 
 import HooglePlus.Stats
