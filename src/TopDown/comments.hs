@@ -652,6 +652,8 @@ query 2: b (e-mode)
 
 * nothing in env has type that unifies entirely with b
 * split into two goals (3a and 3b)
+      alpha -> b      3a
+      alpha           3b
 
 query 3a: alpha -> b (e-mode)
 
@@ -660,7 +662,7 @@ query 3a: alpha -> b (e-mode)
 
 query 3b: alpha (i-mode)
 
-* now alpha maps to Maybe b (from query 3a)
+* now alpha maps to (Maybe b) (from query 3a)
 * not an arrow type, so switch to e-mode
 (e-mode)
 * nothing directly unifies
@@ -673,12 +675,14 @@ query 4a: (beta -> Maybe b) (e-mode)
 
 query 4b: beta (i-mode)
 
-* now beta maps to Maybe (Maybe b) (from query 4a)
+* now beta maps to (Maybe (Maybe b)) (from query 4a)
 * not an arrow type, so switch to e-mode
 (e-mode)
 
-==> this will continue forever, so at some point it stops because of reading size limit. 
+==> this will continue forever, so at some point it stops because of reaching size limit. 
 ==> go back to query 3a and restart with 2 new queries (5a and 5b)
+        beta -> (alpha -> b)      5a
+        beta                      5b
 
 query 5a: beta -> (alpha -> b) (e-mode)
 
@@ -981,10 +985,17 @@ PUTTING IT ALL TOGETHER:
 GOT OUR SOLUTION yay go team (!!!!!!) (!!!!!!!!!!!)
 
 
+map (\x -> map ((,) x) ys) xs
+map (flip map ys . (,)) xs
 
+\xs ys -> map (\x -> map ((,) x) ys) xs
 
+flip (map . flip (map . (,)))
 
+flip :: (a -> b -> c) -> b -> a -> c
+flip f x y = f y x
 
+(\x y -> f y x)
 
 ----------------------
 way 2: 
@@ -1116,5 +1127,592 @@ TODO work on this question
        each such variable, I create n new subgoals A1, ..., An. Now, each one of 
        those could be solved using I-mode or E-mode, depending on what you choose 
        for dimension 1.
+
+    e-mode above: 
+        - either find something that unifies with T
+        - split into 
+              alpha -> T
+              alpha
+
+    e-mode now:
+        - just check for components whose return type unifies with T
+        - make new subgoals for each argument of the components (or 
+          the part of the type that didn't unify with T)
+            => make (i-mode)
+        just give me all the variables of types A1 -> ... -> An -> R
+        - 
+
+
+
+
+
+
+
+
+
+      T :: (Int -> Bool)
+      f :: Bool -> Char -> R:(Int -> Bool)
+
+PREVIOUS:
+i-mode
+  * if function type
+        split up the args
+        add them to env
+        get new goal (i-mode)
+  * if not function type, go to e-mode
+e-mode
+  * if T in env, return that
+  * if T not in env
+      alpha -> T   (e-mode)
+      alpha        (i-mode)
+
+ALTERNATIVE:
+i-mode
+  * if function type
+        split up the args
+        add them to env
+        get new goal (i-mode)
+  * if not function type, go to e-mode
+e-mode
+  * if anything's return type unifies with T,
+        * create new goals based on the args
+        * return that comp + args
+  * else
+        * do $ stuff (have it unify with $ basically)
+
+----
+
+----
+
+These two different approaches to 2 seem to be equivalent, even without $, when 
+type vars cannot be instantiated with arrows. But when they can, then approach 
+2 seems less powerful, essentially because a goal types like beta -> alpha -> b  
+can unify with a component types like A -> gamma by substituting 
+beta := A, gamma := alpha -> b and you just don't get this unification 
+if you simply ask for a component whose return type unifies with b. You 
+might need its return type to unify with ... -> b! $ seems to restore this power, 
+but I'm afraid it's at the cost of a lot of redundancy (but that's why I want to 
+see these worked examples, to see if that's true)
+
+Hm, actually, I think I finally have a crisp description of why I don't like this 
+second approach in the a higher-order setting. Essentially you are saying 
+"give me all components whose return type unifies with the goal". But what does 
+"return type" mean? In a monomorphic or first-order setting it's clear: it's the 
+type after the last arrow. But in a fully higher-order polymorphic setting it's 
+not at all clear, because in the component's signature the type after the last 
+arrow can be a type variable, and this type variable can be substituted with an 
+arrow type, so the notion of "return type" isn't really well-defined. And that's 
+why I don't think this approach is a good fit for this setting. (But feel free to 
+argue with me!)
+
+
+------------------------
+new (e-mode) way:
+------------------------
+
+      T :: Maybe (a -> b) -> a -> b
+
+
+query 1: "arg0:Maybe (a -> b) -> arg1:a -> b" (i-mode)
+
+* add args to the environment. new env: 
+      arg0     :: Maybe (a->b)
+      arg1     :: a
+      fromJust :: <tau0> . Maybe tau0 -> tau0
+      $        :: <tau0> . <tau1> . (tau0 -> tau1) -> tau0 -> tau1
+
+query 2: b (e-mode) (part 1)
+
+* return type of fromJust (tau0) unifies with b
+      [b] fromJust :: Maybe b -> b
+* make the following new goals: 
+      Maybe b             3a (i-mode)
+
+query 3a: Maybe b (i-mode)
+
+* not a function type, switch to e-mode
+(e-mode)
+* return type of fromJust (tau0) unifies with (Maybe b)
+      [Maybe b] fromJust :: Maybe (Maybe b) -> (Maybe b)
+* make the following new goals: 
+      Maybe (Maybe b)             4a (i-mode)
+
+query 4a: Maybe (Maybe b) (i-mode)
+
+* not a function type, switch to e-mode
+(e-mode)
+* return type of fromJust (tau0) unifies with (Maybe b)
+      [Maybe b] fromJust :: Maybe (Maybe b) -> (Maybe b)
+* make the following new goals: 
+      Maybe (Maybe b)             4a (i-mode)
+
+===> this will continue on forever! or it will size out at some point
+===> go back to query 2 and look at the next component
+
+query 2: b (e-mode) (part 2)
+
+* return type of $ (tau3) unifies with b
+        [b] $        :: <tau2> . (tau2 -> b) -> tau2 -> b
+* maybe the following new goals: 
+    tau2 -> b       5a (i-mode)
+    tau2            5b (i-mode)
+
+query 5a: tau2 -> b (i-mode)
+
+* is a function type
+    * split up the args [tau2]
+    * add them to the env
+
+      arg0     :: Maybe (a->b)
+      arg1     :: a
+      arg2     :: tau2
+      fromJust :: <tau0> . Maybe tau0 -> tau0
+      $        :: <tau0> . <tau1> . (tau0 -> tau1) -> tau0 -> tau1
+    
+    * create new goal b (6)
+
+query 6: b    (i-mode)
+
+* not a function type
+* switch to (e-mode)
+(e-mode)
+* unifies with arg2
+        ==> this would lead to (\arg2 -> arg2) in 5a, which doesn't help anything
+* unifies with [b] fromJust :: Maybe b -> b
+        ==> this would lead to (\arg2 -> fromJust (?? :: Maybe b))
+* unifies with [b] $ :: <tau4> . (tau4 -> b) -> tau4 -> b
+        ==> this would lead to (\arg2 -> (?? :: tau4 -> b) $ (?? :: tau4))
+* create new goals:
+
+        tau4 -> b     (7a)
+        tau4          (7b)
+
+query 7a: tau4 -> b (i-mode)
+
+
+
+
+this will never be able to synthesize ([a -> b]fromJust). whenever we
+get the $ equivalent of splitting into goals alpha -> T and alpha, we
+are in i-mode (since alpha -> T is an argument to $, and the synquid way
+synthesizes arguments in i-mode). so the goal alpha -> T gets split
+immediately, putting alpha as a component in the environment and we are back
+to searching for T. meaning our goal is never alpha -> T, so we never get our
+([a -> T]fromJust).
+
+
+
+query 7b: tau4      (i-mode)
+
+
+
+query 5b: tau2 (i-mode)
+
+------------
+idea (might be wrong): - this way is bad because almost every query checks against the $
+      which leads to a lot of dumb enumeration
+      - whereas the alpha -> T and alpha way leads to controlling
+      when you use the $ functionality
+
+fromJust ??, fromJust (fromJust ??), fromJust (frommJust ?? $ ??), .....
+are all checked before
+fromJust ?? $ ??
+------------
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+
+
+
+### Example 2 - `arg0:[a] -> arg1:[b] -> [[(a,b)]]`
+
+Environment:
+```
+map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+```
+
+
+#### Way 1:
+
+**Query 1:** `[a] -> [b] -> [[(a,b)]]` (i-mode)
+
+* add args to the environment
+* new env: 
+```
+arg0 :: [a]
+arg1 :: [b]
+map  :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+(,)  :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+```
+
+* search for `[[(a,b)]]` in e-mode
+
+**Query 2:** `[[(a,b)]]` (e-mode)
+
+* nothing unifies with `[[(a,b)]]`
+* creates new goals:
+    * `alpha -> [[(a,b)]]`  (3a) (e-mode)
+    * `alpha `              (3b) (i-mode)
+      
+**Query 3a:** `alpha -> [[(a,b)]]` (e-mode)
+
+* nothing unifies
+* creates new goals: 
+
+    `beta -> (alpha -> [[(a,b)]])`   (4a) (e-mode)
+    `beta`                           (4b) (i-mode)
+
+**Query 4a:** `beta -> (alpha -> [[(a,b)]])` (e-mode)
+
+* `map` unifies with goal to 
+```
+[tau1 ==> [(a,b)]]
+map  :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+```
+  with
+```
+alpha ==> [tau0]
+beta  ==> (tau0 -> [(a,b)])
+```
+* return `map`
+
+
+**Query 4b:** beta (i-mode)
+
+* in 4a, `beta ==> (tau0 -> [(a,b)])`
+* split into arguments. new env: 
+```
+arg0 :: [a]
+arg1 :: [b]
+arg2 :: tau0
+map  :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+(,)  :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+```
+* find new goal `[(a,b)]`
+
+**Query 5:** `[(a,b)]` (i-mode)
+
+* not arrow type, switch to (e-mode)
+(e-mode)
+* `arg2` unifies 
+
+==> this would lead to `\arg2 -> arg2` in **Query 4**, which makes an identity function, `map (\arg2 -> arg2) :: [[(a,b)]] -> [[(a,b)]]`, in **Query 3** and we get no progress with the goal
+
+==> split it up into 2 goals instead since this failed
+* create new goals:
+
+    * `gamma -> [(a,b)]`   (6a) (e-mode)
+    * `gamma`              (6b) (i-mode)
+
+
+
+**Query 6a:** `gamma -> [(a,b)]` (e-mode)
+
+* `arg2` unifies
+
+==> this would lead to `\arg2 -> arg2` in Query 4, which makes an identity function, `map (\arg2 -> arg2) :: [gamma -> [(a,b)]] -> [gamma -> [(a,b)]]`, in Query 3 and turning the original goal from `[[(a,b)]]` to `[gamma -> [(a,b)]]` isn't progressing towards what we want (it will end up going down a rabbit hole that will eventually fail because of reaching too big a size)
+
+==> split it up into 2 goals instead since this failed
+* create new goals: 
+
+    * `delta -> gamma -> [(a,b)]`   (7a) (e-mode)
+    * `delta`                       (7b) (i-mode)
+    
+**Query 7a:** `delta -> gamma -> [(a,b)]`
+
+* `map` unifies with goal to 
+
+```
+[tau3 ==> (a,b)] 
+map  :: <tau2> . <tau3> . (tau2 -> tau3) -> [tau2] -> [tau3]
+```
+with
+```
+delta ==> tau2 -> (a,b)
+gamma ==> [tau2]
+```
+* return `map`
+
+**Query 7b:** `delta`
+
+* from 7a, `delta ==> tau2 -> (a,b)`
+* split up args and add to env. new env: 
+```
+arg0 :: [a]
+arg1 :: [b]
+arg2 :: tau0
+arg3 :: tau2
+map  :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+(,)  :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+```
+* new goal: `(a,b)` (i-mode)
+
+**Query 8:** `(a,b)` (i-mode)
+HERE darya
+* not arrow type, switch to (e-mode)
+(e-mode)
+* arg2 unifies
+      ==> this would lead to (\arg3 -> arg2) :: tau2 -> (a,b) in Query 7b,
+          which makes an identity function, map (\arg3 -> arg2) :: [tau2] -> [(a,b)], in Query 7a.
+          It would lead to something that looks like this: 
+
+            6a = map (\arg3 -> arg2) :: [tau2] -> [(a,b)]
+            6b = ?? :: gamma ~ [tau2]
+            6b = arg0 :: [a]
+            5 = map (\arg3 -> arg2) arg0 :: [(a,b)]
+
+            4a = map
+            4b = \arg2 -> map (\arg3 -> arg2) arg0 :: (a,b) -> [(a,b)]
+
+            3a = map (\arg2 -> map (\arg3 -> arg2) arg0)
+            3b = (?? :: beta ~ (a,b) -> [(a,b)])
+                  --> requries finding a program for [(a,b)]
+                  --> which we will do anyway in the happy path
+                  --> with far less size
+
+            2 = map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
+            1 = \arg0 arg1 -> map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
+
+          This will eventually either never find something, or get cut off because of size limitations.
+
+      ==> try next component in env
+* arg3 unifies
+      ==> this would lead to (\arg3 -> arg3), which will again not advance our goal 
+      ==> split it up into 2 goals instead since this failed
+* create new goals:
+
+    epsilon -> (a,b)     9a (e-mode)
+    epsilon              9b (i-mode)
+
+Query 9a: epsilon -> (a,b)    9a (e-mode)
+
+* arg2 and arg3 unify, but for similar reasons to above, will not progress the goal
+  so we can ignore these and keep going
+
+* create new goals: 
+
+      zeta -> epsilon -> (a,b)     10a (e-mode)
+      zeta                         10b (i-mode)
+
+Query 10a: zeta -> epsilon -> (a,b)    10a (e-mode)
+
+* unifies with (,) into
+    [tau4 ==> a, tau5 ==> b](,) <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
+    where
+      zeta ==> a
+      epsilon ==> b
+
+* Return (,)
+
+Query 10b: zeta                        10b (i-mode)
+
+* from 10a, zeta ==> a
+* no arrow, turn to (e-mode)
+(e-mode)
+* unifies with arg2 :: tau0
+return arg2
+
+
+Query 9b: epsilon             9b (i-mode)
+
+* from 10a, epsilon ==> b
+* no arrow, turn to (e-mode)
+(e-mode)
+* unifies with arg3 :: tau2
+return arg3
+
+
+
+Query 6b: gamma              6b (i-mode)
+
+* gamma ~ [b]
+* not arrow type, go to e-mode
+(e-mode)
+* unifies with arg1
+return arg1
+
+
+
+
+Query 3b: alpha (i-mode)
+
+* alpha ~ [a]
+* not arrow type, go to e-mode
+(e-mode)
+* unifies with arg0
+return arg0
+
+------------
+PUTTING IT ALL TOGETHER:
+------------
+
+10a = (,)
+10b = arg2
+9a = 10a 10b
+9a = (,) arg2
+9b = arg3
+8 = 9a 9b = ((,) arg2) arg3
+7b = \arg3 -> ((,) arg2) arg3
+7a = map
+6a = 7a 7b = map (\arg3 -> ((,) arg2) arg3)
+6b = gamma ~ [b] = arg1
+5 = 6a 6b = (map (\arg3 -> ((,) arg2) arg3)) arg1
+4b = \arg2 -> (map (\arg3 -> ((,) arg2) arg3)) arg1
+4a = map
+3a = 4a 4b = map (\arg2 -> (map (\arg3 -> ((,) arg2) arg3)) arg1)
+3b = alpha ~ [tau0] ~ [a] = arg0
+2 = 3a 3b = (map (\arg2 -> (map (\arg3 -> ((,) arg2) arg3)) arg1)) arg0
+1 = \arg0 arg1 -> (map (\arg2 -> (map (\arg3 -> ((,) arg2) arg3)) arg1)) arg0
+ 
+1 = \arg0 arg1 -> map (\arg2 -> map (\arg3 -> (arg2,arg3)) arg1) arg0
+
+GOT OUR SOLUTION yay go team (!!!!!!) (!!!!!!!!!!!)
+
+
+
+
+
+
+
+----------------------
+way 2: 
+
+--------
+- start in i mode (split args)
+- switch to e mode forever
+--------
+
+
+Query 1: "[a] -> [b] -> [[(a,b)]]" (i-mode)
+
+* add args to the environment. new env: 
+      arg0 :: [a]
+      arg1 :: [b]
+      map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+      ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+
+* search for [[(a,b)]] in e-mode
+
+Query 2: [[(a,b)]] (e-mode)
+
+* nothing unifies with [[(a,b)]]
+* creates new goals:
+      alpha -> [[(a,b)]]  3a
+      alpha               3b
+
+Query 3a: alpha -> [[(a,b)]] (e-mode)
+
+* nothing unifies
+* creates new goals: 
+
+    beta -> (alpha -> [[(a,b)]])   4a
+    beta                           4b
+
+
+Query 4a: beta -> (alpha -> [[(a,b)]]) (e-mode)
+
+* map unifies with goal to 
+    [tau1 ==> [(a,b)]] map  :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+  with
+    alpha ==> [tau0]
+    beta  ==> (tau0 -> [(a,b)])
+* return map
+
+Query 4b: beta (e-mode)
+
+* in 4a, beta ==> (tau0 -> [(a,b)])
+* nothing unifies
+* create new goals: 
+    gamma -> (tau0 -> [(a,b)])   5a
+    gamma                        5b
+    
+
+Query 5a: gamma -> tau0 -> [(a,b)] (e-mode)
+
+* map unifies with goal to 
+    [tau3 ==> (a,b)] map  :: <tau2> . <tau3> . (tau2 -> tau3) -> [tau2] -> [tau3]
+    tau0 ==> [tau2]
+  with
+    gamma ==> (tau2 -> (a,b))
+* return map
+
+Query 5b: gamma (e-mode)
+
+* from 5a, gamma ==> (tau2 -> (a,b))
+* nothing unifies, create 2 new goals
+    delta -> (tau2 -> (a,b))  6a
+    delta                     6b
+
+Query 6a: delta -> (tau2 -> (a,b)) (e-mode)
+
+* (,) unifies with goal to 
+      [tau4 ==> a, tau5 ==> b] <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
+    where
+      delta ==> a
+      tau2 ==> b
+* return (,)
+
+Query 6b: delta (e-mode)
+
+* from 6a, delta ==> a
+* nothing unifies with a
+* split into new goals: 
+
+      epsilon -> a   7a
+      epsilon        7b
+
+Query 7a: epsilon -> a (e-mode)
+
+* nothing unfies
+* split into new goals
+      zeta -> (epsilon -> a)   
+      zeta
+
+===> here, we are never going to get something that unifies with anything looking
+     like (T1 -> T2 -> ... -> Tn -> b)
+
+     => would need a lambda to split this up! otherwise, it won't ever be able to synthesize
+
+Query 7b: epsilon (e-mode)
+
+* WE FAILED A PREVIOUS STEP - WON'T GET HERE
+
+Query 3b: alpha (e-mode)
+
+* WE FAILED A PREVIOUS STEP - WON'T GET HERE
+
 
 -}
