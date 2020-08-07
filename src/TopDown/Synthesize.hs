@@ -194,20 +194,31 @@ dfsIMode env messageChan quota goalType
   | quota <= 0 = mzero
   | otherwise =
       case goalType of
+        
         ScalarT _ _     -> do
-          liftIO $ printf "\n------\nwe are actually here scalart!!!!! \n"
+          liftIO $ printf "\n------\nwe are actually here scalart!!!!! %s \n" (show goalType)
           dfsEMode env messageChan quota goalType 
-        FunctionT argName tArg tBody -> do
+        
+        FunctionT x tArg tBody -> do
+          -- TODO sometimes x is ""
+          let argName = if x == "" then "arrrrrrg" else x
+            
           -- add argument to new env and call dfsIMode with that new env
-          liftIO $ printf "\n------\nwe are here functiont!!!!! \n"
+          liftIO $ printf "\n------\nwe are here functiont!!!!! %s\n" (show goalType)
           let newEnv = addVariable argName tArg $ addArgument argName tArg env
-          liftIO $ printf "\t*** difference in env: %s\n" (show $ Map.difference (env ^. symbols) (newEnv ^. symbols))
-          -- TODO what should quota be ?????? 
+          liftIO $ printf "\t*** difference in env (tArg: %s): %s\n" (show tArg) (show $ Map.difference (newEnv ^. symbols) (env ^. symbols))
+
+-- we are here functiont!!!!! 
+--         *** difference in env: fromList [("",{b|False})]
+        
+          -- we're synthesizing the body for the lambda
+          -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
           body <- dfsIMode newEnv messageChan (quota - 1) tBody
           -- return \argName -> (dfs on tBody)
           let program = Program { content = PFun argName body, typeOf = goalType }
           guard (sizeOf program <= quota)
           return program
+        
         _ -> error "unsupported goalType for dfsIMode"
 
 
@@ -241,15 +252,13 @@ dfsEMode env messageChan quota goalType
 
     -- split goal into 2 goals: alpha -> T and alpha
     doSplit = do      
-      -- TODO need to freshType alpha so it turns into the same tau2 as schema
       let alpha' = ScalarT (TypeVarT Map.empty "alpha") ftrue :: RType
       let schema' = ForallT "alpha" $ Monotype $ FunctionT "myArg" alpha' goalType :: RSchema
       
-      -- reset the name counter so it generates the same tau
-      indices <- getNameCounter :: TopDownSolver IO (Map Id Int)
+      -- need to reset the name counter so it generates the same tau for each freshType call
+      nameCtr <- getNameCounter
       alpha <- freshType (env ^. boundTypeVars) (ForallT "alpha" $ Monotype $ alpha') :: TopDownSolver IO RType
-      setNameCounter indices
-      
+      setNameCounter nameCtr
       schema <- freshType (env ^. boundTypeVars) schema' :: TopDownSolver IO RType
 
       -- (?? :: T)     quota 5
@@ -257,37 +266,26 @@ dfsEMode env messageChan quota goalType
 
 
       liftIO $ printf "splitting (%s) up into: (%s) and (%s)\n" (show goalType) (show schema) (show alpha)
-      -- first split: 
-          {-
 
-                alpha -> (b,c)
-                beta -> alpha -> (b,c)
-          -}
-
-
-
+      -- we split (?? :: T) into (??::alpha -> T) (??::alpha)
+      -- since the second term should be at least size 1, subtract 1 from quota
+      -- TODO stop adding alphas so we don't get tau -> tau -> tau -> tau -> tau ....
+      --      no components unify with (tau -> tau -> tau -> tau -> tau) and up
+      --      since they all take max 3 arguments
       schemaProgram <- dfsEMode env messageChan (quota - 1) schema :: TopDownSolver IO RProgram
       let quota' = quota - sizeOf schemaProgram
+      
       st' <- get
       let sub = st' ^. typeAssignment
-      let alphaSub = stypeSubstitute sub (shape alpha)
+      let alphaSub' = stypeSubstitute sub (shape alpha) :: SType 
+      let alphaSub = (refineBot env alphaSub')
       liftIO $ printf "refined alpha into alphaSub = %s\n" (show alphaSub)
       
--- running dfs on <d> . <c> . <b> . <a> . (((((b -> (a -> c))) -> d)) -> (((a -> (b -> c))) -> d)) at size 7
--- splitting (d) up into: ((tau0 -> d)) and (tau0)
--- found    ((tau0 -> d)) --- arg0 
--- refined alpha into alphaSub = b -> a -> c
--- i-mode
--- a -> c
--- c
--- splitting (c) up into: ((tau1 -> c)) and (tau1)
--- splitting ((tau1 -> c)) up into: ((tau2 -> (tau1 -> c))) and (tau2)
--- found    ((tau2 -> (tau1 -> c))) --- arg1 
+      alphaProgram <- dfsIMode env messageChan (quota') alphaSub :: TopDownSolver IO RProgram
+      -- alphaProgram <- dfsIMode env messageChan (quota') alpha :: TopDownSolver IO RProgram
 
-      alphaProgram <- dfsIMode env messageChan (quota') (refineTop env alphaSub) :: TopDownSolver IO RProgram
-
-      -- TODO is this the way we want to be building up our programs? the parens are weird but technically still work 
       return Program {
+          -- TODO should we use $ to build up our programs? the parens are weird but technically still work 
           -- content = PApp "(Data.Function.$)" [schemaProgram, alphaProgram],
           content = case content schemaProgram of
                       PSymbol id -> PApp id [alphaProgram]
