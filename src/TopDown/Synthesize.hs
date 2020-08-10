@@ -152,7 +152,7 @@ evalTopDownSolverList messageChan m =
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [1..]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolverList messageChan $ (`map` [6..]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
   let goalType = lastType $ toMonotype goal :: RType
@@ -313,13 +313,16 @@ dfsEMode env messageChan quota goalType
       let guardExclude = guard . not . any (`isInfixOf` id) :: [String] -> TopDownSolver IO ()
       let guardInclude = guard . any (`isInfixOf` id) :: [String] -> TopDownSolver IO ()
       -- guardExclude ["List", "fix", "Data.Tuple"]
-      guardExclude ["Nothing", "[]", "Nil"]
+      -- guardExclude ["Nothing", "[]", "Nil"]
       -- guardInclude ["$", "arg", "fromJust"]
+      guardInclude ["head", "arg", "filter"]
       -- guardInclude ["arg"]
       -- guardInclude ["map", "Pair", "arg"]
 
       -- [a] -> (a -> Bool) -> a	
       -- \xs f -> Data.List.head (Data.List.filter f xs)
+      -- \arg0 arg1 -> Data.List.head (Data.List.filter (\arg2 -> arg1 arg2) arg0)
+      --                        filter ::     <a> . (a -> Bool) -> [a] -> [a]
 
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema
