@@ -132,6 +132,7 @@ synthesize' searchParams goal examples messageChan = do
     let goal = shape $ lastType $ toMonotype goalType :: SType
 
     printf "Goal: %s\n" (show goal)
+    mapM_ print (Map.keys $ envWithHo ^. symbols)
     putStrLn "=================="
 
     -- call dfs with iterativeDeepening
@@ -296,11 +297,11 @@ dfsEMode env messageChan quota goalType
     reorganizeSymbols :: [(Id, RSchema)]
     reorganizeSymbols = args ++ withoutDataFunctions -- ++ dataFunctions -- ++ dollar
       where
-        ogSymbols                             = Map.toList $ env ^. symbols
-        (dollar, withoutDollar)               = partition (("$" `isInfixOf`) . fst) ogSymbols
-        (_, withoutAnd)                       = partition (("&" `isInfixOf`) . fst) withoutDollar
-        (args, withoutArgs)                   = partition (("arg" `isInfixOf`) . fst) withoutAnd
-        (dataFunctions, withoutDataFunctions) = partition (("Data.Function" `isInfixOf`) . fst) withoutArgs
+        ogSymbols            = Map.toList $ env ^. symbols
+        -- (dollar, withoutDollar)               = partition (("$" `isInfixOf`) . fst) ogSymbols
+        -- (_, withoutAnd)                       = partition (("&" `isInfixOf`) . fst) withoutDollar
+        (args, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
+        withoutDataFunctions = snd $ partition (("Data.Function" `isInfixOf`) . fst) withoutArgs
 
     -- Given a component (id, schema) like ("length", <a>. [a] -> Int)
     --  returns a reified version of schema (no type vars) w/ sub if unifies 
@@ -312,10 +313,13 @@ dfsEMode env messageChan quota goalType
       let guardExclude = guard . not . any (`isInfixOf` id) :: [String] -> TopDownSolver IO ()
       let guardInclude = guard . any (`isInfixOf` id) :: [String] -> TopDownSolver IO ()
       -- guardExclude ["List", "fix", "Data.Tuple"]
-      -- guardExclude ["Nothing", "head", "last"]
+      guardExclude ["Nothing", "[]", "Nil"]
       -- guardInclude ["$", "arg", "fromJust"]
       -- guardInclude ["arg"]
       -- guardInclude ["map", "Pair", "arg"]
+
+      -- [a] -> (a -> Bool) -> a	
+      -- \xs f -> Data.List.head (Data.List.filter f xs)
 
       -- replaces "a" with "tau1"
       freshVars <- freshType (env ^. boundTypeVars) schema
