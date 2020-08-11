@@ -1,139 +1,605 @@
 {-
-
+(No answer.)
 > :r
-[53 of 54] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
-[54 of 54] Compiling Main             ( /home/hoogle_plus/app/HooglePlus.hs, interpreted ) [TH]
+[54 of 54] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
 Ok, 54 modules loaded.
-> syn "Eq a => [(a,b)] -> a -> Maybe b"
+> synGuard "Read a => String -> a" ["read"]
+read: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+rawSyns: fromList [("Text.Read.read",<a> . (@@hplusTC@@Read (a) -> (String -> a)))]
+Arguments: fromList [("arg0",[Char]),("tcarg0",@@hplusTC@@Read (a))]
 
-running dfs on <b> . <a> . (@@hplusTC@@Eq (a) -> ([(a , b)] -> (a -> Maybe (b)))) at size 5
-quota 5, (id, schema): arg0 :: [(a , b)]
-        t1: [(a , b)]
-        t2: Maybe (b)
-        into: [(a , b)]
-        checkResult: False
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 1
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
 
-quota 5, (id, schema): arg1 :: a
-        t1: a
-        t2: Maybe (b)
-        into: a
-        checkResult: False
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
 
-quota 5, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
-        t1: @@hplusTC@@Eq (a)
-        t2: Maybe (b)
-        into: @@hplusTC@@Eq (a)
-        checkResult: False
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
 
-quota 5, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
-        t1: @@hplusTC@@Eq (tau1) -> tau1 -> [(tau1 , tau0)] -> Maybe (tau0)
-        t2: Maybe (b)
-        into: @@hplusTC@@Eq (tau1) -> tau1 -> [(tau1 , tau0)] -> Maybe (tau0)
-        checkResult: False
 
-quota 4, (id, schema): arg0 :: [(a , b)]
-        t1: [(a , b)]
-        t2: tau0 -> Maybe (b)
-        into: [(a , b)]
-        checkResult: False
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 2
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
 
-quota 4, (id, schema): arg1 :: a
-        t1: a
-        t2: tau0 -> Maybe (b)
-        into: a
-        checkResult: False
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
 
-quota 4, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
-        t1: @@hplusTC@@Eq (a)
-        t2: tau0 -> Maybe (b)
-        into: @@hplusTC@@Eq (a)
-        checkResult: False
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
 
-quota 4, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
-        t1: @@hplusTC@@Eq (tau2) -> tau2 -> [(tau2 , tau1)] -> Maybe (tau1)
-        t2: tau0 -> Maybe (b)
-        into: @@hplusTC@@Eq (tau2) -> tau2 -> [(tau2 , tau1)] -> Maybe (tau1)
-        checkResult: False
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
 
-quota 3, (id, schema): arg0 :: [(a , b)]
-        t1: [(a , b)]
-        t2: tau1 -> tau0 -> Maybe (b)
-        into: [(a , b)]
-        checkResult: False
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
 
-quota 3, (id, schema): arg1 :: a
-        t1: a
-        t2: tau1 -> tau0 -> Maybe (b)
-        into: a
-        checkResult: False
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
 
-quota 3, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
-        t1: @@hplusTC@@Eq (a)
-        t2: tau1 -> tau0 -> Maybe (b)
-        into: @@hplusTC@@Eq (a)
-        checkResult: False
 
-quota 3, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
-        t1: @@hplusTC@@Eq (tau3) -> tau3 -> [(tau3 , tau2)] -> Maybe (tau2)
-        t2: tau1 -> tau0 -> Maybe (b)
-        into: @@hplusTC@@Eq (tau0) -> tau0 -> [(tau0 , tau2)] -> Maybe (tau2)
-        checkResult: False
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 3
+quota 3, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
 
-quota 2, (id, schema): arg0 :: [(a , b)]
-        t1: [(a , b)]
-        t2: tau2 -> tau1 -> tau0 -> Maybe (b)
-        into: [(a , b)]
-        checkResult: False
+quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
 
-quota 2, (id, schema): arg1 :: a
-        t1: a
-        t2: tau2 -> tau1 -> tau0 -> Maybe (b)
-        into: a
-        checkResult: False
+quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
 
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
-        t1: @@hplusTC@@Eq (a)
-        t2: tau2 -> tau1 -> tau0 -> Maybe (b)
-        into: @@hplusTC@@Eq (a)
-        checkResult: False
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
 
-quota 2, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
-        t1: @@hplusTC@@Eq (tau4) -> tau4 -> [(tau4 , tau3)] -> Maybe (tau3)
-        t2: tau2                 -> tau1 -> tau0            -> Maybe (b)
-        in: @@hplusTC@@Eq (tau1) -> tau1 -> [(tau1 , b)]    -> Maybe (b)
-        checkResult: False
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
 
-quota 1, (id, schema): arg0 :: [(a , b)]
-        t1: [(a , b)]
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
-        into: [(a , b)]
-        checkResult: False
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
 
-quota 1, (id, schema): arg1 :: a
-        t1: a
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
-        into: a
-        checkResult: False
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
 
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
-        t1: @@hplusTC@@Eq (a)
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
-        into: @@hplusTC@@Eq (a)
-        checkResult: False
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
 
-quota 1, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
-        t1: @@hplusTC@@Eq (tau5) -> tau5 -> [(tau5 , tau4)] -> Maybe (tau4)
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
-        into: @@hplusTC@@Eq (tau2) -> tau2 -> [(tau2 , tau4)] -> Maybe (tau4)
-        checkResult: False
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 4
+quota 4, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
+
+quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 3, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 5
+quota 5, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
+
+quota 5, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 5, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 4, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 3, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
 
 *** Exception: user error (No answer.)
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> :r
+Ok, 54 modules loaded.
+> synGuard "Read a => String -> a" ["read"]
+read: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+rawSyns: fromList [("Text.Read.read",<a> . (@@hplusTC@@Read (a) -> (String -> a)))]
+Arguments: fromList [("arg0",[Char]),("tcarg0",@@hplusTC@@Read (a))]
+
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 1
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 2
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
+
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 3
+quota 3, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
+
+quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 4
+quota 4, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
+
+quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 3, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+
+running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 5
+quota 5, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: a
+        into: [Char]
+        checks: False
+
+quota 5, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 5, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 4, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 3, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 2, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
+
+quota 1, (id, schema): arg0 :: [Char]
+        t1: [Char]
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
+        into: [Char]
+        checks: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
+        t1: @@hplusTC@@Read (a)
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a)
+        checks: False
+
+quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
+        t1: @@hplusTC@@Read (a) -> String -> a
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
+        into: @@hplusTC@@Read (a) -> String -> a
+        checks: False
 
 
 
 
 
 
+  let aType = ScalarT (DatatypeT "a" [] []) ftrue :: RType
+  let readAType = ScalarT (DatatypeT "@@hplusTC@@Read" [aType] []) ftrue :: RType
+  let strType = ScalarT (DatatypeT "String" [] []) ftrue :: RType
+  
+  let readComp = ForallT "a" $ Monotype $ FunctionT "" readAType (FunctionT "" strType aType) :: RSchema -- Read a => String -> a
+
+
+  -- let rawSyms = Map.insert "Text.Read.read" readComp $ Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
 
 
 

@@ -164,7 +164,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
 -- determines if the result has all the appropriate arguments
 filterParams :: RProgram -> Environment -> Bool
-filterParams program env = all (`isInfixOf` show program) $ Map.keys $ env ^. arguments
+filterParams program env = all (`isInfixOf` show program) $ filter (not . ("tcarg" `isInfixOf`) ) $ Map.keys $ env ^. arguments
 
 --
 -- does DFS in I-mode
@@ -212,6 +212,7 @@ dfsEMode env messageChan quota goalType
       guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` show prog
       guard $ not $ "GHC.List.head []" `isInfixOf` show prog
       guard $ not $ "GHC.List.last []" `isInfixOf` show prog
+      -- liftIO $ printf "(e-mode) found program: %s\n" (show prog)
       return prog
   where
 
@@ -288,6 +289,11 @@ dfsEMode env messageChan quota goalType
       -- lookup
       -- syn "Eq a => [(a,b)] -> a -> b"
       -- \xs k -> Data.Maybe.fromJust (Data.List.lookup k xs)
+
+      -- areEq
+      -- synGuard "Eq a => a -> a -> Maybe a" ["bool", "Nothing", "Just", "=="]
+      --	\x y -> bool Nothing (Just x) ((==) x y)      
+      -- Data.Bool.bool Data.Maybe.Nothing Data.Maybe.Nothing (arg0 == arg1)
       
       st' <- get
 
@@ -295,8 +301,8 @@ dfsEMode env messageChan quota goalType
       let checkResult = st' ^. isChecked
 
       let subbedType = stypeSubstitute sub (shape freshVars)
-      -- liftIO $ printf "quota %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\n"
-      --   quota id (show schema) (show t1) (show t2) (show $ subbedType)
+      -- liftIO $ printf "quota %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
+      --   quota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
       
       guard checkResult
 
@@ -330,6 +336,7 @@ dfsEMode env messageChan quota goalType
 
 hi zheng. we're running into an issue where we have to unify a component with a typeclass.
 like `lookup :: <a> . Eq a => a -> [(a, b)] -> Maybe b`
+with goal type `tau3 -> tau2 -> tau1 -> Maybe b`
 but `Eq a` doesn't unify with `tau3` because in `solveTypeConstraint`, a type class cannot unify with a type variable, based on the following code: 
 
 ```
@@ -337,9 +344,30 @@ solveTypeConstraint env tv@(ScalarT (TypeVarT _ id) _) (ScalarT (DatatypeT dt _ 
   | tyclassPrefix `isPrefixOf` dt = modify $ set isChecked False -- type class cannot unify with a type variable
 ```
 
+"@@hplusTCInstance@@8Eq"                    <a> . Eq Int -> Eq [Int]
+
+query: Eq a => [a] -> [a] -> Bool
+tcarg0 :: Eq a
+@@hplusTCInstance@@8Eq tcarg0  :: Eq [a]
+solution:  (==) (tcarg?? :: Eq [a]) arg0 arg1
+
 we commented out this part of the code, and now the query that was previously without solution has a solution. We tried to think about ways this might break the code, and so far we haven't come up with any. Thoughts?
 
 
+new program: Data.Either.rights (GHC.List.repeat (Data.Either.Left tcarg0))
+
+/tmp/febaac32-1df0-476a-a2ba-d7a02f50b7dd.hs:16:51: error:
+    • Couldn't match type ‘a0 -> Either a0 b0’ with ‘Either a1 Char’
+      Expected type: [Either a1 Char]
+        Actual type: [a0 -> Either a0 b0]
+    • In the first argument of ‘rights’, namely ‘(repeat (Left))’
+      In the expression: rights (repeat (Left))
+      In the expression: \ arg0 -> rights (repeat (Left))
+   |
+16 | ghcCheckedFunction = \arg0 -> Data.Either.rights (GHC.List.repeat (Data.Either.Left ))
+   |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   
 query: "Eq a => [(a,b)] -> a -> b"
   tcarg0   :: @@hplusTC@@Eq (a)
   arg0     :: [(a,b)]
