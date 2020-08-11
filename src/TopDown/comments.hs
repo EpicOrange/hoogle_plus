@@ -1,592 +1,246 @@
 {-
-(No answer.)
-> :r
-[54 of 54] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
-Ok, 54 modules loaded.
-> synGuard "Read a => String -> a" ["read"]
-read: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-rawSyns: fromList [("Text.Read.read",<a> . (@@hplusTC@@Read (a) -> (String -> a)))]
-Arguments: fromList [("arg0",[Char]),("tcarg0",@@hplusTC@@Read (a))]
 
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 1
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 2
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 3
-quota 3, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 4
-quota 4, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 3, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 5
-quota 5, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 5, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 5, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 4, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 3, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-*** Exception: user error (No answer.)
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> :r
-Ok, 54 modules loaded.
-> synGuard "Read a => String -> a" ["read"]
-read: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-rawSyns: fromList [("Text.Read.read",<a> . (@@hplusTC@@Read (a) -> (String -> a)))]
-Arguments: fromList [("arg0",[Char]),("tcarg0",@@hplusTC@@Read (a))]
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 1
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 2
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 3
-quota 3, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 4
-quota 4, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 3, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-
-running dfs on <a> . (@@hplusTC@@Read (a) -> ([Char] -> a)) at size 5
-quota 5, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: a
-        into: [Char]
-        checks: False
-
-quota 5, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 5, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 4, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 4, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 4, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 3, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 3, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 3, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 2, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 2, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 2, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
-quota 1, (id, schema): arg0 :: [Char]
-        t1: [Char]
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
-        into: [Char]
-        checks: False
-
-quota 1, (id, schema): tcarg0 :: @@hplusTC@@Read (a)
-        t1: @@hplusTC@@Read (a)
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a)
-        checks: False
-
-quota 1, (id, schema): Text.Read.read :: <a> . (@@hplusTC@@Read (a) -> (String -> a))
-        t1: @@hplusTC@@Read (a) -> String -> a
-        t2: tau3 -> tau2 -> tau1 -> tau0 -> a
-        into: @@hplusTC@@Read (a) -> String -> a
-        checks: False
-
+quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (Data.Tuple.fst)
+quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (Data.Tuple.snd)
+quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (fst)
+quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (snd)
+quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (Data.Tuple.fst)
+quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (Data.Tuple.snd)
+quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (fst)
+quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (snd)
+quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (Data.Tuple.fst)
+quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (Data.Tuple.snd)
+quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (fst)
+quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (snd)
+quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (Data.Tuple.fst)
+quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (Data.Tuple.snd)
+quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (fst)
+quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (snd)
+new program: Data.Tuple.snd (Data.Maybe.fromJust arg1) arg0
+
+/tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:72: error:
+    • Occurs check: cannot construct the infinite type:
+        b ~ Maybe (a0, Maybe a -> Either a b)
+    • In the first argument of ‘fromJust’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fromJust arg1)’
+      In the expression: snd (fromJust arg1) arg0
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Maybe.fromJust arg1) arg0
+   |                                                                        ^^^^
+<interactive>:1:52: error:
+    • Occurs check: cannot construct the infinite type:
+        b1 ~ Maybe (a0, Maybe a1 -> Either a1 b1)
+    • In the first argument of ‘fromJust’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fromJust arg1)’
+      In the expression: snd (fromJust arg1) arg0
+    • Relevant bindings include
+        arg1 :: b1 (bound at <interactive>:1:8)
+        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+
+new program: Data.Tuple.snd (Data.Maybe.fromJust arg0) arg1
+
+/tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:52: error:
+    • Occurs check: cannot construct the infinite type:
+        a ~ (a0, b -> Either a b)
+    • In the first argument of ‘snd’, namely ‘(fromJust arg0)’
+      In the expression: snd (fromJust arg0) arg1
+      In the expression: \ arg0 arg1 -> snd (fromJust arg0) arg1
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Maybe.fromJust arg0) arg1
+   |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+<interactive>:1:32: error:
+    • Occurs check: cannot construct the infinite type:
+        a1 ~ (a0, b1 -> Either a1 b1)
+    • In the first argument of ‘snd’, namely ‘(fromJust arg0)’
+      In the expression: snd (fromJust arg0) arg1
+      In the expression:
+          (\ arg0 arg1 -> snd (fromJust arg0) arg1) ::
+            Maybe (a) -> b -> Either (a) (b)
+    • Relevant bindings include
+        arg1 :: b1 (bound at <interactive>:1:8)
+        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+
+quota (1): we found one! goal ((tau4 -> (tau3 , (tau0 -> Either (a) (b))))), prog (Data.Tuple.fst)
+new program: Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+
+/tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:67: error:
+    • Couldn't match expected type ‘((a0, b -> Either a b), b0)’
+                  with actual type ‘Maybe a’
+    • In the first argument of ‘fst’, namely ‘arg0’
+      In the first argument of ‘snd’, namely ‘(fst arg0)’
+      In the expression: snd (fst arg0) arg1
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+   |                                                                   ^^^^
+GhcException: signal: 15
+new program: Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+
+/tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:67: error:
+    • Couldn't match expected type ‘((a0, b -> Either a b), b0)’
+                  with actual type ‘Maybe a’
+    • In the first argument of ‘fst’, namely ‘arg0’
+      In the first argument of ‘snd’, namely ‘(fst arg0)’
+      In the expression: snd (fst arg0) arg1
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+   |                                                                   ^^^^
+<interactive>:1:47: error:
+    • Couldn't match expected type ‘((a0, b1 -> Either a1 b1), b0)’
+                  with actual type ‘Maybe a1’
+    • In the first argument of ‘fst’, namely ‘arg0’
+      In the first argument of ‘snd’, namely ‘(fst arg0)’
+      In the expression: snd (fst arg0) arg1
+    • Relevant bindings include
+        arg1 :: b1 (bound at <interactive>:1:8)
+        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+
+new program: Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+
+/tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:67: error:
+    • Couldn't match expected type ‘((a0, b -> Either a b), b0)’
+                  with actual type ‘Maybe a’
+    • In the first argument of ‘fst’, namely ‘arg0’
+      In the first argument of ‘snd’, namely ‘(fst arg0)’
+      In the expression: snd (fst arg0) arg1
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+   |                                                                   ^^^^
+<interactive>:1:47: error:
+    • Couldn't match expected type ‘((a0, b1 -> Either a1 b1), b0)’
+                  with actual type ‘Maybe a1’
+    • In the first argument of ‘fst’, namely ‘arg0’
+      In the first argument of ‘snd’, namely ‘(fst arg0)’
+      In the expression: snd (fst arg0) arg1
+    • Relevant bindings include
+        arg1 :: b1 (bound at <interactive>:1:8)
+        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+
+new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+
+/tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:67: error:
+    • Occurs check: cannot construct the infinite type:
+        b ~ ((a0, Maybe a -> Either a b), b0)
+    • In the first argument of ‘fst’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fst arg1)’
+      In the expression: snd (fst arg1) arg0
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+   |                                                                   ^^^^
+<interactive>:1:47: error:
+    • Occurs check: cannot construct the infinite type:
+        b1 ~ ((a0, Maybe a1 -> Either a1 b1), b0)
+    • In the first argument of ‘fst’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fst arg1)’
+      In the expression: snd (fst arg1) arg0
+    • Relevant bindings include
+        arg1 :: b1 (bound at <interactive>:1:8)
+        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+
+new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+
+/tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:67: error:
+    • Occurs check: cannot construct the infinite type:
+        b ~ ((a0, Maybe a -> Either a b), b0)
+    • In the first argument of ‘fst’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fst arg1)’
+      In the expression: snd (fst arg1) arg0
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+   |                                                                   ^^^^
+<interactive>:1:47: error:
+    • Occurs check: cannot construct the infinite type:
+        b1 ~ ((a0, Maybe a1 -> Either a1 b1), b0)
+    • In the first argument of ‘fst’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fst arg1)’
+      In the expression: snd (fst arg1) arg0
+    • Relevant bindings include
+        arg1 :: b1 (bound at <interactive>:1:8)
+        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+
+new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+
+/tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:67: error:
+    • Occurs check: cannot construct the infinite type:
+        b ~ ((a0, Maybe a -> Either a b), b0)
+    • In the first argument of ‘fst’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fst arg1)’
+      In the expression: snd (fst arg1) arg0
+    • Relevant bindings include
+        arg1 :: b
+          (bound at /tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:28)
+        arg0 :: Maybe a
+          (bound at /tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:23)
+        ghcCheckedFunction :: Maybe a -> b -> Either a b
+          (bound at /tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+   |                                                                   ^^^^
+<interactive>:1:47: error:
+    • Occurs check: cannot construct the infinite type:
+        b1 ~ ((a0, Maybe a1 -> Either a1 b1), b0)
+    • In the first argument of ‘fst’, namely ‘arg1’
+      In the first argument of ‘snd’, namely ‘(fst arg1)’
+      In the expression: snd (fst arg1) arg0
+    • Relevant bindings include
+        arg1 :: b1 (bound at <interactive>:1:8)
+        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+
+new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+
+-}
+
+
+
+{-
 
 
 

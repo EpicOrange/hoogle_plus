@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Synthesize(synthesize, envToGoal, syn, synGuard, syn', sizeOf) where
+module TopDown.SynthesizeOptimized(synthesize, envToGoal, synO, synGuardO, synO', sizeOf) where
 
 -- import HooglePlus.TypeChecker
 import TopDown.TypeChecker
@@ -45,19 +45,32 @@ import Text.Printf (printf)
 -- a wrapper for synthesize that you can run from `stack ghci`
 -- usage: syn "Int -> Int"
 -- or:    program <- syn "Int -> Int"
-syn :: String -> IO ()
-syn inStr = syn' inStr []
+synO :: String -> IO ()
+synO inStr = synO' inStr []
 -- What if we can pass the guardInclude list into here??? :D
   
-synGuard :: String -> [String] -> IO ()
-synGuard inStr guards = do
+synGuardO :: String -> [String] -> IO ()
+synGuardO inStr guards = do
   env' <- readEnv $ envPath defaultSynquidParams
   env <- readBuiltinData defaultSynquidParams env'
   let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
   goal <- envToGoal (env { _symbols = rawSyms}) inStr
   solverChan <- newChan
-  synthesize defaultSearchParams goal [] solverChan
+  let examples = map (uncurry Example) $ [(["Nothing", "1"], "Right 1"), (["Just 2", "3"], "Left 2")]
+  synthesize defaultSearchParams goal examples solverChan
 
+
+-- mbToEither
+-- solution:      \arg0 arg1 -> Data.Bool.bool (Right arg1) (Left (Data.Maybe.fromJust arg0))
+--                              1               2     3      4     5                   6
+{-
+
+Darya's NOTES ON MEMOIZATION:
+
+right now we're checking for exact equality for sub
+we could have 
+
+-}
 
 -- usage:
 -- :{
@@ -66,8 +79,8 @@ synGuard inStr guards = do
 --   , (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")
 --   ]
 -- :}
-syn' :: String -> [([String], String)] -> IO ()
-syn' inStr ex = do
+synO' :: String -> [([String], String)] -> IO ()
+synO' inStr ex = do
   env' <- readEnv $ envPath defaultSynquidParams
   env <- readBuiltinData defaultSynquidParams env'
   goal <- envToGoal env inStr
@@ -109,7 +122,7 @@ synthesize searchParams goal examples messageChan = do
 
     -- putStrLn "\n=================="
     -- putStrLn "Starting!"
-    -- printf "Arguments: %s\n" (show $ env ^. arguments)
+    printf "Arguments: %s\n" (show $ env ^. arguments)
     -- let goal = shape $ lastType $ toMonotype goalType :: SType
 
     -- printf "Goal: %s\n" (show goal)
@@ -124,11 +137,69 @@ synthesize searchParams goal examples messageChan = do
     return ()
 
 
-type TopDownSolver m = StateT CheckerState (LogicT m)
+
+
+-- type TopDownSolver m = StateT CheckerState (LogicT m)
+
+-- evalTopDownSolver :: Monad m => Chan Message -> [TopDownSolver m a] -> m a
+-- evalTopDownSolver messageChan m =
+--   observeT $ msum $ map (`evalStateT` emptyChecker {_checkerChan = messageChan}) m
+
+
+type MemoMap = Map (RType, Int, Map Id SType) (Logic RProgram) -- (query, quota, sub) ==> program
+type TopDownSolver m = StateT CheckerState (LogicT (StateT MemoMap m))
 
 evalTopDownSolver :: Monad m => Chan Message -> [TopDownSolver m a] -> m a
 evalTopDownSolver messageChan m =
-  observeT $ msum $ map (`evalStateT` emptyChecker {_checkerChan = messageChan}) m
+  (`evalStateT` Map.empty) $ observeT $ msum $ map (`evalStateT` emptyChecker {_checkerChan = messageChan}) m
+
+-- convert to Logic a
+choices :: (Traversable f, MonadPlus m) => f a -> m a
+choices = msum . fmap return
+
+memoizeProgram :: Int -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
+memoizeProgram _ _ compute = compute
+-- memoizeProgram quota goalType compute = do
+--   st <- get
+--   let sub = st ^. typeAssignment
+--   let key = (goalType, quota, sub)
+--   memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
+--   -- TODO maybe use Map.lookup with default compute??????
+--   case Map.lookup key memoMap of
+--     Just progs -> do
+--       prog <- choices progs 
+--       when ("fst" `isInfixOf` show prog || "snd" `isInfixOf` show prog) $ liftIO $ printf "quota (%d): we found one! goal (%s), prog (%s)\n" quota (show goalType) (show prog)
+--       -- liftIO $ printf "key and program retrieved:\n\t%s\n\t%s\n" (show key) (show prog)
+--       return prog
+--     Nothing    -> do
+--       prog <- compute
+--       -- liftIO $ printf "key and program added:\n\t%s\n\t%s\n" (show key) (show prog)
+--       lift $ lift $ modify (Map.insertWith mplus key (return prog))
+--       return prog
+-- key and program retrieved:
+--         (tau6,1,fromList [("tau0",(Either (a) (b) , tau1)),("tau2",Either (a) (b)),("tau3",((Either (a) (b) , tau1) , tau4)),("tau5",(Either (a) (b) , tau1))])
+--         arg1
+
+-- synGuardO "Maybe a -> b -> Either a b" ["maybe", ".Right", ".Left"]
+-- \arg0 arg1 -> Data.Maybe.maybe (Data.Either.Right arg1) Data.Either.Left arg0
+-- Data.Either.Right (Data.Maybe.maybe arg1 (\\arg2 -> arg1) arg0)
+
+{-
+[Int] -> Int
+tau0  -> Int
+
+tau0 ==> [Int]
+
+
+sub [tau6 ==> Int]
+
+
+ comes from f (tau6 means something)
+tau6   (different than previous one)
+
+-}
+
+
 
 -- 
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
@@ -174,7 +245,7 @@ filterParams program env = all (`isInfixOf` show program) $ filter (not . ("tcar
 dfsIMode :: Environment -> Chan Message -> Int -> RType -> TopDownSolver IO RProgram
 dfsIMode env messageChan quota goalType 
   | quota <= 0 = mzero
-  | otherwise =
+  | otherwise = memoizeProgram quota goalType $
       case goalType of
         
         -- if function type, split up the arguments and add them to the environment
@@ -206,7 +277,7 @@ dfsIMode env messageChan quota goalType
 dfsEMode :: Environment -> Chan Message -> Int -> RType -> TopDownSolver IO RProgram
 dfsEMode env messageChan quota goalType
   | quota <= 0 = mzero
-  | otherwise  = do
+  | otherwise  = memoizeProgram quota goalType $ do
       prog <- inEnv `mplus` doSplit
       -- we love partial functions
       guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` show prog
@@ -257,9 +328,9 @@ dfsEMode env messageChan quota goalType
           typeOf = goalType
         }
     
-    -- converts [a] to a Logic a
-    choices :: MonadPlus m => [a] -> m a
-    choices = msum . map return
+    -- -- converts [a] to a Logic a
+    -- choices :: MonadPlus m => [a] -> m a
+    -- choices = msum . map return
 
     -- moves all Data.Function functions to the end and moves the args to the front
     reorganizeSymbols :: [(Id, RSchema)]
@@ -269,12 +340,28 @@ dfsEMode env messageChan quota goalType
         (args, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
         withoutDataFunctions = snd $ partition (("Data.Function" `isInfixOf`) . fst) withoutArgs
 
+    countArrows :: RType -> Int
+    countArrows (FunctionT _ tArg tBody) = 1 + countArrows tBody
+    countArrows _                        = 0
+
+    -- make component map
+    -- TODO we do this on every call to dfs, which is unnecessary
+    --    the only things that change are the added arguments when doing lambdas
+    reorganizeSymbols' :: Map Int [(Id, RSchema)]
+    reorganizeSymbols' = mergeUp $ bucketBy (countArrows . toMonotype . snd) reorganizeSymbols
+      where
+        bucketBy :: (Ord k) => (a -> k) -> [a] -> Map k [a]
+        bucketBy f xs = Map.fromListWith (++) [(f x, [x]) | x <- xs]
+        mergeUp :: (Ord k) => Map k [a] -> Map k [a]
+        mergeUp = snd . Map.mapAccum (\acc xs -> (acc++xs, acc++xs)) []
+
     -- Using the components in env, like ("length", <a>. [a] -> Int)
     -- tries to instantiate each, replacing type vars in order to unify with goalType
     getUnifiedComponent :: TopDownSolver IO (Id, SType)
     getUnifiedComponent = do
 
-      (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
+      -- (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
+      (id, schema) <- choices $ Map.findWithDefault [] (countArrows goalType) reorganizeSymbols' :: TopDownSolver IO (Id, RSchema)
 
       -- replaces "a" "b" with "tau1" "tau2"
       freshVars <- freshType (env ^. boundTypeVars) schema
