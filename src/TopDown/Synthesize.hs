@@ -162,7 +162,17 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
           printResult $ encodeWithPrefix out
           return True
 
--- determines if the result has all the appropriate arguments
+{-
+
+fromJust :: Maybe tau0 -> tau1
+goal:       Maybe a    -> a -> b
+unified: Mayba a -> (a -> b)
+
+
+
+-}
+
+-- determines if the result has all the appropriate arguments ()
 filterParams :: RProgram -> Environment -> Bool
 filterParams program env = all (`isInfixOf` show program) $ filter (not . ("tcarg" `isInfixOf`) ) $ Map.keys $ env ^. arguments
 
@@ -212,7 +222,6 @@ dfsEMode env messageChan quota goalType
       guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` show prog
       guard $ not $ "GHC.List.head []" `isInfixOf` show prog
       guard $ not $ "GHC.List.last []" `isInfixOf` show prog
-      -- liftIO $ printf "(e-mode) found program: %s\n" (show prog)
       return prog
   where
 
@@ -264,7 +273,7 @@ dfsEMode env messageChan quota goalType
 
     -- moves all Data.Function functions to the end and moves the args to the front
     reorganizeSymbols :: [(Id, RSchema)]
-    reorganizeSymbols = args ++ withoutDataFunctions -- ++ dataFunctions -- ++ dollar
+    reorganizeSymbols = args ++ withoutDataFunctions
       where
         ogSymbols            = Map.toList $ env ^. symbols
         (args, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
@@ -285,15 +294,6 @@ dfsEMode env messageChan quota goalType
 
       modify $ set isChecked True
       solveTypeConstraint env t1 t2 :: TopDownSolver IO ()
-      -- solveTypeConstraint' t1 t2 :: TopDownSolver IO ()
-      -- lookup
-      -- syn "Eq a => [(a,b)] -> a -> b"
-      -- \xs k -> Data.Maybe.fromJust (Data.List.lookup k xs)
-
-      -- areEq
-      -- synGuard "Eq a => a -> a -> Maybe a" ["bool", "Nothing", "Just", "=="]
-      --	\x y -> bool Nothing (Just x) ((==) x y)      
-      -- Data.Bool.bool Data.Maybe.Nothing Data.Maybe.Nothing (arg0 == arg1)
       
       st' <- get
 
@@ -308,161 +308,6 @@ dfsEMode env messageChan quota goalType
 
       return (id, subbedType)
       
-      where 
-        -- usage:
-        -- guardInclude id ["Pair", "arg"]
-        -- guardExclude id = guard . not . any (`isInfixOf` id) :: [String] -> TopDownSolver IO ()
-        -- guardInclude id = guard . any (`isInfixOf` id) :: [String] -> TopDownSolver IO ()
-
-        solveTypeConstraint' :: SType -> SType -> TopDownSolver IO ()
-        solveTypeConstraint' (FunctionT id tArg tBody) t2
-          | "@@hplusTC@@" `isInfixOf` (show tArg) = do
-                -- take off the first arg
-                solveTypeConstraint' tBody t2
-                st' <- get
-                let sub = st' ^. typeAssignment
-                let subbedArg = stypeSubstitute sub tArg
-                let tcSymbols = filter ("@@hplusTC@@" `isInfixOf`) $ map (show . snd) reorganizeSymbols
-                liftIO $ printf "subbedArg: %s, symbols: %s \n" (show subbedArg) (show tcSymbols)
-                guard (show subbedArg `elem` tcSymbols)
-
-                -- in our tcSymbols: <a> . (@@hplusTC@@Eq (a) -> a)
-                -- @@hplusTC@@Eq (tau3)
-                -- tau5
-                
-        solveTypeConstraint' t1 t2 = solveTypeConstraint env t1 t2
-
-{-
-
-hi zheng. we're running into an issue where we have to unify a component with a typeclass.
-like `lookup :: <a> . Eq a => a -> [(a, b)] -> Maybe b`
-with goal type `tau3 -> tau2 -> tau1 -> Maybe b`
-but `Eq a` doesn't unify with `tau3` because in `solveTypeConstraint`, a type class cannot unify with a type variable, based on the following code: 
-
-```
-solveTypeConstraint env tv@(ScalarT (TypeVarT _ id) _) (ScalarT (DatatypeT dt _ _) _)
-  | tyclassPrefix `isPrefixOf` dt = modify $ set isChecked False -- type class cannot unify with a type variable
-```
-
-"@@hplusTCInstance@@8Eq"                    <a> . Eq Int -> Eq [Int]
-
-query: Eq a => [a] -> [a] -> Bool
-tcarg0 :: Eq a
-@@hplusTCInstance@@8Eq tcarg0  :: Eq [a]
-solution:  (==) (tcarg?? :: Eq [a]) arg0 arg1
-
-we commented out this part of the code, and now the query that was previously without solution has a solution. We tried to think about ways this might break the code, and so far we haven't come up with any. Thoughts?
-
-
-new program: Data.Either.rights (GHC.List.repeat (Data.Either.Left tcarg0))
-
-/tmp/febaac32-1df0-476a-a2ba-d7a02f50b7dd.hs:16:51: error:
-    • Couldn't match type ‘a0 -> Either a0 b0’ with ‘Either a1 Char’
-      Expected type: [Either a1 Char]
-        Actual type: [a0 -> Either a0 b0]
-    • In the first argument of ‘rights’, namely ‘(repeat (Left))’
-      In the expression: rights (repeat (Left))
-      In the expression: \ arg0 -> rights (repeat (Left))
-   |
-16 | ghcCheckedFunction = \arg0 -> Data.Either.rights (GHC.List.repeat (Data.Either.Left ))
-   |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-   
-query: "Eq a => [(a,b)] -> a -> b"
-  tcarg0   :: @@hplusTC@@Eq (a)
-  arg0     :: [(a,b)]
-  arg1     :: a
-  fromJust :: <tau0> . (Maybe (tau0) -> tau0)
-  lookup   :: <tau1> . <tau2> . @@hplusTC@@Eq (tau2) -> tau2 -> [(tau2, tau1)] -> Maybe tau1
-
-solution    ?? :: b [e-mode]
-solution    (?? :: alpha -> b [e-mode]) (?? :: alpha [i-mode])
-                ==> unify fromJust, 
-                alpha ~ Maybe b
-
-solution    fromJust (?? :: Maybe b [i-mode])
-                ==> split
-
-solution    fromJust ((?? :: beta -> Maybe b [e-mode]) (?? :: beta [i-mode]))
-                ==> split
-
-solution    fromJust ((?? :: gamma -> beta -> Maybe b [e-mode]) (?? :: gamma [i-mode]) (?? :: beta [i-mode])
-                ==> split
-
-solution    fromJust ((?? :: delta -> gamma -> beta -> Maybe b [e-mode]) (?? :: delta [i-mode]) (?? :: gamma [i-mode]) (?? :: beta [i-mode])
-                ==> unify lookup :: @@hplusTC@@Eq (tau3) -> tau3 -> [(tau3, tau2)] -> Maybe tau2
-                delta ~ @@hplusTC@@Eq (tau3)
-                gamma ~ tau3
-                tau2  ~ b
-                beta  ~ [(tau3, tau2)] ~ [(tau3, b)]
-
-solution    fromJust (lookup (?? :: @@hplusTC@@Eq (tau3) [i-mode]) (?? :: tau3 [i-mode]) (?? :: [(tau3, b)] [i-mode])
-                ==> unify with tcarg0 :: @@hplusTC@@Eq (a)
-                tau3 ~ a
-
-solution    fromJust (lookup (tcarg0) (?? :: a [i-mode]) (?? :: [(a, b)] [i-mode])
-                ==> unify arg0 and arg1
-
-solution    fromJust (lookup tcarg0 arg0 arg1)
-
-
-
-
-Eq a => a -> [a] -> Maybe a	
-\arg0 arg1 -> bool Nothing (Just arg0) (GHC.List.elem arg0 arg1)
--}
-
--- subbedArg: @@hplusTC@@Eq (tau3), symbols: ["<a> . (@@hplusTC@@Eq (a) -> (a -> (a -> Bool)))"
--- "<a> . (@@hplusTC@@Eq (a) -> (a -> (a -> Bool)))"
--- "@@hplusTC@@Eq (Bool)"
--- "@@hplusTC@@Eq (Char)"
--- "@@hplusTC@@Eq (Double)"
--- "@@hplusTC@@Eq (Float)"
--- "@@hplusTC@@Eq (Int)"
--- "@@hplusTC@@Eq (Unit)"
--- "@@hplusTC@@Num (Double)"
--- "@@hplusTC@@Num (Float)"
--- "@@hplusTC@@Num (Int)"
--- "@@hplusTC@@Ord (Bool)"
--- "@@hplusTC@@Ord (Char)"
--- "@@hplusTC@@Ord (Double)"
--- "@@hplusTC@@Ord (Float)"
--- "@@hplusTC@@Ord (Int)"
--- "<b> . <a> . (@@hplusTC@@Show (a) -> (@@hplusTC@@Show (b) -> @@hplusTC@@Show ((Either (a) (b)))))"
--- "@@hplusTC@@Show (Bool)"
--- "@@hplusTC@@Show (Char)"
--- "@@hplusTC@@Show (Double)"
--- "@@hplusTC@@Show (Float)"
--- "@@hplusTC@@Show (Int)"
--- "@@hplusTC@@Show (Unit)"
--- "<b> . <a> . (@@hplusTC@@Read (a) -> (@@hplusTC@@Read (b) -> @@hplusTC@@Read ((Either (a) (b)))))"
--- "<b> . <a> . (@@hplusTC@@Ord (a) -> (@@hplusTC@@Ord (b) -> @@hplusTC@@Ord ((Either (a) (b)))))"
--- "<b> . <a> . (@@hplusTC@@Eq (a) -> (@@hplusTC@@Eq (b) -> @@hplusTC@@Eq ((Either (a) (b)))))"
--- "<b> . <a> . @@hplusTC@@Semigroup ((Either (a) (b)))"
--- "<a> . (@@hplusTC@@Eq (a) -> @@hplusTC@@Eq (([a])))"
--- "<a> . (@@hplusTC@@Eq (a) -> ([a] -> [[a]]))"
--- "<a> . (@@hplusTC@@Eq (a) -> (a -> ([a] -> Bool)))"
--- "<b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))"
--- "<a> . (@@hplusTC@@Ord (a) -> ([a] -> a))"
--- "<a> . (@@hplusTC@@Ord (a) -> ([a] -> a))"
--- "<a> . (@@hplusTC@@Eq (a) -> (a -> ([a] -> Bool)))"
--- "<a> . (@@hplusTC@@Num (a) -> ([a] -> a))"
--- "<a> . (@@hplusTC@@Num (a) -> ([a] -> a))"
--- "<a> . (@@hplusTC@@Show (a) -> (a -> [Char]))"
--- "<a> . (@@hplusTC@@Show (a) -> ([a] -> ([Char] -> [Char])))"
--- "<a> . (@@hplusTC@@Show (a) -> (a -> ([Char] -> [Char])))"
--- "<a> . (@@hplusTC@@Show (a) -> (Int -> (a -> ([Char] -> [Char]))))"] 
--- quota 2, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
---         t1: @@hplusTC@@Eq (tau4) -> tau4 -> [(tau4 , tau3)] -> Maybe (tau3)
---    tau4 -> [(tau4 , tau3)] -> Maybe (tau3)
---    Int  -> [(Int , Bool)] -> Maybe (Bool)
---    guard "@@hplusTC@@Eq (Int) is in env"
---         t2: tau2                 -> tau1 -> tau0            -> Maybe (b)
---         in: @@hplusTC@@Eq (tau1) -> tau1 -> [(tau1 , b)]    -> Maybe (b)
---         checkResult: False
-
-
-
 -- gets the size of a program, used for checking quota
 sizeOf :: RProgram -> Int
 sizeOf p = sizeOf' p -- + (sizeOfType $ typeOf p)  TODO we need to add this back in!!!!! 
