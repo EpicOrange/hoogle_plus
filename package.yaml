@@ -20,6 +20,7 @@ ghc-options:
 - -A128m
 - -n2m
 - -RTS
+- -fno-omit-yields # https://stackoverflow.com/a/55191886
 # - -fwarn-unused-imports
 
 dependencies:

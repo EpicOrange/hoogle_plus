@@ -1,3 +1,415 @@
+{-
+
+> :r
+[53 of 54] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
+[54 of 54] Compiling Main             ( /home/hoogle_plus/app/HooglePlus.hs, interpreted ) [TH]
+Ok, 54 modules loaded.
+> syn "Eq a => [(a,b)] -> a -> Maybe b"
+
+running dfs on <b> . <a> . (@@hplusTC@@Eq (a) -> ([(a , b)] -> (a -> Maybe (b)))) at size 5
+quota 5, (id, schema): arg0 :: [(a , b)]
+        t1: [(a , b)]
+        t2: Maybe (b)
+        into: [(a , b)]
+        checkResult: False
+
+quota 5, (id, schema): arg1 :: a
+        t1: a
+        t2: Maybe (b)
+        into: a
+        checkResult: False
+
+quota 5, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
+        t1: @@hplusTC@@Eq (a)
+        t2: Maybe (b)
+        into: @@hplusTC@@Eq (a)
+        checkResult: False
+
+quota 5, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
+        t1: @@hplusTC@@Eq (tau1) -> tau1 -> [(tau1 , tau0)] -> Maybe (tau0)
+        t2: Maybe (b)
+        into: @@hplusTC@@Eq (tau1) -> tau1 -> [(tau1 , tau0)] -> Maybe (tau0)
+        checkResult: False
+
+quota 4, (id, schema): arg0 :: [(a , b)]
+        t1: [(a , b)]
+        t2: tau0 -> Maybe (b)
+        into: [(a , b)]
+        checkResult: False
+
+quota 4, (id, schema): arg1 :: a
+        t1: a
+        t2: tau0 -> Maybe (b)
+        into: a
+        checkResult: False
+
+quota 4, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
+        t1: @@hplusTC@@Eq (a)
+        t2: tau0 -> Maybe (b)
+        into: @@hplusTC@@Eq (a)
+        checkResult: False
+
+quota 4, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
+        t1: @@hplusTC@@Eq (tau2) -> tau2 -> [(tau2 , tau1)] -> Maybe (tau1)
+        t2: tau0 -> Maybe (b)
+        into: @@hplusTC@@Eq (tau2) -> tau2 -> [(tau2 , tau1)] -> Maybe (tau1)
+        checkResult: False
+
+quota 3, (id, schema): arg0 :: [(a , b)]
+        t1: [(a , b)]
+        t2: tau1 -> tau0 -> Maybe (b)
+        into: [(a , b)]
+        checkResult: False
+
+quota 3, (id, schema): arg1 :: a
+        t1: a
+        t2: tau1 -> tau0 -> Maybe (b)
+        into: a
+        checkResult: False
+
+quota 3, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
+        t1: @@hplusTC@@Eq (a)
+        t2: tau1 -> tau0 -> Maybe (b)
+        into: @@hplusTC@@Eq (a)
+        checkResult: False
+
+quota 3, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
+        t1: @@hplusTC@@Eq (tau3) -> tau3 -> [(tau3 , tau2)] -> Maybe (tau2)
+        t2: tau1 -> tau0 -> Maybe (b)
+        into: @@hplusTC@@Eq (tau0) -> tau0 -> [(tau0 , tau2)] -> Maybe (tau2)
+        checkResult: False
+
+quota 2, (id, schema): arg0 :: [(a , b)]
+        t1: [(a , b)]
+        t2: tau2 -> tau1 -> tau0 -> Maybe (b)
+        into: [(a , b)]
+        checkResult: False
+
+quota 2, (id, schema): arg1 :: a
+        t1: a
+        t2: tau2 -> tau1 -> tau0 -> Maybe (b)
+        into: a
+        checkResult: False
+
+quota 2, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
+        t1: @@hplusTC@@Eq (a)
+        t2: tau2 -> tau1 -> tau0 -> Maybe (b)
+        into: @@hplusTC@@Eq (a)
+        checkResult: False
+
+quota 2, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
+        t1: @@hplusTC@@Eq (tau4) -> tau4 -> [(tau4 , tau3)] -> Maybe (tau3)
+        t2: tau2                 -> tau1 -> tau0            -> Maybe (b)
+        in: @@hplusTC@@Eq (tau1) -> tau1 -> [(tau1 , b)]    -> Maybe (b)
+        checkResult: False
+
+quota 1, (id, schema): arg0 :: [(a , b)]
+        t1: [(a , b)]
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
+        into: [(a , b)]
+        checkResult: False
+
+quota 1, (id, schema): arg1 :: a
+        t1: a
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
+        into: a
+        checkResult: False
+
+quota 1, (id, schema): tcarg0 :: @@hplusTC@@Eq (a)
+        t1: @@hplusTC@@Eq (a)
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
+        into: @@hplusTC@@Eq (a)
+        checkResult: False
+
+quota 1, (id, schema): GHC.List.lookup :: <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
+        t1: @@hplusTC@@Eq (tau5) -> tau5 -> [(tau5 , tau4)] -> Maybe (tau4)
+        t2: tau3 -> tau2 -> tau1 -> tau0 -> Maybe (b)
+        into: @@hplusTC@@Eq (tau2) -> tau2 -> [(tau2 , tau4)] -> Maybe (tau4)
+        checkResult: False
+
+*** Exception: user error (No answer.)
+
+
+
+
+
+
+
+
+
+Yeah, I think the general idea here is correct. I don’t know why you need a
+RType here, but there is a method called addTrue somewhere in the code (it
+might be in Database.Convert or Database.Util) to help you turn an SType into
+a RType . Since we are not using any predicate in the search, so we always add
+True as the refinement when we need a RType (edited) 
+
+
+
+"(Data.Bool.&&)"                            (Bool -> (Bool -> Bool))
+"(Data.Bool.||)"                            (Bool -> (Bool -> Bool))
+"(Data.Eq./=)"                              <a> . (@@hplusTC@@Eq (a) -> (a -> (a -> Bool)))
+"(Data.Eq.==)"                              <a> . (@@hplusTC@@Eq (a) -> (a -> (a -> Bool)))
+"(Data.Function.$)"                         <b> . <a> . (((a -> b)) -> (a -> b))
+"(Data.Function.&)"                         <b> . <a> . (a -> (((a -> b)) -> b))
+"(Data.Function..)"                         <c> . <b> . <a> . (((b -> c)) -> (((a -> b)) -> (a -> c)))
+"(GHC.List.!!)"                             <a> . ([a] -> (Int -> a))
+"(GHC.List.++)"                             <a> . ([a] -> ([a] -> [a]))
+"@@hplusTCInstance@@0EqBool"               @@hplusTC@@Eq (Bool)
+"@@hplusTCInstance@@0EqChar"               @@hplusTC@@Eq (Char)
+"@@hplusTCInstance@@0EqDouble"             @@hplusTC@@Eq (Double)
+"@@hplusTCInstance@@0EqFloat"              @@hplusTC@@Eq (Float)
+"@@hplusTCInstance@@0EqInt"                @@hplusTC@@Eq (Int)
+"@@hplusTCInstance@@0EqUnit"               @@hplusTC@@Eq (Unit)
+"@@hplusTCInstance@@0NumDouble"            @@hplusTC@@Num (Double)
+"@@hplusTCInstance@@0NumFloat"             @@hplusTC@@Num (Float)
+"@@hplusTCInstance@@0NumInt"               @@hplusTC@@Num (Int)
+"@@hplusTCInstance@@0OrdBool"              @@hplusTC@@Ord (Bool)
+"@@hplusTCInstance@@0OrdChar"              @@hplusTC@@Ord (Char)
+"@@hplusTCInstance@@0OrdDouble"            @@hplusTC@@Ord (Double)
+"@@hplusTCInstance@@0OrdFloat"             @@hplusTC@@Ord (Float)
+"@@hplusTCInstance@@0OrdInt"               @@hplusTC@@Ord (Int)
+"@@hplusTCInstance@@0Show"                  <b> . <a> . (@@hplusTC@@Show (a) -> (@@hplusTC@@Show (b) -> @@hplusTC@@Show ((Either (a) (b)))))
+"@@hplusTCInstance@@0ShowBool"             @@hplusTC@@Show (Bool)
+"@@hplusTCInstance@@0ShowChar"             @@hplusTC@@Show (Char)
+"@@hplusTCInstance@@0ShowDouble"           @@hplusTC@@Show (Double)
+"@@hplusTCInstance@@0ShowFloat"            @@hplusTC@@Show (Float)
+"@@hplusTCInstance@@0ShowInt"              @@hplusTC@@Show (Int)
+"@@hplusTCInstance@@0ShowUnit"             @@hplusTC@@Show (Unit)
+"@@hplusTCInstance@@1Read"                  <b> . <a> . (@@hplusTC@@Read (a) -> (@@hplusTC@@Read (b) -> @@hplusTC@@Read ((Either (a) (b)))))
+"@@hplusTCInstance@@2Ord"                   <b> . <a> . (@@hplusTC@@Ord (a) -> (@@hplusTC@@Ord (b) -> @@hplusTC@@Ord ((Either (a) (b)))))
+"@@hplusTCInstance@@3Eq"                    <b> . <a> . (@@hplusTC@@Eq (a) -> (@@hplusTC@@Eq (b) -> @@hplusTC@@Eq ((Either (a) (b)))))
+"@@hplusTCInstance@@5Semigroup"             <b> . <a> . @@hplusTC@@Semigroup ((Either (a) (b)))
+"@@hplusTCInstance@@8Eq"                    <a> . (@@hplusTC@@Eq (a) -> @@hplusTC@@Eq (([a])))
+"Cons"                                      <a> . (a -> ([a] -> {[a]|_v == (Cons x xs)}))
+"Data.Bool.False"                            Bool
+"Data.Bool.True"                             Bool
+"Data.Bool.bool"                            <a> . (a -> (a -> (Bool -> a)))
+"Data.Bool.not"                             (Bool -> Bool)
+"Data.Bool.otherwise"                        Bool
+"Data.Either.Left"                          <b> . <a> . (a -> Either (a) (b))
+"Data.Either.Right"                         <b> . <a> . (b -> Either (a) (b))
+"Data.Either.either"                        <c> . <b> . <a> . (((a -> c)) -> (((b -> c)) -> (Either (a) (b) -> c)))
+"Data.Either.fromLeft"                      <b> . <a> . (a -> (Either (a) (b) -> a))
+"Data.Either.fromRight"                     <b> . <a> . (b -> (Either (a) (b) -> b))
+"Data.Either.isLeft"                        <b> . <a> . (Either (a) (b) -> Bool)
+"Data.Either.isRight"                       <b> . <a> . (Either (a) (b) -> Bool)
+"Data.Either.lefts"                         <b> . <a> . ([Either (a) (b)] -> [a])
+"Data.Either.partitionEithers"              <b> . <a> . ([Either (a) (b)] -> ([a] , [b]))
+"Data.Either.rights"                        <b> . <a> . ([Either (a) (b)] -> [b])
+"Data.Function.const"                       <b> . <a> . (a -> (b -> a))
+"Data.Function.fix"                         <a> . (((a -> a)) -> a)
+"Data.Function.flip"                        <c> . <b> . <a> . (((a -> (b -> c))) -> (b -> (a -> c)))
+"Data.Function.id"                          <a> . (a -> a)
+"Data.Function.on"                          <c> . <b> . <a> . (((b -> (b -> c))) -> (((a -> b)) -> (a -> (a -> c))))
+"Data.List.group"                           <a> . (@@hplusTC@@Eq (a) -> ([a] -> [[a]]))
+"Data.Maybe.Just"                           <a> . (a -> Maybe (a))
+"Data.Maybe.Nothing"                        <a> . Maybe (a)
+"Data.Maybe.catMaybes"                      <a> . ([Maybe (a)] -> [a])
+"Data.Maybe.fromJust"                       <a> . (Maybe (a) -> a)
+"Data.Maybe.fromMaybe"                      <a> . (a -> (Maybe (a) -> a))
+"Data.Maybe.isJust"                         <a> . (Maybe (a) -> Bool)
+"Data.Maybe.isNothing"                      <a> . (Maybe (a) -> Bool)
+"Data.Maybe.listToMaybe"                    <a> . ([a] -> Maybe (a))
+"Data.Maybe.mapMaybe"                       <b> . <a> . (((a -> Maybe (b))) -> ([a] -> [b]))
+"Data.Maybe.maybe"                          <b> . <a> . (b -> (((a -> b)) -> (Maybe (a) -> b)))
+"Data.Maybe.maybeToList"                    <a> . (Maybe (a) -> [a])
+"Data.Tuple.curry"                          <c> . <b> . <a> . ((((a , b) -> c)) -> (a -> (b -> c)))
+"Data.Tuple.fst"                            <b> . <a> . ((a , b) -> a)
+"Data.Tuple.snd"                            <b> . <a> . ((a , b) -> b)
+"Data.Tuple.swap"                           <b> . <a> . ((a , b) -> (b , a))
+"Data.Tuple.uncurry"                        <c> . <b> . <a> . (((a -> (b -> c))) -> ((a , b) -> c))
+"GHC.Char.chr"                              (Int -> Char)
+"GHC.Char.eqChar"                           (Char -> (Char -> Bool))
+"GHC.Char.neChar"                           (Char -> (Char -> Bool))
+"GHC.List.all"                              <a> . (((a -> Bool)) -> ([a] -> Bool))
+"GHC.List.and"                             ([Bool] -> Bool)
+"GHC.List.any"                              <a> . (((a -> Bool)) -> ([a] -> Bool))
+"GHC.List.break"                            <a> . (((a -> Bool)) -> ([a] -> ([a] , [a])))
+"GHC.List.concat"                           <a> . ([[a]] -> [a])
+"GHC.List.concatMap"                        <b> . <a> . (((a -> [b])) -> ([a] -> [b]))
+"GHC.List.cycle"                            <a> . ([a] -> [a])
+"GHC.List.drop"                             <a> . (Int -> ([a] -> [a]))
+"GHC.List.dropWhile"                        <a> . (((a -> Bool)) -> ([a] -> [a]))
+"GHC.List.elem"                             <a> . (@@hplusTC@@Eq (a) -> (a -> ([a] -> Bool)))
+"GHC.List.filter"                           <a> . (((a -> Bool)) -> ([a] -> [a]))
+"GHC.List.foldl"                            <b> . <a> . (((b -> (a -> b))) -> (b -> ([a] -> b)))
+"GHC.List.foldl'"                           <b> . <a> . (((b -> (a -> b))) -> (b -> ([a] -> b)))
+"GHC.List.foldl1"                           <a> . (((a -> (a -> a))) -> ([a] -> a))
+"GHC.List.foldl1'"                          <a> . (((a -> (a -> a))) -> ([a] -> a))
+"GHC.List.foldr"                            <b> . <a> . (((a -> (b -> b))) -> (b -> ([a] -> b)))
+"GHC.List.foldr1"                           <a> . (((a -> (a -> a))) -> ([a] -> a))
+"GHC.List.head"                             <a> . ([a] -> a)
+"GHC.List.init"                             <a> . ([a] -> [a])
+"GHC.List.iterate"                          <a> . (((a -> a)) -> (a -> [a]))
+"GHC.List.iterate'"                         <a> . (((a -> a)) -> (a -> [a]))
+"GHC.List.last"                             <a> . ([a] -> a)
+"GHC.List.length"                           <a> . ([a] -> Int)
+"GHC.List.lookup"                           <b> . <a> . (@@hplusTC@@Eq (a) -> (a -> ([(a , b)] -> Maybe (b))))
+"GHC.List.map"                              <b> . <a> . (((a -> b)) -> ([a] -> [b]))
+"GHC.List.maximum"                          <a> . (@@hplusTC@@Ord (a) -> ([a] -> a))
+"GHC.List.minimum"                          <a> . (@@hplusTC@@Ord (a) -> ([a] -> a))
+"GHC.List.notElem"                          <a> . (@@hplusTC@@Eq (a) -> (a -> ([a] -> Bool)))
+"GHC.List.null"                             <a> . ([a] -> Bool)
+"GHC.List.or"                              ([Bool] -> Bool)
+"GHC.List.product"                          <a> . (@@hplusTC@@Num (a) -> ([a] -> a))
+"GHC.List.repeat"                           <a> . (a -> [a])
+"GHC.List.replicate"                        <a> . (Int -> (a -> [a]))
+"GHC.List.reverse"                          <a> . ([a] -> [a])
+"GHC.List.scanl"                            <b> . <a> . (((b -> (a -> b))) -> (b -> ([a] -> [b])))
+"GHC.List.scanl'"                           <b> . <a> . (((b -> (a -> b))) -> (b -> ([a] -> [b])))
+"GHC.List.scanl1"                           <a> . (((a -> (a -> a))) -> ([a] -> [a]))
+"GHC.List.scanr"                            <b> . <a> . (((a -> (b -> b))) -> (b -> ([a] -> [b])))
+"GHC.List.scanr1"                           <a> . (((a -> (a -> a))) -> ([a] -> [a]))
+"GHC.List.span"                             <a> . (((a -> Bool)) -> ([a] -> ([a] , [a])))
+"GHC.List.splitAt"                          <a> . (Int -> ([a] -> ([a] , [a])))
+"GHC.List.sum"                              <a> . (@@hplusTC@@Num (a) -> ([a] -> a))
+"GHC.List.tail"                             <a> . ([a] -> [a])
+"GHC.List.take"                             <a> . (Int -> ([a] -> [a]))
+"GHC.List.takeWhile"                        <a> . (((a -> Bool)) -> ([a] -> [a]))
+"GHC.List.uncons"                           <a> . ([a] -> Maybe (((a , [a]))))
+"GHC.List.unzip"                            <b> . <a> . ([(a , b)] -> ([a] , [b]))
+"GHC.List.unzip3"                           <c> . <b> . <a> . ([((a , b) , c)] -> (([a] , [b]) , [c]))
+"GHC.List.zip"                              <b> . <a> . ([a] -> ([b] -> [(a , b)]))
+"GHC.List.zip3"                             <c> . <b> . <a> . ([a] -> ([b] -> ([c] -> [((a , b) , c)])))
+"GHC.List.zipWith"                          <c> . <b> . <a> . (((a -> (b -> c))) -> ([a] -> ([b] -> [c])))
+"GHC.List.zipWith3"                         <d> . <c> . <b> . <a> . (((a -> (b -> (c -> d)))) -> ([a] -> ([b] -> ([c] -> [d]))))
+"Nil"                                       <a> . {[a]|_v == (Nil)}
+"Pair"                                      <b> . <a> . (a -> (b -> {(a , b)|_v == (Pair x y)}))
+"Text.Show.show"                            <a> . (@@hplusTC@@Show (a) -> (a -> [Char]))
+"Text.Show.showChar"                        (Char -> ([Char] -> [Char]))
+"Text.Show.showList"                        <a> . (@@hplusTC@@Show (a) -> ([a] -> ([Char] -> [Char])))
+"Text.Show.showListWith"                    <a> . (((a -> ([Char] -> [Char]))) -> ([a] -> ([Char] -> [Char])))
+"Text.Show.showParen"                       (Bool -> ((([Char] -> [Char])) -> ([Char] -> [Char])))
+"Text.Show.showString"                     ([Char] -> ([Char] -> [Char]))
+"Text.Show.shows"                           <a> . (@@hplusTC@@Show (a) -> (a -> ([Char] -> [Char])))
+"Text.Show.showsPrec"                       <a> . (@@hplusTC@@Show (a) -> (Int -> (a -> ([Char] -> [Char]))))
+"arg0"                                      [a]
+"arg1"                                      (a -> Bool)
+"fst"                                       <b> . <a> . ((a , b) -> a)
+"snd"                                       <b> . <a> . ((a , b) -> b)
+
+
+
+
+
+
+
+------
+We are working on spliting up the goal into `alpha -> T` and `alpha`. Here is how we're doing it:
+
+```
+goalType :: RType 
+
+let alpha' = ScalarT (TypeVarT Map.empty "alpha") ftrue :: RType
+let schema' = ForallT "alpha" $ Monotype $ FunctionT "myArg" alpha' goalType :: RSchema
+
+-- reset the name counter so it generates the same tau
+indices <- getNameCounter :: TopDownSolver IO (Map Id Int)
+alpha <- freshType (env ^. boundTypeVars) (ForallT "alpha" $ Monotype $ alpha') :: TopDownSolver IO RType
+setNameCounter indices
+
+schema <- freshType (env ^. boundTypeVars) schema' :: TopDownSolver IO RType
+
+schemaProgram <- dfsEMode env messageChan (quota - 1) schema :: TopDownSolver IO RProgram
+let quota' = quota - sizeOf schemaProgram
+
+st' <- get
+let sub = st' ^. typeAssignment
+let alphaSub' = stypeSubstitute sub (shape alpha) :: SType 
+let alphaSub = (refineBot env alphaSub')
+
+alphaProgram <- dfsIMode env messageChan (quota') (refineBot env alphaSub) :: TopDownSolver IO RProgram
+```
+
+We have a few questions: 
+
+* is this a good way of splitting up the goals into `alpha -> T` and `alpha`? Is there a better way to do it? 
+* if this way is correct (or at least not totally wrong), we are running into an issue where `alphaSub` is `(b -> (a -> {c|False}))`, but that isn't what we want. We are pretty sure this comes from the fact we're using `stypeSubstitute` (which creates `SType` and then we have to convirt back into `RType`). We say that there's a function `typeSubstitute`, but it assumes the substitution is `RType`, whereas `st' ^. typeAssignment` is based on `SType`s. Is there a way to get an `RType` version? Or should we be using a different `refine` function? 
+
+
+
+
+
+
+Starting!
+Arguments: fromList [("arg0",(((b -> (a -> c))) -> d)),("arg1",(a -> (b -> c)))]
+Goal: d
+==================
+
+running dfs on <d> . <c> . <b> . <a> . (((((b -> (a -> c))) -> d)) -> (((a -> (b -> c))) -> d)) at size 6
+splitting (d) up into: ((tau0 -> d)) and (tau0)
+found    ((tau0 -> d)) --- arg0 
+refined alpha into alphaSub = b -> a -> c
+
+------
+we are actually here scalart!!!!! 
+splitting (tau0) up into: ((tau1 -> tau0)) and (tau1)
+splitting ((tau1 -> tau0)) up into: ((tau2 -> (tau1 -> tau0))) and (tau2)
+splitting ((tau2 -> (tau1 -> tau0))) up into: ((tau3 -> (tau2 -> (tau1 -> tau0)))) and (tau3)
+splitting ((tau3 -> (tau2 -> (tau1 -> tau0)))) up into: ((tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))) and (tau4)
+splitting ((tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))) up into: ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0)))))) and (tau5)
+splitting ((tau0 -> d)) up into: ((tau1 -> (tau0 -> d))) and (tau1)
+splitting ((tau1 -> (tau0 -> d))) up into: ((tau2 -> (tau1 -> (tau0 -> d)))) and (tau2)
+splitting ((tau2 -> (tau1 -> (tau0 -> d)))) up into: ((tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))) and (tau3)
+splitting ((tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))) up into: ((tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))) and (tau4)
+splitting ((tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))) up into: ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))))) and (tau5)
+
+running dfs on <d> . <c> . <b> . <a> . (((((b -> (a -> c))) -> d)) -> (((a -> (b -> c))) -> d)) at size 7
+splitting (d) up into: ((tau0 -> d)) and (tau0)
+found    ((tau0 -> d)) --- arg0 
+refined alpha into alphaSub = b -> a -> c
+
+------
+we are actually here scalart!!!!! 
+splitting (tau0) up into: ((tau1 -> tau0)) and (tau1)
+splitting ((tau1 -> tau0)) up into: ((tau2 -> (tau1 -> tau0))) and (tau2)
+splitting ((tau2 -> (tau1 -> tau0))) up into: ((tau3 -> (tau2 -> (tau1 -> tau0)))) and (tau3)
+splitting ((tau3 -> (tau2 -> (tau1 -> tau0)))) up into: ((tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))) and (tau4)
+splitting ((tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))) up into: ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0)))))) and (tau5)
+splitting ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0)))))) up into: ((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))))) and (tau6)
+splitting ((tau0 -> d)) up into: ((tau1 -> (tau0 -> d))) and (tau1)
+splitting ((tau1 -> (tau0 -> d))) up into: ((tau2 -> (tau1 -> (tau0 -> d)))) and (tau2)
+splitting ((tau2 -> (tau1 -> (tau0 -> d)))) up into: ((tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))) and (tau3)
+splitting ((tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))) up into: ((tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))) and (tau4)
+splitting ((tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))) up into: ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))))) and (tau5)
+splitting ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))))) up into: ((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))))) and (tau6)
+
+running dfs on <d> . <c> . <b> . <a> . (((((b -> (a -> c))) -> d)) -> (((a -> (b -> c))) -> d)) at size 8
+splitting (d) up into: ((tau0 -> d)) and (tau0)
+found    ((tau0 -> d)) --- arg0 
+refined alpha into alphaSub = b -> a -> c
+
+------
+we are actually here scalart!!!!! 
+splitting (tau0) up into: ((tau1 -> tau0)) and (tau1)
+splitting ((tau1 -> tau0)) up into: ((tau2 -> (tau1 -> tau0))) and (tau2)
+splitting ((tau2 -> (tau1 -> tau0))) up into: ((tau3 -> (tau2 -> (tau1 -> tau0)))) and (tau3)
+splitting ((tau3 -> (tau2 -> (tau1 -> tau0)))) up into: ((tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))) and (tau4)
+splitting ((tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))) up into: ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0)))))) and (tau5)
+splitting ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0)))))) up into: ((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))))) and (tau6)
+splitting ((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0))))))) up into: ((tau7 -> (tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> tau0)))))))) and (tau7)
+splitting ((tau0 -> d)) up into: ((tau1 -> (tau0 -> d))) and (tau1)
+splitting ((tau1 -> (tau0 -> d))) up into: ((tau2 -> (tau1 -> (tau0 -> d)))) and (tau2)
+splitting ((tau2 -> (tau1 -> (tau0 -> d)))) up into: ((tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))) and (tau3)
+splitting ((tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))) up into: ((tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))) and (tau4)
+splitting ((tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))) up into: ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))))) and (tau5)
+splitting ((tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))))) up into: ((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))))) and (tau6)
+splitting ((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))))) up into: ((tau7 -> (tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d))))))))) and (tau7)
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 -- goal: Maybe (Maybe (Maybe (b)))         program: arg2
 -- goal: Maybe (Maybe (b))         program: Data.Maybe.fromJust arg2
