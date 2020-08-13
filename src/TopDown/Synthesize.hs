@@ -150,11 +150,21 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
   let goalType = lastType $ toMonotype goal :: RType
 
-  solution <- dfsEMode env messageChan quota goalType :: TopDownSolver IO RProgram
+  solution <- dfsEMode env messageChan quota (quota * 3) goalType :: TopDownSolver IO RProgram
   
+-- << sizeQuota 4, subQuota 14 >>: sizeOf (Data.Maybe.fromJust arg0 arg1) = 3, 6
+--         * ("tau0",a)
+--         * ("tau1",Maybe (a -> b))
+--         * ("tau2",a -> b)
+
   -- check if the program has all the arguments that it should have (avoids calling check)  
   guard (filterParams solution env)
-  liftIO $ printf "new program: %s\n" (show solution)
+  subSize <- sizeOfSub
+  liftIO $ printf "\nnew program: %s\n" (show solution) 
+  liftIO $ printf "\nprogramSize: %d\n\tsubSize %d\n\n" (sizeOf solution) subSize
+  -- liftIO $ printf "new program: %s\n" (show solution)
+
+
   
   -- call check on the program
   guard =<< liftIO (check' solution)
@@ -182,14 +192,19 @@ filterParams program env = all (`isInfixOf` show program) $ filter (not . ("tcar
 --    * if is a function type, split args out and return a lambda 
 --    * if not, searched in e-mode 
 --
-dfsIMode :: Environment -> Chan Message -> Int -> RType -> TopDownSolver IO RProgram
-dfsIMode env messageChan quota goalType 
-  | quota <= 0 = mzero
-  | otherwise =
+dfsIMode :: Environment -> Chan Message -> Int -> Int -> RType -> TopDownSolver IO RProgram
+dfsIMode env messageChan sizeQuota subQuota goalType 
+  | sizeQuota <= 0 = mzero
+  | otherwise = do
+      -- subSize <- sizeOfSub
+      -- guard (subSize > subQuota)
+      
       case goalType of
         
         -- if function type, split up the arguments and add them to the environment
         FunctionT _ tArg tBody -> do
+          
+          -- TODO first check if things are in env, and then split up otherwise
           argName <- freshId (Map.keys $ env ^. arguments) "arg"
 
           -- add argument to new env and call dfsIMode with that new env
@@ -197,19 +212,22 @@ dfsIMode env messageChan quota goalType
 
           -- we're synthesizing the body for the lambda
           -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
-          body <- dfsIMode newEnv messageChan (quota - 1) tBody
+          body <- dfsIMode newEnv messageChan (sizeQuota - 1) subQuota tBody
 
           let program = Program { content = PFun argName body, typeOf = goalType }
 
-          liftIO $ printf "quota %d: sizeOf (%s) = %d\n" quota (show program) (sizeOf program)
+          -- liftIO $ printf "quota %d: sizeOf (%s) = %d\n" quota (show program) (sizeOf program)
           
-          guard (sizeOf program <= quota)
+          guard (sizeOf program <= sizeQuota)
+
+-- (Data.Maybe.fromJust (Data.Maybe.Just (GHC.List.last (GHC.List.last (GHC.List.concat [])))) :: b) = 6, 1
+
 
           return program
         
         -- not a function type, switch into e-mode
         ScalarT _ _     -> do
-          dfsEMode env messageChan quota goalType 
+          dfsEMode env messageChan sizeQuota subQuota goalType 
         
         _ -> error "unsupported goalType for dfsIMode"
 
@@ -218,14 +236,22 @@ dfsIMode env messageChan quota goalType
 --    * checks if anything in the environment matches the full type of goal
 --    * if not, splits it up into 2 new goals: alpha -> T and alpha 
 --
-dfsEMode :: Environment -> Chan Message -> Int -> RType -> TopDownSolver IO RProgram
-dfsEMode env messageChan quota goalType
-  | quota <= 0 = mzero
-  | otherwise  = do
-      prog <- inEnv `mplus` doSplit
+dfsEMode :: Environment -> Chan Message -> Int -> Int -> RType -> TopDownSolver IO RProgram
+dfsEMode env messageChan sizeQuota subQuota goalType 
+  | sizeQuota <= 0 = mzero
+  | otherwise      = do
+      -- guard (subSize > subQuota)
       
-      liftIO $ printf "quota %d: sizeOf (%s :: %s) = %d\n" quota (show prog) (show $ typeOf prog) (sizeOf prog)
-      guard (sizeOf' prog + sizeOfType goalType <= quota)
+      prog <- inEnv `mplus` doSplit
+      filterBottomHack prog
+
+      st <- get
+      let sub = st ^. typeAssignment
+      subSize <- sizeOfSub
+      -- liftIO $ printf "<< sizeQuota %d, subQuota %d >>: sizeOf (%s) = %d, %d\n" sizeQuota subQuota (show prog) (sizeOf prog) (subSize)
+      -- liftIO $ mapM_ (printf "\t* %s\n" . show) $ Map.toList sub
+      -- liftIO $ printf "<< sizeQuota %d, subSize %d >>: sizeOf (%s :: %s) = %d\n" sizeQuota  (subSize) (show prog) (show $ typeOf prog) (sizeOf prog)
+      guard (sizeOf prog <= sizeQuota)
 
 -- quota 10: sizeOf (Data.Maybe.fromJust :: (Maybe (b) -> b)) = 4
 -- quota 6: sizeOf (Data.Maybe.fromJust :: (Maybe ((Maybe (b))) -> Maybe (b))) = 6
@@ -234,13 +260,12 @@ dfsEMode env messageChan quota goalType
 -- quota 3: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau4 -> (tau3 -> (tau2 -> Maybe (b)))))) -> (tau4 -> (tau3 -> (tau2 -> Maybe (b)))))) = 12
 -- quota 2: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b))))))) -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b))))))) = 14
 -- quota 1: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b)))))))) -> (tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b)))))))) = 16
-      
-      -- we love partial functions
-      filterBottomHack prog
+    
       
       return prog
   where
 
+    -- we love partial functions
     filterBottomHack prog = do
       guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` show prog
       guard $ not $ "GHC.List.head []" `isInfixOf` show prog
@@ -250,6 +275,7 @@ dfsEMode env messageChan quota goalType
     inEnv = do 
             
       (id, schema) <- getUnifiedComponent :: TopDownSolver IO (Id, SType)
+      
       let program = Program { content = PSymbol id, typeOf = addTrue schema }
 
       return program
@@ -272,32 +298,18 @@ dfsEMode env messageChan quota goalType
       --      since they all take max 3 arguments
 
       -- no matter what the holes are, ((?? ??) :: goalType) should be less or equal to quota
-      guard $ (2 + sizeOfType goalType) <= quota
+      -- guard $ (2 + sizeOfType goalType) <= sizeQuota
       -- fromJust ?? ??
-
--- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 11
--- quota 11:  sizeOf (Data.Maybe.fromJust :: (Maybe (b) -> b)) = 4
--- quota 11:  f ::       huggggge type a -> b -> c -> d
---            f x y z :: tiny type    d
-
-
--- quota 11: sizeOf (Data.Maybe.fromJust :: (Maybe ((Maybe (b))) -> Maybe (b))) = 6
--- quota 11: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau2 -> Maybe (b)))) -> (tau2 -> Maybe (b)))) = 8
--- quota 11: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau0 -> b))) -> (tau0 -> b))) = 6
--- quota 11: sizeOf (arg0 :: Maybe (((a -> b)))) = 4
--- quota 11:  sizeOf (Data.Maybe.fromJust arg0 :: (tau0 -> b)) = 4
--- quota 11: sizeOf (arg1 :: a) = 2
--- quota 11:  sizeOf (Data.Maybe.fromJust arg0 arg1 :: b) = 4
       
-      schemaProgram <- dfsEMode env messageChan (quota - 1) schema :: TopDownSolver IO RProgram
-      let quota' = quota - sizeOf schemaProgram
+      schemaProgram <- dfsEMode env messageChan (sizeQuota - 1) subQuota schema :: TopDownSolver IO RProgram
+      let sizeQuota' = sizeQuota - sizeOf schemaProgram
 
       st' <- get
       let sub = st' ^. typeAssignment
       let alphaSub' = stypeSubstitute sub (shape alpha) :: SType 
       let alphaSub = addTrue alphaSub'
       
-      alphaProgram <- dfsIMode env messageChan quota' alphaSub :: TopDownSolver IO RProgram
+      alphaProgram <- dfsIMode env messageChan sizeQuota' subQuota alphaSub :: TopDownSolver IO RProgram
 
       return Program {
           content = case content schemaProgram of
@@ -343,13 +355,16 @@ dfsEMode env messageChan quota goalType
       -- liftIO $ printf "quota %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
       --   quota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
       
+      subSize <- sizeOfSub
+      guard (subSize <= subQuota)
+
       guard checkResult
 
       return (id, subbedType)
       
 -- gets the size of a program, used for checking quota
 sizeOf :: RProgram -> Int
-sizeOf p = sizeOf' p + (sizeOfType $ typeOf p) -- TODO we need to add this back in!!!!! 
+sizeOf p = sizeOf' p -- + (sizeOfType $ typeOf p) -- TODO we need to add this back in!!!!! 
 
 sizeOf' :: RProgram -> Int
 sizeOf' p = case content p of
@@ -390,3 +405,12 @@ sizeOfType t =
         (TypeVarT _ _) -> 1
         _ -> error $ "sizeOfBase doesn't support this thing"
 
+-- gets the size of the sub
+sizeOfSub :: TopDownSolver IO Int
+sizeOfSub = do
+  st <- get
+  let sub = st ^. typeAssignment :: Map Id SType
+  return $ Map.foldr f 0 sub
+  where
+    f :: SType -> Int -> Int
+    f t acc = sizeOfType t + acc
