@@ -21,6 +21,7 @@ ghc-options:
 - -n2m
 - -RTS
 - -fno-omit-yields # https://stackoverflow.com/a/55191886
+# - -fprof-auto-exported
 # - -fwarn-unused-imports
 
 dependencies:
@@ -110,6 +111,14 @@ executables:
     - -O2
     dependencies:
     - HooglePlus
+  # syn:
+  #   main: Syn.hs
+  #   source-dirs: app2
+  #   ghc-options:
+  #   - -rtsopts
+  #   - -O2
+  #   dependencies:
+  #   - HooglePlus
 
 tests:
   spec:

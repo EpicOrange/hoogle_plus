@@ -1,242 +1,214 @@
 {-
 
-quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (Data.Tuple.fst)
-quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (Data.Tuple.snd)
-quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (fst)
-quota (1): we found one! goal ((tau6 -> (tau5 , b))), prog (snd)
-quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (Data.Tuple.fst)
-quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (Data.Tuple.snd)
-quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (fst)
-quota (1): we found one! goal ((tau6 -> (b , tau4))), prog (snd)
-quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (Data.Tuple.fst)
-quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (Data.Tuple.snd)
-quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (fst)
-quota (1): we found one! goal ((tau6 -> (tau5 , a))), prog (snd)
-quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (Data.Tuple.fst)
-quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (Data.Tuple.snd)
-quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (fst)
-quota (1): we found one! goal ((tau6 -> (a , tau4))), prog (snd)
-new program: Data.Tuple.snd (Data.Maybe.fromJust arg1) arg0
 
-/tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:72: error:
-    • Occurs check: cannot construct the infinite type:
-        b ~ Maybe (a0, Maybe a -> Either a b)
-    • In the first argument of ‘fromJust’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fromJust arg1)’
-      In the expression: snd (fromJust arg1) arg0
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/18087546-1e42-4e9e-91bb-df7874d72dc4.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Maybe.fromJust arg1) arg0
-   |                                                                        ^^^^
-<interactive>:1:52: error:
-    • Occurs check: cannot construct the infinite type:
-        b1 ~ Maybe (a0, Maybe a1 -> Either a1 b1)
-    • In the first argument of ‘fromJust’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fromJust arg1)’
-      In the expression: snd (fromJust arg1) arg0
-    • Relevant bindings include
-        arg1 :: b1 (bound at <interactive>:1:8)
-        arg0 :: Maybe a1 (bound at <interactive>:1:3)
 
-new program: Data.Tuple.snd (Data.Maybe.fromJust arg0) arg1
 
-/tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:52: error:
-    • Occurs check: cannot construct the infinite type:
-        a ~ (a0, b -> Either a b)
-    • In the first argument of ‘snd’, namely ‘(fromJust arg0)’
-      In the expression: snd (fromJust arg0) arg1
-      In the expression: \ arg0 arg1 -> snd (fromJust arg0) arg1
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/3c475bb4-d050-40b4-8ddb-2c7250fc63bd.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Maybe.fromJust arg0) arg1
-   |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^
-<interactive>:1:32: error:
-    • Occurs check: cannot construct the infinite type:
-        a1 ~ (a0, b1 -> Either a1 b1)
-    • In the first argument of ‘snd’, namely ‘(fromJust arg0)’
-      In the expression: snd (fromJust arg0) arg1
-      In the expression:
-          (\ arg0 arg1 -> snd (fromJust arg0) arg1) ::
-            Maybe (a) -> b -> Either (a) (b)
-    • Relevant bindings include
-        arg1 :: b1 (bound at <interactive>:1:8)
-        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+: http://www.haskell.org/ghc/  :? for help
+Loaded GHCi configuration from /root/.ghc/ghci.conf
+[ 1 of 55] Compiling Evaluation.Benchmark ( /home/hoogle_plus/src/Evaluation/Benchmark.hs, interpreted )
+[ 2 of 55] Compiling Evaluation.ReadBenchmark ( /home/hoogle_plus/src/Evaluation/ReadBenchmark.hs, interpreted )
+[ 3 of 55] Compiling Paths_HooglePlus ( /home/hoogle_plus/.stack-work/dist/x86_64-linux-custom-yields/Cabal-2.2.0.1/build/autogen/Paths_HooglePlus.hs, interpreted )
+[ 4 of 55] Compiling Synquid.Error    ( /home/hoogle_plus/src/Synquid/Error.hs, interpreted )
+[ 5 of 55] Compiling Types.Common     ( /home/hoogle_plus/src/Types/Common.hs, interpreted )
+[ 6 of 55] Compiling Synquid.Util     ( /home/hoogle_plus/src/Synquid/Util.hs, interpreted )
+[ 7 of 55] Compiling Synquid.Logic    ( /home/hoogle_plus/src/Synquid/Logic.hs, interpreted )
+[ 8 of 55] Compiling Synquid.Tokens   ( /home/hoogle_plus/src/Synquid/Tokens.hs, interpreted )
+[ 9 of 55] Compiling Types.Generate   ( /home/hoogle_plus/src/Types/Generate.hs, interpreted )
+[10 of 55] Compiling Types.Type       ( /home/hoogle_plus/src/Types/Type.hs, interpreted )
+[11 of 55] Compiling Types.IOFormat   ( /home/hoogle_plus/src/Types/IOFormat.hs, interpreted )
+[12 of 55] Compiling Types.Filtering  ( /home/hoogle_plus/src/Types/Filtering.hs, interpreted )
+[13 of 55] Compiling Types.Environment ( /home/hoogle_plus/src/Types/Environment.hs, interpreted )
+[14 of 55] Compiling Types.Program    ( /home/hoogle_plus/src/Types/Program.hs, interpreted )
+[15 of 55] Compiling Types.Abstract   ( /home/hoogle_plus/src/Types/Abstract.hs, interpreted )
+[16 of 55] Compiling Synquid.Type     ( /home/hoogle_plus/src/Synquid/Type.hs, interpreted )
+[17 of 55] Compiling Synquid.Program  ( /home/hoogle_plus/src/Synquid/Program.hs, interpreted )
+[18 of 55] Compiling Types.Experiments ( /home/hoogle_plus/src/Types/Experiments.hs, interpreted )
+[19 of 55] Compiling Types.Encoder    ( /home/hoogle_plus/src/Types/Encoder.hs, interpreted )
+[20 of 55] Compiling HooglePlus.CodeFormer ( /home/hoogle_plus/src/HooglePlus/CodeFormer.hs, interpreted )
+[21 of 55] Compiling Types.CheckMonad ( /home/hoogle_plus/src/Types/CheckMonad.hs, interpreted )
+[22 of 55] Compiling Types.InfConstraint ( /home/hoogle_plus/src/Types/InfConstraint.hs, interpreted )
+[23 of 55] Compiling Database.Presets ( /home/hoogle_plus/src/Database/Presets.hs, interpreted )
+[24 of 55] Compiling Database.Util    ( /home/hoogle_plus/src/Database/Util.hs, interpreted )
+[25 of 55] Compiling Synquid.Pretty   ( /home/hoogle_plus/src/Synquid/Pretty.hs, interpreted )
+[26 of 55] Compiling Synquid.Resolver ( /home/hoogle_plus/src/Synquid/Resolver.hs, interpreted )
+[27 of 55] Compiling Synquid.Parser   ( /home/hoogle_plus/src/Synquid/Parser.hs, interpreted )
+[28 of 55] Compiling Database.Download ( /home/hoogle_plus/src/Database/Download.hs, interpreted )
+[29 of 55] Compiling Database.Generate ( /home/hoogle_plus/src/Database/Generate.hs, interpreted )
+[30 of 55] Compiling Database.Convert ( /home/hoogle_plus/src/Database/Convert.hs, interpreted )
+[31 of 55] Compiling Database.Environment ( /home/hoogle_plus/src/Database/Environment.hs, interpreted )
+[32 of 55] Compiling Types.TypeChecker ( /home/hoogle_plus/src/Types/TypeChecker.hs, interpreted )
+[33 of 55] Compiling Types.Solver     ( /home/hoogle_plus/src/Types/Solver.hs, interpreted )
+[34 of 55] Compiling HooglePlus.Stats ( /home/hoogle_plus/src/HooglePlus/Stats.hs, interpreted )
+[35 of 55] Compiling HooglePlus.Utils ( /home/hoogle_plus/src/HooglePlus/Utils.hs, interpreted )
+[36 of 55] Compiling PetriNet.Util    ( /home/hoogle_plus/src/PetriNet/Util.hs, interpreted )
+[37 of 55] Compiling TopDown.TypeChecker ( /home/hoogle_plus/src/TopDown/TypeChecker.hs, interpreted )
+[38 of 55] Compiling PetriNet.AbstractType ( /home/hoogle_plus/src/PetriNet/AbstractType.hs, interpreted )
+[39 of 55] Compiling PetriNet.PNEncoder ( /home/hoogle_plus/src/PetriNet/PNEncoder.hs, interpreted )
+[40 of 55] Compiling HooglePlus.Refinement ( /home/hoogle_plus/src/HooglePlus/Refinement.hs, interpreted )
+[41 of 55] Compiling HooglePlus.Abstraction ( /home/hoogle_plus/src/HooglePlus/Abstraction.hs, interpreted )
+[42 of 55] Compiling HooglePlus.FilterTest ( /home/hoogle_plus/src/HooglePlus/FilterTest.hs, interpreted )
+[43 of 55] Compiling HooglePlus.TypeChecker ( /home/hoogle_plus/src/HooglePlus/TypeChecker.hs, interpreted )
+[44 of 55] Compiling Examples.Utils   ( /home/hoogle_plus/src/Examples/Utils.hs, interpreted )
+[45 of 55] Compiling Examples.InferenceDriver ( /home/hoogle_plus/src/Examples/InferenceDriver.hs, interpreted )
+[46 of 55] Compiling Examples.ExampleChecker ( /home/hoogle_plus/src/Examples/ExampleChecker.hs, interpreted )
+[47 of 55] Compiling HooglePlus.IOFormat ( /home/hoogle_plus/src/HooglePlus/IOFormat.hs, interpreted )
+[48 of 55] Compiling Evaluation.EvalTypeInf ( /home/hoogle_plus/src/Evaluation/EvalTypeInf.hs, interpreted )
+[49 of 55] Compiling HooglePlus.GHCChecker ( /home/hoogle_plus/src/HooglePlus/GHCChecker.hs, interpreted )
+[50 of 55] Compiling TopDown.SynthesizeOptimized ( /home/hoogle_plus/src/TopDown/SynthesizeOptimized.hs, interpreted )
+[51 of 55] Compiling TopDown.SynthesizeBefore ( /home/hoogle_plus/src/TopDown/SynthesizeBefore.hs, interpreted )
+[52 of 55] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
+[53 of 55] Compiling PetriNet.PNSolver ( /home/hoogle_plus/src/PetriNet/PNSolver.hs, interpreted )
+[54 of 55] Compiling HooglePlus.Synthesize ( /home/hoogle_plus/src/HooglePlus/Synthesize.hs, interpreted )
+[55 of 55] Compiling Main             ( /home/hoogle_plus/app/HooglePlus.hs, interpreted )
+Ok, 55 modules loaded.
+Loaded GHCi configuration from /tmp/haskell-stack-ghci/5a9bbb4d/ghci-script
+> synGuard' "[a -> b] -> a -> [b]" ["GHC.List.map"] [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]
 
-quota (1): we found one! goal ((tau4 -> (tau3 , (tau0 -> Either (a) (b))))), prog (Data.Tuple.fst)
-new program: Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 5
 
-/tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:67: error:
-    • Couldn't match expected type ‘((a0, b -> Either a b), b0)’
-                  with actual type ‘Maybe a’
-    • In the first argument of ‘fst’, namely ‘arg0’
-      In the first argument of ‘snd’, namely ‘(fst arg0)’
-      In the expression: snd (fst arg0) arg1
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/021fa23b-3263-4d38-95c0-4d7935647bc2.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg0) arg1
-   |                                                                   ^^^^
-GhcException: signal: 15
-new program: Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+new program: GHC.List.map (\arg2 ->
+    arg2 arg1) arg0
 
-/tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:67: error:
-    • Couldn't match expected type ‘((a0, b -> Either a b), b0)’
-                  with actual type ‘Maybe a’
-    • In the first argument of ‘fst’, namely ‘arg0’
-      In the first argument of ‘snd’, namely ‘(fst arg0)’
-      In the expression: snd (fst arg0) arg1
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/7d5195d8-455c-443d-85d6-98772cfd75f3.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg0) arg1
-   |                                                                   ^^^^
-<interactive>:1:47: error:
-    • Couldn't match expected type ‘((a0, b1 -> Either a1 b1), b0)’
-                  with actual type ‘Maybe a1’
-    • In the first argument of ‘fst’, namely ‘arg0’
-      In the first argument of ‘snd’, namely ‘(fst arg0)’
-      In the expression: snd (fst arg0) arg1
-    • Relevant bindings include
-        arg1 :: b1 (bound at <interactive>:1:8)
-        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 6
 
-new program: Data.Tuple.snd (Data.Tuple.fst arg0) arg1
+new program: GHC.List.map (\arg2 ->
+    arg2 arg1) arg0
 
-/tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:67: error:
-    • Couldn't match expected type ‘((a0, b -> Either a b), b0)’
-                  with actual type ‘Maybe a’
-    • In the first argument of ‘fst’, namely ‘arg0’
-      In the first argument of ‘snd’, namely ‘(fst arg0)’
-      In the expression: snd (fst arg0) arg1
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/f269afc2-6cff-4f48-9ad3-d128ee799e7b.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg0) arg1
-   |                                                                   ^^^^
-<interactive>:1:47: error:
-    • Couldn't match expected type ‘((a0, b1 -> Either a1 b1), b0)’
-                  with actual type ‘Maybe a1’
-    • In the first argument of ‘fst’, namely ‘arg0’
-      In the first argument of ‘snd’, namely ‘(fst arg0)’
-      In the expression: snd (fst arg0) arg1
-    • Relevant bindings include
-        arg1 :: b1 (bound at <interactive>:1:8)
-        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 7
 
-new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+new program: GHC.List.map (\arg2 ->
+    arg2 arg1) arg0
 
-/tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:67: error:
-    • Occurs check: cannot construct the infinite type:
-        b ~ ((a0, Maybe a -> Either a b), b0)
-    • In the first argument of ‘fst’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fst arg1)’
-      In the expression: snd (fst arg1) arg0
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/f2932dd8-1c02-4264-af21-0a40823d23a8.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg1) arg0
-   |                                                                   ^^^^
-<interactive>:1:47: error:
-    • Occurs check: cannot construct the infinite type:
-        b1 ~ ((a0, Maybe a1 -> Either a1 b1), b0)
-    • In the first argument of ‘fst’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fst arg1)’
-      In the expression: snd (fst arg1) arg0
-    • Relevant bindings include
-        arg1 :: b1 (bound at <interactive>:1:8)
-        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 8
 
-new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+new program: GHC.List.map (\arg2 ->
+    arg2) (GHC.List.map (\arg3 ->
+               arg3 arg1) arg0)
 
-/tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:67: error:
-    • Occurs check: cannot construct the infinite type:
-        b ~ ((a0, Maybe a -> Either a b), b0)
-    • In the first argument of ‘fst’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fst arg1)’
-      In the expression: snd (fst arg1) arg0
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/4ed09823-5849-4bf7-9fb3-0d459cf31e1d.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg1) arg0
-   |                                                                   ^^^^
-<interactive>:1:47: error:
-    • Occurs check: cannot construct the infinite type:
-        b1 ~ ((a0, Maybe a1 -> Either a1 b1), b0)
-    • In the first argument of ‘fst’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fst arg1)’
-      In the expression: snd (fst arg1) arg0
-    • Relevant bindings include
-        arg1 :: b1 (bound at <interactive>:1:8)
-        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+new program: GHC.List.map (\arg2 ->
+    arg2 arg1) arg0
+"[7, 16]"
+"[7, 16]"
+RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["[\\x -> x + 3, \\x -> x * x]","4"],"output":"[7, 16]"}],"solution":"\\arg0 arg1 -> GHC.List.map (\\arg2 -> arg2 arg1) arg0"}],"outDocs":[{"functionSig":"(a -> b) -> [a] -> [b]","functionName":"map","functionDesc":"<math>. map f xs is the list obtained by\napplying f to each element of xs, i.e.,\n\n\nmap f [x1, x2, ..., xn] == [f x1, f x2, ..., f xn]\nmap f [x1, x2, ...] == [f x1, f x2, ...]\n\n\n\n>>> map (+1) [1, 2, 3]\n\n"},{"functionSig":"(a -> b -> c) -> b","functionName":"arg2","functionDesc":""},{"functionSig":"[(a -> b)]","functionName":"arg0","functionDesc":""},{"functionSig":"a","functionName":"arg1","functionDesc":""}],"outError":""}
 
-new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
 
-/tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:67: error:
-    • Occurs check: cannot construct the infinite type:
-        b ~ ((a0, Maybe a -> Either a b), b0)
-    • In the first argument of ‘fst’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fst arg1)’
-      In the expression: snd (fst arg1) arg0
-    • Relevant bindings include
-        arg1 :: b
-          (bound at /tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:28)
-        arg0 :: Maybe a
-          (bound at /tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:23)
-        ghcCheckedFunction :: Maybe a -> b -> Either a b
-          (bound at /tmp/dfda04e5-87a0-4c7b-9217-3ca36ca54487.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 arg1 -> Data.Tuple.snd (Data.Tuple.fst arg1) arg0
-   |                                                                   ^^^^
-<interactive>:1:47: error:
-    • Occurs check: cannot construct the infinite type:
-        b1 ~ ((a0, Maybe a1 -> Either a1 b1), b0)
-    • In the first argument of ‘fst’, namely ‘arg1’
-      In the first argument of ‘snd’, namely ‘(fst arg1)’
-      In the expression: snd (fst arg1) arg0
-    • Relevant bindings include
-        arg1 :: b1 (bound at <interactive>:1:8)
-        arg0 :: Maybe a1 (bound at <interactive>:1:3)
+Done with <b> . <a> . ([(a -> b)] -> (a -> [b]))!
+size    subSize solution
+5       10      GHC.List.map (\arg2 ->
+    arg2 arg1) arg0
 
-new program: Data.Tuple.snd (Data.Tuple.fst arg1) arg0
+> :r
+[54 of 55] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
+[55 of 55] Compiling Main             ( /home/hoogle_plus/app/HooglePlus.hs, interpreted ) [TH]
+Ok, 55 modules loaded.
+> syn' "[a -> b] -> a -> [b]" [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]
+running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 5
+
+new program: Data.Maybe.maybeToList (Data.Maybe.Just (GHC.List.head arg0 arg1))
+"[7]"
+"[7, 16]"
+
+new program: Data.Maybe.maybeToList (Data.Maybe.Just (GHC.List.last arg0 arg1))
+"[16]"
+"[7, 16]"
+
+new program: GHC.List.cycle (GHC.List.repeat (GHC.List.head arg0 arg1))
+"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
+"[7, 16]"
+
+new program: GHC.List.cycle (GHC.List.repeat (GHC.List.last arg0 arg1))
+
+new program: GHC.List.init (GHC.List.repeat (GHC.List.head arg0 arg1))
+"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
+
+new program: GHC.List.init (GHC.List.repeat (GHC.List.last arg0 arg1))
+"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
+
+new program: GHC.List.repeat (Data.Maybe.fromJust (Data.Maybe.listToMaybe arg0) arg1)
+
+new program: GHC.List.repeat (GHC.List.head arg0 arg1)
+
+new program: GHC.List.repeat (GHC.List.head (GHC.List.cycle arg0) arg1)
+"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
+"[7, 16]"
+
+new program: GHC.List.repeat (GHC.List.head (GHC.List.init arg0) arg1)
+"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
+"[7, 16]"
+
+new program: GHC.List.repeat (GHC.List.head (GHC.List.reverse arg0) arg1)
+"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
+"[7, 16]"
+
+new program: GHC.List.repeat (GHC.List.head (GHC.List.tail arg0) arg1)
+"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
+"[7, 16]"
+
+new program: GHC.List.repeat (GHC.List.last arg0 arg1)
+"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
+"[7, 16]"
+
+new program: GHC.List.repeat (GHC.List.last (GHC.List.cycle arg0) arg1)
+"[
+new program: GHC.List.repeat (GHC.List.last (GHC.List.init arg0) arg1)
+"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
+"[7, 16]"
+
+new program: GHC.List.repeat (GHC.List.last (GHC.List.reverse arg0) arg1)
+"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
+"[7, 16]"
+
+new program: GHC.List.repeat (GHC.List.last (GHC.List.tail arg0) arg1)
+"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
+"[7, 16]"
+
+new program: GHC.List.reverse (GHC.List.repeat (GHC.List.head arg0 arg1))
+"
+new program: GHC.List.reverse (GHC.List.repeat (GHC.List.last arg0 arg1))
+
+new program: GHC.List.tail (GHC.List.repeat (GHC.List.head arg0 arg1))
+"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
+"[7, 16]"
+
+new program: GHC.List.tail (GHC.List.repeat (GHC.List.last arg0 arg1))
+"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
+"[7, 16]"
+
+new program: (GHC.List.head arg0 arg1) : []
+"[7]"
+"[7, 16]"
+
+new program: (GHC.List.last arg0 arg1) : []
+"[16]"
+"[7, 16]"
+
+new program: GHC.List.map (\arg2 ->
+    arg2 arg1) arg0
+"[7, 16]"
+"[7, 16]"
+RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["[\\x -> x + 3, \\x -> x * x]","4"],"output":"[7, 16]"}],"solution":"\\arg0 arg1 -> GHC.List.map (\\arg2 -> arg2 arg1) arg0"}],"outDocs":[{"functionSig":"(a -> b) -> [a] -> [b]","functionName":"map","functionDesc":"<math>. map f xs is the list obtained by\napplying f to each element of xs, i.e.,\n\n\nmap f [x1, x2, ..., xn] == [f x1, f x2, ..., f xn]\nmap f [x1, x2, ...] == [f x1, f x2, ...]\n\n\n\n>>> map (+1) [1, 2, 3]\n\n"},{"functionSig":"(a -> b -> c) -> b","functionName":"arg2","functionDesc":""},{"functionSig":"[(a -> b)]","functionName":"arg0","functionDesc":""},{"functionSig":"a","functionName":"arg1","functionDesc":""}],"outError":""}
+
+
+Done with <b> . <a> . ([(a -> b)] -> (a -> [b]))!
+size    subSize solution
+5       10      GHC.List.map (\arg2 ->
+    arg2 arg1) arg0
+
+
+
+
+
+
+
+
+
+
+
 
 -}
+
+
+
 
 
 

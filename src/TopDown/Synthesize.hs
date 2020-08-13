@@ -145,11 +145,12 @@ evalTopDownSolver messageChan m =
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver messageChan $ (`map` [1..]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver messageChan $ (`map` [1..50]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
   let goalType = lastType $ toMonotype goal :: RType
 
+  -- plotted our tests, and solutions tend to have sub size = 3.7 * program size
   solution <- dfsEMode env messageChan quota (quota * 3) goalType :: TopDownSolver IO RProgram
   
 -- << sizeQuota 4, subQuota 14 >>: sizeOf (Data.Maybe.fromJust arg0 arg1) = 3, 6
@@ -159,15 +160,18 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
   -- check if the program has all the arguments that it should have (avoids calling check)  
   guard (filterParams solution env)
-  subSize <- sizeOfSub
+  -- subSize <- sizeOfSub
   liftIO $ printf "\nnew program: %s\n" (show solution) 
-  liftIO $ printf "\nprogramSize: %d\n\tsubSize %d\n\n" (sizeOf solution) subSize
+  -- liftIO $ printf "\nprogramSize: %d\n\tsubSize %d\n\n" (sizeOf solution) subSize
   -- liftIO $ printf "new program: %s\n" (show solution)
 
 
   
   -- call check on the program
   guard =<< liftIO (check' solution)
+
+  subSize <- sizeOfSub
+  liftIO $ printf "\n\n(Quota %d) Done with %s!\nsize\tsubSize\tsolution\n%d\t%d\t%s\n\n" quota (show goal) (sizeOf solution) subSize (show solution)
 
   return solution
   where

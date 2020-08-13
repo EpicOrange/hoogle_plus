@@ -145,10 +145,10 @@ def load_queries():
     with open(DEFAULT_QUERY_FILE) as f:
         queries = yaml.full_load(f)
         for q in queries:
-            # blacklist = ["mapEither", "mapMaybes", "cartProduct", "multiAppPair", "map", "repl-funcs", "mbAppFirst", "2partApp", "resolveEither", "inverseMap", "pred-match", "splitStr", "firstMatch", "zipWithResult", "applyNtimes", "pipe", "applyPair"]
+            # blacklist = ["both", "cartProduct", "multiAppPair", "mbAppFirst", "2partApp", "resolveEither", "dedupe", "inverseMap", "zipWithResult", "pipe", "lookup", "mbElem", "areEq", "applyPair", "takeNdropM"]
             # if q['name'] in blacklist:
             #     continue
-            # whitelist = ["singleList"]
+            # whitelist = ["rights", "firstRight", "eitherTriple"]
             # if q['name'] not in whitelist:
             #     continue
             # print(q['name'])
