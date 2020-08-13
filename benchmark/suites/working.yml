@@ -138,6 +138,10 @@
 
 # stack run -- hplus --json='{"query": "[a] -> (a -> Bool) -> Int", "inExamples": [ {"inputs": ["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "output": "2"}, {"inputs": ["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "output": "2"} ]}'
 # \\arg0 arg1 -> GHC.List.length (GHC.List.filter arg1 arg0)"
+
+# synGuard' "[a] -> (a -> Bool) -> Int" ["filter", "length"] [ ( ["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2" ), ( ["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2" ) ]
+# "\\arg0 arg1 -> GHC.List.length (GHC.List.filter (\\arg2 -> arg1 arg2) arg0)"
+
 - name: splitStr
   query: "String -> Char -> [String]"
   solution: "\\xs x -> Data.List.words (Data.List.map (\\y -> Data.Bool.bool y ' ' (y == x)) xs)"
@@ -161,6 +165,11 @@
       output: Right 1
     - inputs: [Just 2, "3"]
       output: Left 2
+
+# synGuard' "Maybe a -> b -> Either a b" [".maybe", ".Right", ".Left"] [( ["Nothing", "1"], "Right 1"), ( ["Just 2", "3"], "Left 2")]
+# \arg0 arg1 -> Data.Maybe.maybe (Data.Either.Right arg1) Data.Either.Left arg0
+# "\\arg0 arg1 -> Data.Maybe.maybe (Data.Either.Right arg1) (\\arg2 -> Data.Either.Left arg2) arg0
+# [( [Nothing, "1"], Right 1), ( [Just 2, "3"], Left 2)]
 
 - name: cartProduct
   query: "[a] -> [b] -> [[(a,b)]]"
@@ -229,6 +238,7 @@
     - inputs: ["[Left 1, Right 2, Right 3]"]
       output: "Right [2, 3]"
 
+# syn' "[Either a b] -> Either a [b]" [(["[Left 1, Right 2, Right 3]"],"Right [2,3]" )]
 # -- stack run -- hplus --json='{"query": "[Either a b] -> Either a [b]", "inExamples": [{"inputs": ["[Left 1, Right 2, Right 3]"], "output":  "Right [2,3]"}]}'
 # stack run -- hplus --json='{"query": "(a->b) -> c -> (a->b, c)", "inExamples": []}'
 # Registering library for HooglePlus-0.1.0.0..
@@ -241,6 +251,13 @@
 # program: [] !! (GHC.List.length arg0)
 # let arg0 = [Left 1, Right 2, Right 3]
 
+# change line 141 in src/Examples/ExampleChecker.hs into expectedOutput <- runStmt mdls (printf "(%s)" $ output ex)
+
+# change line 94 in src/Examples/ExampleChecker.hs into let progCall = printf "(f %s)" (unwords parensedInputs)
+
+# change line 86 in src/Examples/Utils.hs into Right term -> (Right . showSDocUnsafe) <$> showTerm term
+
+# let me know if you encounter any compilation error (or runtime error)
 
 - name: firstKey
   query: "[(a,b)] -> a"
@@ -275,7 +292,7 @@
   example:
     - inputs: ["[Left 1, Left 2, Right 3, Right 4]"]
       output: "Right 3"
-
+# syn' "[Either a b] -> Either a b" [(["[Left 1, Left 2, Right 3, Right 4]"], "Right 3" )]
 - name: maybe
   query: "Maybe a -> a -> Maybe a"
   solution: "\\mb x -> Just (Data.Maybe.fromMaybe x mb)"
@@ -405,6 +422,12 @@
     - inputs: ["[\\x -> x + 1, \\x -> x * 2, \\x -> x * x]", "3"]
       output: "19"
 
+# syn' "[(a -> a)] -> (a -> a)" [(["[\\x -> x + 1, \\x -> x * 2, \\x -> x * x]", "3"], "19")]
+# \arg0 arg1 -> GHC.List.foldr Data.Function.id arg1 arg0
+# \arg0 arg1 -> GHC.List.foldr (\arg2 -> arg2) arg1 arg0
+# "\\arg0 arg1 -> GHC.List.foldr (\\arg2 -> \\arg3 -> arg1) arg1 arg0"
+# \\arg0 arg1 -> GHC.List.foldr (\\arg2 -> \\arg3 -> arg2 arg3) arg1 arg0
+
 - name: indexesOf
   query: "([(a,Int)] -> [(a,Int)]) -> [a] -> [Int] -> [Int]"
   solution: "\\f xs ys -> Data.List.map Data.Tuple.snd (f (Data.List.zip xs ys))"
@@ -524,6 +547,10 @@
   example:
     - inputs: ["\"aaabbbccc\""]
       output: "\"abc\""
+
+    # synGuard' "Eq a => [a] -> [a]" ["map", "head", "group"] [(["\"aaabbbccc\""], "\"abc\"")]
+
+# "\\arg0 -> GHC.List.map (\\arg1 -> GHC.List.head arg1) (Data.List.group arg0)"
 
 - name: inverseMap
   query: "[a -> b] -> a -> [b]"

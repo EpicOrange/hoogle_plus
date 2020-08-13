@@ -92,7 +92,7 @@ execExample mdls env typ prog ex = do
         else printf "let f = (\\%s -> %s) :: %s in" prependArg prog typ
     let parensedInputs = map wrapParens $ inputs ex
     -- let progCall = printf "Test.ChasingBottoms.approxShow 100 (f %s)" (unwords parensedInputs)
-    let progCall = printf "(f %s)" (unwords parensedInputs)
+    let progCall = printf "(f %s)" (take 1000 $ unwords parensedInputs)
     runStmt mdls $ unwords [progBody, progCall]
 
 augmentTestSet :: Environment -> RSchema -> IO [Example]
@@ -140,8 +140,8 @@ checkExampleOutput mdls env typ prog exs = do
           | otherwise = case currOutput of
                           Left e -> return Nothing
                           Right o -> do
-                              expectedOutput <- runStmt mdls (printf "(%s)" $ output ex)
-                              --   expectedOutput <- runStmt mdls (printf "Test.ChasingBottoms.approxShow 100 (%s)" $ output ex)
+                              expectedOutput <- runStmt mdls (printf "(%s)" $ take 1000 $ output ex)
+                            --   expectedOutput <- runStmt mdls (printf "Test.ChasingBottoms.approxShow 100 (%s)" $ output ex)
                               case expectedOutput of
                                   Left err -> return Nothing
                                   Right out | o == out -> return (Just ex)

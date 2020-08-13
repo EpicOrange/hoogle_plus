@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Synthesize(synthesize, envToGoal, syn, synGuard, syn', sizeOf) where
+module TopDown.Synthesize(synthesize, envToGoal, syn, synGuard, synGuard', syn', sizeOf) where
 
 -- import HooglePlus.TypeChecker
 import TopDown.TypeChecker
@@ -74,6 +74,17 @@ syn' inStr ex = do
   solverChan <- newChan
   let examples = map (uncurry Example) ex
   synthesize defaultSearchParams goal examples solverChan
+
+synGuard' :: String -> [String] -> [([String], String)] -> IO ()
+synGuard' inStr guards ex = do
+  env' <- readEnv $ envPath defaultSynquidParams
+  env <- readBuiltinData defaultSynquidParams env'
+  let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
+  goal <- envToGoal (env { _symbols = rawSyms}) inStr
+  solverChan <- newChan
+  let examples = map (uncurry Example) ex
+  synthesize defaultSearchParams goal examples solverChan
+
 
 envToGoal :: Environment -> String -> IO Goal
 envToGoal env queryStr = do
@@ -189,7 +200,11 @@ dfsIMode env messageChan quota goalType
           body <- dfsIMode newEnv messageChan (quota - 1) tBody
 
           let program = Program { content = PFun argName body, typeOf = goalType }
+
+          liftIO $ printf "quota %d: sizeOf (%s) = %d\n" quota (show program) (sizeOf program)
+          
           guard (sizeOf program <= quota)
+
           return program
         
         -- not a function type, switch into e-mode
@@ -208,12 +223,28 @@ dfsEMode env messageChan quota goalType
   | quota <= 0 = mzero
   | otherwise  = do
       prog <- inEnv `mplus` doSplit
+      
+      liftIO $ printf "quota %d: sizeOf (%s :: %s) = %d\n" quota (show prog) (show $ typeOf prog) (sizeOf prog)
+      guard (sizeOf' prog + sizeOfType goalType <= quota)
+
+-- quota 10: sizeOf (Data.Maybe.fromJust :: (Maybe (b) -> b)) = 4
+-- quota 6: sizeOf (Data.Maybe.fromJust :: (Maybe ((Maybe (b))) -> Maybe (b))) = 6
+-- quota 5: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau2 -> Maybe (b)))) -> (tau2 -> Maybe (b)))) = 8
+-- quota 4: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau3 -> (tau2 -> Maybe (b))))) -> (tau3 -> (tau2 -> Maybe (b))))) = 10
+-- quota 3: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau4 -> (tau3 -> (tau2 -> Maybe (b)))))) -> (tau4 -> (tau3 -> (tau2 -> Maybe (b)))))) = 12
+-- quota 2: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b))))))) -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b))))))) = 14
+-- quota 1: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b)))))))) -> (tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> Maybe (b)))))))) = 16
+      
       -- we love partial functions
+      filterBottomHack prog
+      
+      return prog
+  where
+
+    filterBottomHack prog = do
       guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` show prog
       guard $ not $ "GHC.List.head []" `isInfixOf` show prog
       guard $ not $ "GHC.List.last []" `isInfixOf` show prog
-      return prog
-  where
 
     -- stream of components whose entire type unify with goal type
     inEnv = do 
@@ -221,7 +252,6 @@ dfsEMode env messageChan quota goalType
       (id, schema) <- getUnifiedComponent :: TopDownSolver IO (Id, SType)
       let program = Program { content = PSymbol id, typeOf = addTrue schema }
 
-      guard (sizeOf program <= quota)
       return program
 
     -- split goal into 2 goals: alpha -> T and alpha
@@ -240,9 +270,28 @@ dfsEMode env messageChan quota goalType
       -- TODO stop adding alphas so we don't get tau -> tau -> tau -> tau -> tau ....
       --      no components unify with (tau -> tau -> tau -> tau -> tau) and up
       --      since they all take max 3 arguments
+
+      -- no matter what the holes are, ((?? ??) :: goalType) should be less or equal to quota
+      guard $ (2 + sizeOfType goalType) <= quota
+      -- fromJust ?? ??
+
+-- running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 11
+-- quota 11:  sizeOf (Data.Maybe.fromJust :: (Maybe (b) -> b)) = 4
+-- quota 11:  f ::       huggggge type a -> b -> c -> d
+--            f x y z :: tiny type    d
+
+
+-- quota 11: sizeOf (Data.Maybe.fromJust :: (Maybe ((Maybe (b))) -> Maybe (b))) = 6
+-- quota 11: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau2 -> Maybe (b)))) -> (tau2 -> Maybe (b)))) = 8
+-- quota 11: sizeOf (Data.Maybe.fromJust :: (Maybe (((tau0 -> b))) -> (tau0 -> b))) = 6
+-- quota 11: sizeOf (arg0 :: Maybe (((a -> b)))) = 4
+-- quota 11:  sizeOf (Data.Maybe.fromJust arg0 :: (tau0 -> b)) = 4
+-- quota 11: sizeOf (arg1 :: a) = 2
+-- quota 11:  sizeOf (Data.Maybe.fromJust arg0 arg1 :: b) = 4
+      
       schemaProgram <- dfsEMode env messageChan (quota - 1) schema :: TopDownSolver IO RProgram
       let quota' = quota - sizeOf schemaProgram
-      
+
       st' <- get
       let sub = st' ^. typeAssignment
       let alphaSub' = stypeSubstitute sub (shape alpha) :: SType 
@@ -300,28 +349,44 @@ dfsEMode env messageChan quota goalType
       
 -- gets the size of a program, used for checking quota
 sizeOf :: RProgram -> Int
-sizeOf p = sizeOf' p -- + (sizeOfType $ typeOf p)  TODO we need to add this back in!!!!! 
-  where
-    -- doesn't consider the size of the type
-    sizeOf' :: RProgram -> Int
-    sizeOf' p = case content p of
-        PSymbol _       -> 1
-        PApp _ ps       -> 1 + sum (map sizeOf' ps)
-        PFun _ p1       -> 1 + sizeOf' p1
-        _               -> error $ "sizeOf doesn't support this thing: " ++ (show p)
+sizeOf p = sizeOf' p + (sizeOfType $ typeOf p) -- TODO we need to add this back in!!!!! 
+
+sizeOf' :: RProgram -> Int
+sizeOf' p = case content p of
+    PSymbol _       -> 1
+    PApp _ ps       -> 1 + sum (map sizeOf' ps)
+    PFun _ p1       -> 1 + sizeOf' p1
+    _               -> error $ "sizeOf doesn't support this thing: " ++ (show p)
+
+
+--- Data.Maybe.fromJust arg0 arg1         size 3 from sizeOf'
+--- :: Maybe (a->b) -> a -> b             size 5 from sizeOfType
 
 -- gets the size of a type (TODO are we done with this yet?)
 sizeOfType :: TypeSkeleton r -> Int
 sizeOfType t =
   case t of
+    -- examples: 
+    -- Maybe Int (size 2)
     ScalarT baseType _ -> sizeOfBase baseType
+    -- examples: 
+    -- tau1 -> tau2                  (size 2)
+    -- tau1 -> (tau2 -> tau3)        (size 3)
+    -- tau1 -> (tau2 -> Maybe b)     (size 4)
     FunctionT _ fromType toType -> sizeOfType fromType + sizeOfType toType
     _ -> error $ "sizeOfType doesn't support this thing"
   where
     sizeOfBase :: BaseType r -> Int
     sizeOfBase t' =
       case t' of
+        -- examples:
+        -- Int                             (size 1)
+        -- Maybe Int                       (size 2)
+        -- Either (Either Int Bool) Int    (size 5)
         (DatatypeT _ args _) -> 1 + (sum $ map sizeOfType args)
+        -- examples: 
+        -- tau0
+        -- tau1
         (TypeVarT _ _) -> 1
         _ -> error $ "sizeOfBase doesn't support this thing"
 
