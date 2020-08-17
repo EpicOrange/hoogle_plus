@@ -207,7 +207,8 @@ dfsIMode env messageChan sizeQuota subQuota goalType
         
         -- if function type, TODO change this split up the arguments and add them to the environment
         FunctionT _ tArg tBody -> do
-          prog <- inEnv `mplus` splitArgs tArg tBody
+          prog <- splitArgs tArg tBody
+          -- prog <- inEnv `mplus` splitArgs tArg tBody
           filterBottomHack prog
           guard (sizeOf prog <= sizeQuota)
           subSize <- sizeOfSub

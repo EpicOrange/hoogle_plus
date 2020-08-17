@@ -91,7 +91,15 @@ execExample mdls env typ prog ex = do
         then printf "let f = (%s) :: %s in" prog typ
         else printf "let f = (\\%s -> %s) :: %s in" prependArg prog typ
     let parensedInputs = map wrapParens $ inputs ex
-    let progCall = printf "Test.ChasingBottoms.approxShow 100 (f %s)" (unwords parensedInputs)
+    -- there's two problems
+    -- if we use Test.ChasingBottoms.approxShow then there are some disparities from show: like (1,2) vs. (1, 2)
+    -- and also Test.ChasingBottoms.approxShow gets angry about types like (Left 2 :: Either Integer b)
+    --   with the error: Couldn't match expected type ‘Either Integer b0 -> t0’ with actual type ‘Either a0 b1’
+    -- the second problem is that if we don't use Test.ChasingBottoms.approxShow,
+    --   then testing programs like (repeat arg0) will send the terminal into an unkillable printing loop
+    -- let progCall = printf "(let notsafe = (f %s); safe = (Test.ChasingBottoms.approxShow 100 notsafe) in if ('_' `GHC.List.elem` safe) then safe else show notsafe)" (unwords parensedInputs)
+    -- let progCall = printf "Test.ChasingBottoms.approxShow 100 (f %s)" (unwords parensedInputs)
+    let progCall = printf "(take 100 $ show $ f %s)" (unwords parensedInputs)
     -- let progCall = printf "(f %s)" (unwords parensedInputs)
     runStmt mdls $ unwords [progBody, progCall]
 
@@ -140,10 +148,12 @@ checkExampleOutput mdls env typ prog exs = do
           | otherwise = case fmap (take 100) currOutput of
                           Left e -> return Nothing
                           Right o -> do
-                            --   expectedOutput <- runStmt mdls (printf "(%s)" $ take 100 $ output ex)
-                              expectedOutput <- runStmt mdls (printf "Test.ChasingBottoms.approxShow 100 (%s)" $ output ex)
+                            --   expectedOutput <- runStmt mdls (printf "(%s)" $ output ex)
+                              expectedOutput <- runStmt mdls (printf "(take 100 $ show $ %s)" $ output ex)
+                            --   expectedOutput <- runStmt mdls (printf "Test.ChasingBottoms.approxShow 100 (%s)" $ output ex)
                               case expectedOutput of
                                   Left err -> return Nothing
                                   Right out | o == out -> return (Just ex)
                                             | otherwise -> return Nothing
+
 

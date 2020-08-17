@@ -3,216 +3,35 @@
 
 
 
-: http://www.haskell.org/ghc/  :? for help
-Loaded GHCi configuration from /root/.ghc/ghci.conf
-[ 1 of 55] Compiling Evaluation.Benchmark ( /home/hoogle_plus/src/Evaluation/Benchmark.hs, interpreted )
-[ 2 of 55] Compiling Evaluation.ReadBenchmark ( /home/hoogle_plus/src/Evaluation/ReadBenchmark.hs, interpreted )
-[ 3 of 55] Compiling Paths_HooglePlus ( /home/hoogle_plus/.stack-work/dist/x86_64-linux-custom-yields/Cabal-2.2.0.1/build/autogen/Paths_HooglePlus.hs, interpreted )
-[ 4 of 55] Compiling Synquid.Error    ( /home/hoogle_plus/src/Synquid/Error.hs, interpreted )
-[ 5 of 55] Compiling Types.Common     ( /home/hoogle_plus/src/Types/Common.hs, interpreted )
-[ 6 of 55] Compiling Synquid.Util     ( /home/hoogle_plus/src/Synquid/Util.hs, interpreted )
-[ 7 of 55] Compiling Synquid.Logic    ( /home/hoogle_plus/src/Synquid/Logic.hs, interpreted )
-[ 8 of 55] Compiling Synquid.Tokens   ( /home/hoogle_plus/src/Synquid/Tokens.hs, interpreted )
-[ 9 of 55] Compiling Types.Generate   ( /home/hoogle_plus/src/Types/Generate.hs, interpreted )
-[10 of 55] Compiling Types.Type       ( /home/hoogle_plus/src/Types/Type.hs, interpreted )
-[11 of 55] Compiling Types.IOFormat   ( /home/hoogle_plus/src/Types/IOFormat.hs, interpreted )
-[12 of 55] Compiling Types.Filtering  ( /home/hoogle_plus/src/Types/Filtering.hs, interpreted )
-[13 of 55] Compiling Types.Environment ( /home/hoogle_plus/src/Types/Environment.hs, interpreted )
-[14 of 55] Compiling Types.Program    ( /home/hoogle_plus/src/Types/Program.hs, interpreted )
-[15 of 55] Compiling Types.Abstract   ( /home/hoogle_plus/src/Types/Abstract.hs, interpreted )
-[16 of 55] Compiling Synquid.Type     ( /home/hoogle_plus/src/Synquid/Type.hs, interpreted )
-[17 of 55] Compiling Synquid.Program  ( /home/hoogle_plus/src/Synquid/Program.hs, interpreted )
-[18 of 55] Compiling Types.Experiments ( /home/hoogle_plus/src/Types/Experiments.hs, interpreted )
-[19 of 55] Compiling Types.Encoder    ( /home/hoogle_plus/src/Types/Encoder.hs, interpreted )
-[20 of 55] Compiling HooglePlus.CodeFormer ( /home/hoogle_plus/src/HooglePlus/CodeFormer.hs, interpreted )
-[21 of 55] Compiling Types.CheckMonad ( /home/hoogle_plus/src/Types/CheckMonad.hs, interpreted )
-[22 of 55] Compiling Types.InfConstraint ( /home/hoogle_plus/src/Types/InfConstraint.hs, interpreted )
-[23 of 55] Compiling Database.Presets ( /home/hoogle_plus/src/Database/Presets.hs, interpreted )
-[24 of 55] Compiling Database.Util    ( /home/hoogle_plus/src/Database/Util.hs, interpreted )
-[25 of 55] Compiling Synquid.Pretty   ( /home/hoogle_plus/src/Synquid/Pretty.hs, interpreted )
-[26 of 55] Compiling Synquid.Resolver ( /home/hoogle_plus/src/Synquid/Resolver.hs, interpreted )
-[27 of 55] Compiling Synquid.Parser   ( /home/hoogle_plus/src/Synquid/Parser.hs, interpreted )
-[28 of 55] Compiling Database.Download ( /home/hoogle_plus/src/Database/Download.hs, interpreted )
-[29 of 55] Compiling Database.Generate ( /home/hoogle_plus/src/Database/Generate.hs, interpreted )
-[30 of 55] Compiling Database.Convert ( /home/hoogle_plus/src/Database/Convert.hs, interpreted )
-[31 of 55] Compiling Database.Environment ( /home/hoogle_plus/src/Database/Environment.hs, interpreted )
-[32 of 55] Compiling Types.TypeChecker ( /home/hoogle_plus/src/Types/TypeChecker.hs, interpreted )
-[33 of 55] Compiling Types.Solver     ( /home/hoogle_plus/src/Types/Solver.hs, interpreted )
-[34 of 55] Compiling HooglePlus.Stats ( /home/hoogle_plus/src/HooglePlus/Stats.hs, interpreted )
-[35 of 55] Compiling HooglePlus.Utils ( /home/hoogle_plus/src/HooglePlus/Utils.hs, interpreted )
-[36 of 55] Compiling PetriNet.Util    ( /home/hoogle_plus/src/PetriNet/Util.hs, interpreted )
-[37 of 55] Compiling TopDown.TypeChecker ( /home/hoogle_plus/src/TopDown/TypeChecker.hs, interpreted )
-[38 of 55] Compiling PetriNet.AbstractType ( /home/hoogle_plus/src/PetriNet/AbstractType.hs, interpreted )
-[39 of 55] Compiling PetriNet.PNEncoder ( /home/hoogle_plus/src/PetriNet/PNEncoder.hs, interpreted )
-[40 of 55] Compiling HooglePlus.Refinement ( /home/hoogle_plus/src/HooglePlus/Refinement.hs, interpreted )
-[41 of 55] Compiling HooglePlus.Abstraction ( /home/hoogle_plus/src/HooglePlus/Abstraction.hs, interpreted )
-[42 of 55] Compiling HooglePlus.FilterTest ( /home/hoogle_plus/src/HooglePlus/FilterTest.hs, interpreted )
-[43 of 55] Compiling HooglePlus.TypeChecker ( /home/hoogle_plus/src/HooglePlus/TypeChecker.hs, interpreted )
-[44 of 55] Compiling Examples.Utils   ( /home/hoogle_plus/src/Examples/Utils.hs, interpreted )
-[45 of 55] Compiling Examples.InferenceDriver ( /home/hoogle_plus/src/Examples/InferenceDriver.hs, interpreted )
-[46 of 55] Compiling Examples.ExampleChecker ( /home/hoogle_plus/src/Examples/ExampleChecker.hs, interpreted )
-[47 of 55] Compiling HooglePlus.IOFormat ( /home/hoogle_plus/src/HooglePlus/IOFormat.hs, interpreted )
-[48 of 55] Compiling Evaluation.EvalTypeInf ( /home/hoogle_plus/src/Evaluation/EvalTypeInf.hs, interpreted )
-[49 of 55] Compiling HooglePlus.GHCChecker ( /home/hoogle_plus/src/HooglePlus/GHCChecker.hs, interpreted )
-[50 of 55] Compiling TopDown.SynthesizeOptimized ( /home/hoogle_plus/src/TopDown/SynthesizeOptimized.hs, interpreted )
-[51 of 55] Compiling TopDown.SynthesizeBefore ( /home/hoogle_plus/src/TopDown/SynthesizeBefore.hs, interpreted )
-[52 of 55] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
-[53 of 55] Compiling PetriNet.PNSolver ( /home/hoogle_plus/src/PetriNet/PNSolver.hs, interpreted )
-[54 of 55] Compiling HooglePlus.Synthesize ( /home/hoogle_plus/src/HooglePlus/Synthesize.hs, interpreted )
-[55 of 55] Compiling Main             ( /home/hoogle_plus/app/HooglePlus.hs, interpreted )
-Ok, 55 modules loaded.
-Loaded GHCi configuration from /tmp/haskell-stack-ghci/5a9bbb4d/ghci-script
-> synGuard' "[a -> b] -> a -> [b]" ["GHC.List.map"] [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]
-
-running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 5
-
-new program: GHC.List.map (\arg2 ->
-    arg2 arg1) arg0
-
-running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 6
-
-new program: GHC.List.map (\arg2 ->
-    arg2 arg1) arg0
-
-running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 7
-
-new program: GHC.List.map (\arg2 ->
-    arg2 arg1) arg0
-
-running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 8
-
-new program: GHC.List.map (\arg2 ->
-    arg2) (GHC.List.map (\arg3 ->
-               arg3 arg1) arg0)
-
-new program: GHC.List.map (\arg2 ->
-    arg2 arg1) arg0
-"[7, 16]"
-"[7, 16]"
-RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["[\\x -> x + 3, \\x -> x * x]","4"],"output":"[7, 16]"}],"solution":"\\arg0 arg1 -> GHC.List.map (\\arg2 -> arg2 arg1) arg0"}],"outDocs":[{"functionSig":"(a -> b) -> [a] -> [b]","functionName":"map","functionDesc":"<math>. map f xs is the list obtained by\napplying f to each element of xs, i.e.,\n\n\nmap f [x1, x2, ..., xn] == [f x1, f x2, ..., f xn]\nmap f [x1, x2, ...] == [f x1, f x2, ...]\n\n\n\n>>> map (+1) [1, 2, 3]\n\n"},{"functionSig":"(a -> b -> c) -> b","functionName":"arg2","functionDesc":""},{"functionSig":"[(a -> b)]","functionName":"arg0","functionDesc":""},{"functionSig":"a","functionName":"arg1","functionDesc":""}],"outError":""}
 
 
-Done with <b> . <a> . ([(a -> b)] -> (a -> [b]))!
+
+
+
+
+
+
+
+memoize makes it faster!
+
+syn' "[a] -> [b] -> [[(a,b)]]" [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
+
+-- with memoize:
+(Quota 7) Done with <b> . <a> . ([a] -> ([b] -> [[(a , b)]]))!
 size    subSize solution
-5       10      GHC.List.map (\arg2 ->
-    arg2 arg1) arg0
+7       20      GHC.List.map (\arg2 ->
+    GHC.List.zip (GHC.List.repeat arg2) arg1) arg0
 
-> :r
-[54 of 55] Compiling TopDown.Synthesize ( /home/hoogle_plus/src/TopDown/Synthesize.hs, interpreted )
-[55 of 55] Compiling Main             ( /home/hoogle_plus/app/HooglePlus.hs, interpreted ) [TH]
-Ok, 55 modules loaded.
-> syn' "[a -> b] -> a -> [b]" [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]
-running dfs on <b> . <a> . ([(a -> b)] -> (a -> [b])) at size 5
+(244.39 secs, 105,026,657,520 bytes)
 
-new program: Data.Maybe.maybeToList (Data.Maybe.Just (GHC.List.head arg0 arg1))
-"[7]"
-"[7, 16]"
-
-new program: Data.Maybe.maybeToList (Data.Maybe.Just (GHC.List.last arg0 arg1))
-"[16]"
-"[7, 16]"
-
-new program: GHC.List.cycle (GHC.List.repeat (GHC.List.head arg0 arg1))
-"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
-"[7, 16]"
-
-new program: GHC.List.cycle (GHC.List.repeat (GHC.List.last arg0 arg1))
-
-new program: GHC.List.init (GHC.List.repeat (GHC.List.head arg0 arg1))
-"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
-
-new program: GHC.List.init (GHC.List.repeat (GHC.List.last arg0 arg1))
-"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
-
-new program: GHC.List.repeat (Data.Maybe.fromJust (Data.Maybe.listToMaybe arg0) arg1)
-
-new program: GHC.List.repeat (GHC.List.head arg0 arg1)
-
-new program: GHC.List.repeat (GHC.List.head (GHC.List.cycle arg0) arg1)
-"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
-"[7, 16]"
-
-new program: GHC.List.repeat (GHC.List.head (GHC.List.init arg0) arg1)
-"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
-"[7, 16]"
-
-new program: GHC.List.repeat (GHC.List.head (GHC.List.reverse arg0) arg1)
-"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
-"[7, 16]"
-
-new program: GHC.List.repeat (GHC.List.head (GHC.List.tail arg0) arg1)
-"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
-"[7, 16]"
-
-new program: GHC.List.repeat (GHC.List.last arg0 arg1)
-"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
-"[7, 16]"
-
-new program: GHC.List.repeat (GHC.List.last (GHC.List.cycle arg0) arg1)
-"[
-new program: GHC.List.repeat (GHC.List.last (GHC.List.init arg0) arg1)
-"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
-"[7, 16]"
-
-new program: GHC.List.repeat (GHC.List.last (GHC.List.reverse arg0) arg1)
-"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
-"[7, 16]"
-
-new program: GHC.List.repeat (GHC.List.last (GHC.List.tail arg0) arg1)
-"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
-"[7, 16]"
-
-new program: GHC.List.reverse (GHC.List.repeat (GHC.List.head arg0 arg1))
-"
-new program: GHC.List.reverse (GHC.List.repeat (GHC.List.last arg0 arg1))
-
-new program: GHC.List.tail (GHC.List.repeat (GHC.List.head arg0 arg1))
-"[7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, _"
-"[7, 16]"
-
-new program: GHC.List.tail (GHC.List.repeat (GHC.List.last arg0 arg1))
-"[16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, _"
-"[7, 16]"
-
-new program: (GHC.List.head arg0 arg1) : []
-"[7]"
-"[7, 16]"
-
-new program: (GHC.List.last arg0 arg1) : []
-"[16]"
-"[7, 16]"
-
-new program: GHC.List.map (\arg2 ->
-    arg2 arg1) arg0
-"[7, 16]"
-"[7, 16]"
-RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["[\\x -> x + 3, \\x -> x * x]","4"],"output":"[7, 16]"}],"solution":"\\arg0 arg1 -> GHC.List.map (\\arg2 -> arg2 arg1) arg0"}],"outDocs":[{"functionSig":"(a -> b) -> [a] -> [b]","functionName":"map","functionDesc":"<math>. map f xs is the list obtained by\napplying f to each element of xs, i.e.,\n\n\nmap f [x1, x2, ..., xn] == [f x1, f x2, ..., f xn]\nmap f [x1, x2, ...] == [f x1, f x2, ...]\n\n\n\n>>> map (+1) [1, 2, 3]\n\n"},{"functionSig":"(a -> b -> c) -> b","functionName":"arg2","functionDesc":""},{"functionSig":"[(a -> b)]","functionName":"arg0","functionDesc":""},{"functionSig":"a","functionName":"arg1","functionDesc":""}],"outError":""}
-
-
-Done with <b> . <a> . ([(a -> b)] -> (a -> [b]))!
+-- without memoize:
+(Quota 7) Done with <b> . <a> . ([a] -> ([b] -> [[(a , b)]]))!
 size    subSize solution
-5       10      GHC.List.map (\arg2 ->
-    arg2 arg1) arg0
+7       20      GHC.List.map (\arg2 ->
+    GHC.List.zip (GHC.List.repeat arg2) arg1) arg0
 
+(791.19 secs, 128,242,005,744 bytes)
 
-
-
-
-
-
-
-
-
-
-
--}
-
-
-
-
-
-
-{-
 
 
 
@@ -379,7 +198,6 @@ True as the refinement when we need a RType (edited)
 "arg1"                                      (a -> Bool)
 "fst"                                       <b> . <a> . ((a , b) -> a)
 "snd"                                       <b> . <a> . ((a , b) -> b)
-
 
 
 

@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.SynthesizeOptimized(synthesize, envToGoal, synO, synGuardO, synO') where
+module TopDown.SynthesizeOptimizedOld() where
 
 -- import HooglePlus.TypeChecker
 import TopDown.TypeChecker

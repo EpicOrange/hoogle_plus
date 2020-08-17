@@ -50,6 +50,8 @@ solution: "\\arg1 -> (Data.List.head arg1, Data.List.tail arg1)"
 
 pred-match
 synGuard' "[a] -> (a -> Bool) -> Int" ["GHC.List.length", "GHC.List.filter"] [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2")]
+syn' "[a] -> (a -> Bool) -> Int" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2")]
+synO' "[a] -> (a -> Bool) -> Int" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2")]
 solution: "\\xs f -> Data.List.length (Data.List.filter f xs)"
 
 splitStr
@@ -66,7 +68,14 @@ solution: "\\mb x -> Data.Bool.bool (Right x) (Left (Data.Maybe.fromJust mb)) (D
 
 cartProduct
 synGuard' "[a] -> [b] -> [[(a,b)]]" ["GHC.List.map", "GHC.List.map", "Pair"] [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
+synGuardO' "[a] -> [b] -> [[(a,b)]]" ["GHC.List.map", "repeat", "zip"] [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
+synO' "[a] -> [b] -> [[(a,b)]]" [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
+syn' "[a] -> [b] -> [[(a,b)]]" [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
+
 solution: "\\xs ys -> Data.List.map (\\x -> Data.List.map ((,) x) ys) xs"
+ours: \arg0 arg1 -> GHC.List.map (\arg2 -> GHC.List.zip (GHC.List.repeat arg2) arg1) arg0
+solution: "\\xs ys -> Data.List.map (\\x -> Data.List.map (\y -> (,) x y) ys) xs"
+                    GHC.List.map (\arg2 -> GHC.List.map (\arg3 -> (arg2 , arg3)) arg1) arg0
 
 multiAppPair
 synGuard' "(a -> b, a -> c) -> a -> (b, c)" ["Pair", "Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
@@ -78,6 +87,9 @@ solution: "\\f xs -> f (Data.List.head xs)"
 
 firstMatch
 synGuard' "[a] -> (a -> Bool) -> a" ["GHC.List.head", "GHC.List.filter"] [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "[1,2,3]")]
+synGuardO' "[a] -> (a -> Bool) -> a" ["GHC.List.head", "GHC.List.filter"] [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "[1,2,3]")]
+synO' "[a] -> (a -> Bool) -> a" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "[1,2,3]")]
+syn' "[a] -> (a -> Bool) -> a" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "[1,2,3]")]
 solution: "\\xs f -> Data.List.head (Data.List.filter f xs)"
 
 firstMaybe
@@ -127,7 +139,44 @@ solution: "\\f n -> Data.List.replicate n f"
 
 mbAppFirst
 synGuard' "b -> (a -> b) -> [a] -> b" ["Data.Maybe.maybe", "Data.Maybe.listToMaybe"] [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
+synGuardO' "b -> (a -> b) -> [a] -> b" ["Data.Maybe.maybe", "Data.Maybe.listToMaybe", "first", "sum"] [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
+synGuardO' "b -> (a -> b) -> [a] -> b" ["fst", "sum"] [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
+syn' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
+synO' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 solution: "\\x f xs -> Data.Maybe.maybe x f (Data.Maybe.listToMaybe xs)"
+
+
+(Quota 5) Done with <b> . <a> . (b -> (((a -> b)) -> ([a] -> b)))!
+size    subSize solution
+5       10      Data.Maybe.maybe arg0 arg1 (Data.Maybe.listToMaybe arg2)
+
+(46.89 secs, 25,324,355,536 bytes)
+
+/tmp/4959440b-fb3d-4143-bf04-50d76fc30fb8.hs:16:47: error:
+    • Occurs check: cannot construct the infinite type: a ~ [a]
+    • In the first argument of ‘arg1’, namely ‘(snd ((arg0, arg2)))’
+      In the expression: arg1 (snd ((arg0, arg2)))
+      In the expression: \ arg0 arg1 arg2 -> arg1 (snd ((arg0, arg2)))
+    • Relevant bindings include
+        arg2 :: [a]
+          (bound at /tmp/4959440b-fb3d-4143-bf04-50d76fc30fb8.hs:16:33)
+        arg1 :: a -> b
+          (bound at /tmp/4959440b-fb3d-4143-bf04-50d76fc30fb8.hs:16:28)
+        ghcCheckedFunction :: b -> (a -> b) -> [a] -> b
+          (bound at /tmp/4959440b-fb3d-4143-bf04-50d76fc30fb8.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 arg1 arg2 -> arg1 (snd ((arg0 , arg2)))
+16 | ghcCheckedFunction = (\arg0 arg1 arg2 -> arg1 (?? :: a)) :: b
+16 | ghcCheckedFunction = (\arg0 arg1 arg2 -> arg1 (
+                                                    snd (?? :: (tau, a))
+                                                    )) :: b
+   |                                               ^^^^^^^^^^^^^^^^^^^
+
+snd :: tau1 . tau2 . (tau1 , a) -> a
+arg0 :: b 
+arg1 :: (a -> b)
+arg2 :: [a] 
+
 
 2partApp
 synGuard' "(a->b)->(b->c)->[a]->[c]" ["GHC.List.map", "GHC.List.map"] [(["GHC.List.length", "\\x -> x * x", "[[1,2,3], [1,2,3,4], [1,2,3,4,5]]"], "[9, 16, 25]")]
