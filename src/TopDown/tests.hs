@@ -30,6 +30,13 @@ solution: "\\arg0 -> Data.Either.either Left (Data.Either.either Left Right) arg
 we get:     \arg0 -> Data.Either.either (\arg1 -> Data.Either.Left arg1) (\arg2 -> arg2) arg0
 which is equivalent
 
+(Quota 9) Done with <b> . <a> . (Either (a) ((Either (a) (b))) -> Either (a) (b))!
+size    subSize solution
+7       25      Data.Either.either (\arg1 ->
+    Data.Either.Left arg1) (\arg2 ->
+    arg2) arg0
+
+
 multiApp
 synGuard' "(a -> b -> c) -> (a -> b) -> a -> c" [] [(["\\x y -> x + y", "\\x -> x * x", "3"], "12"), (["\\x y -> GHC.List.length x * GHC.List.length y", "\\x -> x ++ x", "[1,2,3]"], "18")]
 solution: "\\f g x -> f x (g x)"

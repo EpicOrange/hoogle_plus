@@ -148,7 +148,7 @@ def load_queries():
             # blacklist = ["both", "cartProduct", "multiAppPair", "mbAppFirst", "2partApp", "resolveEither", "dedupe", "inverseMap", "zipWithResult", "pipe", "lookup", "mbElem", "areEq", "applyPair", "takeNdropM"]
             # if q['name'] in blacklist:
             #     continue
-            # whitelist = ["rights", "firstRight", "eitherTriple"]
+            # whitelist = ["test", "firstJust", "mapEither", "mapMaybes", "mergeEither", "mbToEither", "resolveEither", "firstMaybe", "rights", "firstRight", "maybe", "eitherTriple", "mbElem", "areEq"]
             # if q['name'] not in whitelist:
             #     continue
             # print(q['name'])
@@ -171,6 +171,13 @@ if __name__ == '__main__':
     else:
         results = dict()
 
+    # rerun some results
+    # for rm in ["test", "firstJust", "mapEither", "mapMaybes", "mergeEither", "mbToEither", "resolveEither", "firstMaybe", "rights", "firstRight", "maybe", "eitherTriple", "mbElem", "areEq"]:
+    #     results.pop(rm, None)
+    # # write to results again
+    # with open(DUMPFILE, 'wb') as data_dump:
+    #     pickle.dump(results, data_dump)
+        
     # Delete old log file
     if os.path.isfile(LOGFILE):
         os.remove(LOGFILE)
@@ -188,11 +195,6 @@ if __name__ == '__main__':
                 run_benchmark(b.name, b.query, b.example, group.default_options)
                 with open(DUMPFILE, 'wb') as data_dump:
                     pickle.dump(results, data_dump)
-    # results.pop("head-rest", None)
-    # results.pop("pred-match", None)
-    # results.pop("indexesOf", None)
-    # with open(DUMPFILE, 'wb') as data_dump:
-    #     pickle.dump(results, data_dump)
 
     # Generate CSV
     write_csv()

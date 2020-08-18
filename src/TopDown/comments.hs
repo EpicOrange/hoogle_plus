@@ -4,7 +4,15 @@
 
 
 
+stack run -- hplus topdown --query='Maybe(a->b)->a->b' --disableHO --
 
+
+Flags 
+  json :: String, -- query, examples, guards?????????????
+  disableHO :: Bool,
+  altIMode :: Bool, -- should we do imode w/ env first or regular i-mode
+  memoize :: Bool -- should we memoize? 
+  backtrace :: Bool -- should we print backtracing? 
 
 
 

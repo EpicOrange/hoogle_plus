@@ -207,8 +207,8 @@ dfsIMode env messageChan sizeQuota subQuota goalType
         
         -- if function type, TODO change this split up the arguments and add them to the environment
         FunctionT _ tArg tBody -> do
-          prog <- splitArgs tArg tBody
-          -- prog <- inEnv `mplus` splitArgs tArg tBody
+          -- prog <- splitArgs tArg tBody
+          prog <- inEnv `mplus` splitArgs tArg tBody
           filterBottomHack prog
           guard (sizeOf prog <= sizeQuota)
           subSize <- sizeOfSub
@@ -226,7 +226,7 @@ dfsIMode env messageChan sizeQuota subQuota goalType
     -- stream of components whose entire type unify with goal type
     inEnv = do 
             
-      (id, schema) <- getUnifiedComponent env goalType :: TopDownSolver IO (Id, SType)
+      (id, schema) <- getUnifiedComponent sizeQuota subQuota env goalType :: TopDownSolver IO (Id, SType)
       
       let program = Program { content = PSymbol id, typeOf = addTrue schema }
 
@@ -276,7 +276,7 @@ dfsEMode env messageChan sizeQuota subQuota goalType
     -- stream of components whose entire type unify with goal type
     inEnv = do 
             
-      (id, schema) <- getUnifiedComponent env goalType :: TopDownSolver IO (Id, SType)
+      (id, schema) <- getUnifiedComponent sizeQuota subQuota env goalType :: TopDownSolver IO (Id, SType)
       
       let program = Program { content = PSymbol id, typeOf = addTrue schema }
 
@@ -334,8 +334,8 @@ filterBottomHack prog = do
 
 -- Using the components in env, like ("length", <a>. [a] -> Int)
 -- tries to instantiate each, replacing type vars in order to unify with goalType
-getUnifiedComponent :: Environment -> RType -> TopDownSolver IO (Id, SType)
-getUnifiedComponent env goalType = do
+getUnifiedComponent :: Int -> Int -> Environment -> RType -> TopDownSolver IO (Id, SType)
+getUnifiedComponent sizeQuota subQuota env goalType = do
 
   (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
 
@@ -354,8 +354,8 @@ getUnifiedComponent env goalType = do
   let checkResult = st' ^. isChecked
 
   let subbedType = stypeSubstitute sub (shape freshVars)
-  -- liftIO $ printf "quota %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
-  --   quota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
+  liftIO $ printf "quota %d %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
+    sizeQuota subQuota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
   
   guard checkResult
 
