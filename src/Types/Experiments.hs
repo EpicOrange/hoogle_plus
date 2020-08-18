@@ -49,7 +49,11 @@ data SearchParams = SearchParams {
   _disableRelevancy :: Bool,
   _disableCopy :: Bool,
   _disableBlack :: Bool,
-  _disableFilter :: Bool
+  _disableFilter :: Bool,
+  -- topDown stuff below
+  _topDownUseAltIMode :: Bool,
+  _topDownUseMemoize :: Bool,
+  _topDownPrintBacktrace :: Bool
 } deriving (Eq, Show)
 
 makeLenses ''SearchParams
@@ -99,7 +103,11 @@ defaultSearchParams = SearchParams {
   _disableRelevancy = False,
   _disableCopy = False,
   _disableBlack = False,
-  _disableFilter = True
+  _disableFilter = True,
+  -- topDown stuff below
+  _topDownUseAltIMode = False,
+  _topDownUseMemoize = True,
+  _topDownPrintBacktrace = False
 }
 
 type ExperimentName = String

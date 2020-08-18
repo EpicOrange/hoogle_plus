@@ -23,8 +23,9 @@ import Database.Download
 import Database.Util
 import Synquid.Util (showme)
 
--- import HooglePlus.Synthesize
-import TopDown.Synthesize
+import HooglePlus.Synthesize
+import TopDown.SynthesizeOptimized
+-- import TopDown.Synthesize
 -- import TopDown.SynthesizeOutside
 -- import BottomUp.Synthesize
 
@@ -129,8 +130,8 @@ main = do
                     defaultSynquidParams {Types.Experiments.envPath = env_file_path_in}
             let searchPrograms = case (file, json) of
                                    ("", "") -> error "Must specify a file path or a json string"
-                                   ("", json) -> executeSearch synquidParams searchParams json
-                                   (f, _) -> readFile f >>= executeSearch synquidParams searchParams
+                                   ("", json) -> executeSearch False synquidParams searchParams json
+                                   (f, _) -> readFile f >>= executeSearch False synquidParams searchParams
             case search_type of
               SearchPrograms -> searchPrograms
               SearchTypes -> searchTypes synquidParams json get_n_types >> return ()
@@ -155,6 +156,24 @@ main = do
             precomputeGraph generationOpts
         Evaluation benchmark fp -> do
             readSuite fp >>= runTypeInferenceEval
+        TopDown { json
+                , disable_higher_order
+                , alt_imode
+                , memoize
+                , backtrace
+                } -> 
+        -- json :: String, -- query, examples, guards?????????????
+        -- disable_higher_order :: Bool,
+        -- alt_imode :: Bool, -- should we do imode w/ env first or regular i-mode
+        -- memoize :: Bool, -- should we memoize? 
+        -- backtrace :: Bool -- should we print backtracing? 
+                  let searchParams = defaultSearchParams 
+                                        { _useHO = not disable_higher_order
+                                        , _topDownUseAltIMode = alt_imode
+                                        , _topDownUseMemoize = memoize
+                                        , _topDownPrintBacktrace = backtrace
+                                        }
+                   in executeSearch True defaultSynquidParams searchParams json
 
 {- Command line arguments -}
 
@@ -205,6 +224,17 @@ data CommandLineArgs
         benchmark :: String,
         file_path :: String
       }
+      | TopDown {
+        json :: String, -- query, examples, guards?????????????
+        disable_higher_order :: Bool,
+        alt_imode :: Bool, -- should we do imode w/ env first or regular i-mode
+        memoize :: Bool, -- should we memoize? 
+        backtrace :: Bool -- should we print backtracing? 
+      }
+      -- TODO: left off running:
+      --   stack run -- hplus topdown --json='{"query": "Int -> Int", "inExamples": []}' --alt_imode=True
+      -- but got:
+      --   Unknown flag: --alt_imode
   deriving (Data, Typeable, Show, Eq)
 
 synt = Synthesis {
@@ -247,7 +277,16 @@ evaluation = Evaluation {
   file_path            = ""              &= help ("Path to the benchmark file, in the format of YAML")
 } &= help "Evaluate Hoogle+ modules"
 
-mode = cmdArgsMode $ modes [synt, generate, evaluation] &=
+
+topdown = TopDown {
+  json                 = ""              &= help ("query, examples, guards?????????????"),
+  disable_higher_order = False           &= help ("Disable higher order functions (default: False)"),
+  alt_imode             = False           &= help ("Should we do imode w/ env first or regular i-mode"),
+  memoize              = True            &= help ("Should we memoize?"),
+  backtrace            = False           &= help ("Should we print backtracing?")
+} &= help "Run Hoogle+ with top-down backend"
+
+mode = cmdArgsMode $ modes [synt, generate, evaluation, topdown] &=
   help (programName ++ " program synthesizer") &=
   program programName &=
   summary (programName ++ " v" ++ versionName ++ ", " ++ showGregorian releaseDate)
@@ -259,8 +298,8 @@ precomputeGraph opts = generateEnv opts >>= writeEnv (Types.Generate.envPath opt
 
 
 -- | Parse and resolve file, then synthesize the specified goals
-executeSearch :: SynquidParams -> SearchParams -> String -> IO ()
-executeSearch synquidParams searchParams inStr = catch (do
+executeSearch :: Bool -> SynquidParams -> SearchParams -> String -> IO ()
+executeSearch topDown synquidParams searchParams inStr = catch (do
   let input = decodeInput (LB.pack inStr)
   let tquery = query input -- Int -> Int -> Int ?????
   -- printf "tquery: %s\n" (show tquery)
@@ -271,6 +310,8 @@ executeSearch synquidParams searchParams inStr = catch (do
   env <- readBuiltinData synquidParams env'
   -- printf "env: %s\n" (show $ env ^. symbols)
 
+  let synthesize = if topDown then TopDown.SynthesizeOptimized.synthesize else HooglePlus.Synthesize.synthesize
+  
   goal <- envToGoal env tquery
 
   solverChan <- newChan
@@ -296,3 +337,4 @@ executeSearch synquidParams searchParams inStr = catch (do
         mapM (printf "[%s]: %s\n" tag) (lines msg)
         hFlush stdout)
       readChan ch >>= (handleMessages ch)
+
