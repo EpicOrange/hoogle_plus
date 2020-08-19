@@ -89,13 +89,7 @@ synGuardO' inStr guards ex = do
   synthesize defaultSearchParams goal examples solverChan
 
 synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
-synthesize searchParams goal examples messageChan = 
-  print searchParams
-    
-
-synthesize' :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
-synthesize' searchParams goal examples messageChan = do
-    
+synthesize searchParams goal examples messageChan = do
     let rawEnv = gEnvironment goal
     let goalType = gSpec goal :: RSchema
     -- let destinationType = lastType (toMonotype goalType)
@@ -201,6 +195,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   -- plotted our tests, and solutions tend to have sub size = 3.7 * program size
   -- tests say (sub quota = 3 * program size quota) is best
   solution <- dfs EMode env messageChan quota (quota * 3) goalType :: TopDownSolver IO RProgram
+  lift $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
 
   -- check if the program has all the arguments that it should have (avoids calling check)  
   guard (filterParams solution env)
@@ -210,8 +205,8 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
   subSize <- sizeOfSub
   liftIO $ printf "\n\n(Quota %d) Done with %s!\nsize\tsubSize\tsolution\n%d\t%d\t%s\n\n" quota (show goal) (sizeOfProg solution) subSize (show solution)
-  printGoalTrace =<< lift get
-  -- let programs = 
+  lift printGoalTrace
+
   return solution
   where
     goalType :: RType
@@ -287,7 +282,6 @@ dfs mode env messageChan sizeQuota subQuota goalType
         let program = Program { content = PFun argName body, typeOf = goalType }
         guard (sizeOfProg program <= sizeQuota)
 
-        -- lift $ modify (\(OurStuff backtrace) -> OurStuff $ holedProgram' : backtrace)
         return program
 
     -- split goal into 2 goals: alpha -> T and alpha
@@ -295,25 +289,26 @@ dfs mode env messageChan sizeQuota subQuota goalType
       let alpha' = ScalarT (TypeVarT Map.empty "alpha") ftrue :: RType
       let schema' = ForallT "alpha" $ Monotype $ FunctionT "myArg" alpha' goalType :: RSchema
       
-      -- need to reset the name counter so it generates the same tau for each freshType call
+      -- need to save the name counter so it generates the same tau for each freshType call
       nameCtr <- getNameCounter
       alpha <- freshType (env ^. boundTypeVars) (ForallT "alpha" $ Monotype $ alpha') :: TopDownSolver IO RType
       setNameCounter nameCtr
       schema <- freshType (env ^. boundTypeVars) schema' :: TopDownSolver IO RType
 
+
       -- we split (?? :: T) into (??::alpha -> T) (??::alpha)
       -- subtract 1 from quota since the second term should be at least size 1
+      -- need to save the last trace program so it replaces the right hole after the first dfs
+      (holedProgram:_) <- lift get
       lift $ addApp (show schema) (show alpha)
       alphaTProgram <- dfs EMode env messageChan (sizeQuota - 1) subQuota schema :: TopDownSolver IO RProgram
 
-      st' <- get
-      let sub = st' ^. typeAssignment
+      sub <- use typeAssignment
       let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType 
       
-      lift $ addAppFilled alphaTProgram (show alphaSub)
+      lift $ addAppFilled alphaTProgram (show alpha) holedProgram
       alphaProgram <- dfs IMode env messageChan (sizeQuota - sizeOfProg alphaTProgram) subQuota alphaSub :: TopDownSolver IO RProgram
-
-      -- lift $ modify (\(OurStuff backtrace) -> OurStuff $ holedProgram'' : holedProgram' : backtrace)
+      
       return Program {
           content = case content alphaTProgram of
                       PSymbol id -> PApp id [alphaProgram]
@@ -336,8 +331,8 @@ dfs mode env messageChan sizeQuota subQuota goalType
     -- tries to instantiate each, replacing type vars in order to unify with goalType
     getUnifiedComponent :: TopDownSolver IO (Id, SType)
     getUnifiedComponent = do
-      (id, schema) <- choices $ Map.toList $ env ^. symbols :: TopDownSolver IO (Id, RSchema)
-      -- (id, schema) <- choices $ Map.findWithDefault [] (countArrows goalType) buckets :: TopDownSolver IO (Id, RSchema)
+      (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
+
 
       -- replaces "a" "b" with "tau1" "tau2"
       freshVars <- freshType (env ^. boundTypeVars) schema
@@ -360,3 +355,12 @@ dfs mode env messageChan sizeQuota subQuota goalType
       guard checkResult
 
       return (id, subbedType)
+
+      where
+        -- moves all Data.Function functions to the end and moves the args to the front
+        reorganizeSymbols :: [(Id, RSchema)]
+        reorganizeSymbols = args ++ withoutDataFunctions
+
+        ogSymbols            = Map.toList $ env ^. symbols
+        (args, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
+        withoutDataFunctions = snd $ partition (("Data.Function" `isInfixOf`) . fst) withoutArgs

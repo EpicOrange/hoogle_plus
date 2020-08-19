@@ -15,8 +15,9 @@ type OurType = String
 type GoalTrace = [OurProgram]
 
 
-printGoalTrace :: MonadIO m => GoalTrace -> m ()
-printGoalTrace goalTrace = do
+printGoalTrace :: MonadIO m => StateT GoalTrace m ()
+printGoalTrace = do
+  goalTrace <- get
   liftIO $ printf "-----------------\n--- BACKTRACE ---\n-----------------\n"
   liftIO $ mapM_ print $ reverse goalTrace
   liftIO $ printf "-----------------\n\n"
@@ -51,11 +52,11 @@ addLam argName tArg = modify $ updateGoalTrace (Hole tArg $ \hole -> Lam argName
 addApp :: Monad m => OurType -> OurType -> StateT GoalTrace m ()
 addApp t1 t2 = modify $ updateGoalTrace (Hole t1 $ \hole1 -> Hole t2 $ \hole2 -> App hole1 hole2)
 -- add trace for app, with left side filled
-addAppFilled :: Monad m => RProgram -> OurType -> StateT GoalTrace m ()
-addAppFilled prog t2 = modify $ updateGoalTrace (Hole t2 $ \hole2 -> App (Symbol (show prog)) hole2)
+addAppFilled :: Monad m => RProgram -> OurType -> OurProgram -> StateT GoalTrace m ()
+addAppFilled prog t2 prev = modify $ (\goalTrace -> prev `replaceHole` (Hole t2 $ \hole2 -> App (Symbol (show prog)) hole2) : goalTrace)
 
 updateGoalTrace :: OurProgram -> [OurProgram] -> [OurProgram]
-updateGoalTrace comp = (\goalTrace -> (head goalTrace `replaceHole` comp : goalTrace))
+updateGoalTrace comp goalTrace = head goalTrace `replaceHole` comp : goalTrace
 
 -- (?? :: b)
 -- (?? :: (tau0 -> b)) (?? :: tau0)
@@ -109,6 +110,7 @@ updateGoalTrace comp = (\goalTrace -> (head goalTrace `replaceHole` comp : goalT
 replaceHole :: OurProgram -> OurProgram -> OurProgram
 replaceHole   h          (Hole t f') = Hole t $ replaceHole h . f'
 replaceHole   (Hole _ f) replaceWith = f replaceWith
+replaceHole   h          replaceWith = error (printf "Tried to replace hole with %s in a program without a hole, %s\n" (show replaceWith) (show h))
 
 testOurProgram :: IO ()
 testOurProgram = do
