@@ -6,6 +6,7 @@ module TopDown.Synthesize(synthesize, envToGoal, syn, synGuard, synGuard', syn',
 
 -- import HooglePlus.TypeChecker
 import TopDown.TypeChecker
+import HooglePlus.Synthesize (envToGoal)
 import HooglePlus.GHCChecker (check)
 import Database.Convert (addTrue)
 import Synquid.Error
@@ -85,27 +86,6 @@ synGuard' inStr guards ex = do
   let examples = map (uncurry Example) ex
   synthesize defaultSearchParams goal examples solverChan
 
-
-envToGoal :: Environment -> String -> IO Goal
-envToGoal env queryStr = do
-  let transformedSig = "goal :: " ++ queryStr ++ "\ngoal = ??"
-  let parseResult = flip evalState (initialPos "goal") $ runIndentParserT parseProgram () "" transformedSig
-  case parseResult of
-    Left parseErr -> let e = toErrorMessage parseErr
-                      in putDoc (pretty e) >> putDoc linebreak >> error (prettyShow e)
-    Right (funcDecl:decl:_) -> case decl of
-      Pos _ (SynthesisGoal id uprog) -> do
-        let Pos _ (FuncDecl _ sch) = funcDecl
-        let goal = Goal id env sch uprog 3 $ initialPos "goal"
-        let spec = runExcept $ evalStateT (resolveSchema (gSpec goal)) (initResolverState { _environment = env })
-        case spec of
-          Right sp -> do
-            let (env', monospec) = updateEnvWithBoundTyVars sp env
-            let (env'', destinationType) = updateEnvWithSpecArgs monospec env'
-            return $ goal { gEnvironment = env'', gSpec = sp }
-          Left parseErr -> putDoc (pretty parseErr) >> putDoc linebreak >> error (prettyShow parseErr)
-      _ -> error "parse a signature for a none goal declaration"
-
 synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
 synthesize searchParams goal examples messageChan = do
     
@@ -118,14 +98,13 @@ synthesize searchParams goal examples messageChan = do
     let symbolsWithoutFUN = Map.filterWithKey (\k a -> not $ "'ho'" `isInfixOf` k) rawSyms
     let env = rawEnv { _symbols = symbolsWithoutFUN, _hoCandidates = [] }
 
-    -- putStrLn "\n=================="
-    -- putStrLn "Starting!"
-    -- printf "Arguments: %s\n" (show $ env ^. arguments)
-    -- let goal = shape $ lastType $ toMonotype goalType :: SType
+    putStrLn "\n=================="
+    putStrLn "Starting!"
+    printf "Arguments: %s\n" (show $ env ^. arguments)
+    let goal = shape $ lastType $ toMonotype goalType :: SType
 
-    -- printf "Goal: %s\n" (show goal)
-    -- mapM_ print (Map.keys $ envWithHo ^. symbols)
-    -- putStrLn "=================="
+    printf "Goal: %s\n" (show goal)
+    putStrLn "=================="
 
     -- call dfs with iterativeDeepening
     program <- iterativeDeepening env messageChan searchParams examples goalType
@@ -163,7 +142,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   -- subSize <- sizeOfSub
   -- liftIO $ printf "\nnew program: %s\n" (show solution) 
   -- liftIO $ printf "\nprogramSize: %d\n\tsubSize %d\n\n" (sizeOf solution) subSize
-  -- liftIO $ printf "new program: %s\n" (show solution)
+  liftIO $ printf "new program: %s\n" (show solution)
 
 
   
@@ -207,8 +186,8 @@ dfsIMode env messageChan sizeQuota subQuota goalType
         
         -- if function type, TODO change this split up the arguments and add them to the environment
         FunctionT _ tArg tBody -> do
-          -- prog <- splitArgs tArg tBody
-          prog <- inEnv `mplus` splitArgs tArg tBody
+          prog <- splitArgs tArg tBody
+          -- prog <- inEnv `mplus` splitArgs tArg tBody
           filterBottomHack prog
           guard (sizeOf prog <= sizeQuota)
           subSize <- sizeOfSub
@@ -354,8 +333,8 @@ getUnifiedComponent sizeQuota subQuota env goalType = do
   let checkResult = st' ^. isChecked
 
   let subbedType = stypeSubstitute sub (shape freshVars)
-  liftIO $ printf "quota %d %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
-    sizeQuota subQuota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
+  -- liftIO $ printf "quota %d %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
+  --   sizeQuota subQuota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
   
   guard checkResult
 

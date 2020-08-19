@@ -110,7 +110,8 @@ synthesize searchParams goal examples messageChan = do
     writeChan messageChan (MesgClose CSNormal)
 
 data SynMode = IMode | EMode deriving (Eq, Ord, Show)
-type MemoMap = Map (SynMode, RType, Int, Map Id SType) (Logic (RProgram, Map Id SType)) -- (mode, query, quota, sub) ==> program
+-- MemoMap: (mode, query, quota, args, sub) ==> (program), sub
+type MemoMap = Map (SynMode, RType, Int, Map Id RType, Map Id SType) (Logic (RProgram, Map Id SType))
 type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT MemoMap m)))
 
 evalTopDownSolver :: Monad m => RType -> Chan Message -> [TopDownSolver m a] -> m a
@@ -124,44 +125,49 @@ evalTopDownSolver goalType messageChan m =
 choices :: (Traversable f, MonadPlus m) => f a -> m a
 choices = msum . fmap return
 
-memoizeProgram :: SynMode -> Int -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
--- memoizeProgram _ _ compute = compute
-memoizeProgram mode quota goalType compute = do
-  sub <- use typeAssignment
-  let key = (mode, goalType, quota, sub)
+memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
+-- memoizeProgram _ _ _ _ compute = compute
+memoizeProgram mode quota args goalType compute = do
+  st <- get
   memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
-  -- TODO maybe use Map.lookup with default compute??????
-  -- TODO should use the de brujin index once this all works
-  case Map.lookup key memoMap of
-    -- retrieve stored value
-    Just progs -> do
-      -- liftIO $ printf "\nomg we're actually using memoize!!! \n\tquery: %s\t\t%s \n\t\tsub: %s\n" (show goalType) (show key) (show sub)
-      (prog, sub') <- choices progs 
-      -- liftIO $ printf "\t prog: %s :: %s\n" (show prog) (show $ typeOf prog)
-      -- liftIO $ printf "\t \tsub': %s\n" (show sub')
-      let sub'' = Map.map (stypeSubstitute sub') sub <> sub'
-      assign typeAssignment sub''
+  memoizeProgram' st memoMap
+  where
+    memoizeProgram' :: CheckerState -> MemoMap -> TopDownSolver IO RProgram
+    memoizeProgram' st memoMap = case Map.lookup key memoMap of
+      Just progs -> retrieve progs -- retrieve stored value
+      Nothing    -> evaluate       -- compute and store value
+      where
+        sub = st ^. typeAssignment
+        key = (mode, goalType, quota, args, sub)
+        retrieve :: Logic (RProgram, Map Id SType) -> TopDownSolver IO RProgram
+        retrieve progs = do
+          -- liftIO $ printf "\nomg we're actually using memoize!!! \n\tquery: %s\t\t%s \n\t\tsub: %s\n" (show goalType) (show key) (show sub)
 
-      -- when ("fst" `isInfixOf` show prog || "snd" `isInfixOf` show prog) $ liftIO $ printf "quota (%d): we found one! goal (%s), prog (%s)\n" quota (show goalType) (show prog)
-      -- liftIO $ printf "key and program retrieved:\n\t%s\n\t%s\n" (show key) (show prog)
-      return prog
-    -- compute and store value
-    Nothing    -> do
-      -- TODO we're only storing nonempty streams, should we store mzero too???
-      -- e.g if you synthesize goal T with quota 10, and it turns out nothing is size 10 of type T,
-      --     you don't want to redo all that computation just to come up with nothing
-      --     for the next time you synthesize goal T with quota 10
-      -- TODO need to only add to memo map after we're completely done with compute
-      -- so, do something like
-      -- prog <- compute `mplus` (...store things... >> return mzero)
-      prog <- compute
-      
-      -- liftIO $ printf "key and program added:\n\t%s\n\t%s\n" (show key) (show prog)
+          -- liftIO $ printf "  for goal %s, key retrieved: %s\n" (show goalType) (show key)
+          (prog, savedSub) <- choices progs
+          -- liftIO $ printf "  for goal %s, got prog %s\n" (show goalType) (show prog)
 
-      sub' <- use typeAssignment
-      lift $ lift $ modify (Map.insertWith mplus key (return (prog, sub')))
-      return prog
-
+          -- liftIO $ printf "\t prog: %s :: %s\n" (show prog) (show $ typeOf prog)
+          -- liftIO $ printf "\t \tsub': %s\n" (show sub')
+          let sub'' = Map.map (stypeSubstitute savedSub) sub <> savedSub
+          assign typeAssignment sub''
+          return prog
+        -- we can only add to memo map after we're completely done with compute
+        -- so we run and return compute as normal, and then store the result when it runs out
+        evaluate :: TopDownSolver IO RProgram
+        evaluate = compute `mplus` do
+            -- get compute into a type we'll store into the memomap
+            -- liftIO $ printf "  adding key:\n\t%s\n" (show key)
+            let resultToStored (prog, checkerState) = (prog, checkerState ^. typeAssignment)
+            st' <- get
+            goalTrace <- lift get
+            let x = fmap resultToStored $ (`evalStateT` goalTrace) $ (`runStateT` st) compute :: LogicT (StateT MemoMap IO) (RProgram, Map Id SType)
+            xs <- lift $ lift $ lift $ observeAllT x :: TopDownSolver IO [(RProgram, Map Id SType)]
+            let stored = choices xs
+            lift $ lift $ lift $ modify (Map.insert key stored)
+            -- liftIO $ printf "  key and program added:\n\tkey: %s\n\tprogs:\n" (show key)
+            -- liftIO $ mapM_ (printf "\t* %s\n" . show) xs
+            mzero
 -- 
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
@@ -172,7 +178,8 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
   -- plotted our tests, and solutions tend to have sub size = 3.7 * program size
   -- tests say (sub quota = 3 * program size quota) is best
-  solution <- dfs EMode env messageChan quota (quota * 3) goalType :: TopDownSolver IO RProgram
+  solution <- dfs EMode env Map.empty messageChan quota (quota * 3) goalType :: TopDownSolver IO RProgram
+  -- liftIO $ printf "| solved goal: %s\n" (show solution)
   lift $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
 
   -- check if the program has all the arguments that it should have (avoids calling check)  
@@ -215,12 +222,18 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 --    * if is a function type, add args to env, search for the return type, and return a lambda 
 --    * if not, search in e-mode
 --
-dfs :: SynMode -> Environment -> Chan Message -> Int -> Int -> RType -> TopDownSolver IO RProgram
-dfs mode env messageChan sizeQuota subQuota goalType 
+dfs :: SynMode -> Environment -> Map Id RType -> Chan Message -> Int -> Int -> RType -> TopDownSolver IO RProgram
+dfs mode env args messageChan sizeQuota subQuota goalType 
   | sizeQuota <= 0 = mzero
-  | otherwise      = do
+  | otherwise      = memoizeProgram mode sizeQuota args goalType $ do
       (holedProgram:_) <- lift get
-      liftIO $ printf "current goal: %s\n" (show holedProgram)
+      -- liftIO $ printf "    | current goal (sizeQuota %d): %s\n" sizeQuota (show holedProgram)
+      -- when ("GHC.List.map (\\arg1 -> GHC.List.head arg1)" `isPrefixOf` show holedProgram) $ do
+      --   liftIO $ printf "| current goal (sizeQuota %d): %s\n" sizeQuota (show holedProgram)
+      --   sub <- use typeAssignment
+      --   liftIO $ mapM_ (printf "\t*%s\n" . show) $ Map.toList sub
+
+      -- when (sizeQuota >= 3) $ liftIO $ printf "| current goal (sizeQuota %d): %s\n" sizeQuota (show holedProgram)
       prog <- inEnv `mplus` doSplit mode
       guardCheck prog
       return prog
@@ -242,11 +255,12 @@ dfs mode env messageChan sizeQuota subQuota goalType
 
         -- add argument to new env and call dfs IMode with that new env
         let env' = addVariable argName tArg $ addArgument argName tArg env
+        let args' = Map.insert argName tArg args
 
         -- we're synthesizing the body for the lambda
         -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
         lift $ addLam argName (show tArg)
-        body <- dfs IMode env' messageChan (sizeQuota - 1) subQuota tBody
+        body <- dfs IMode env' args' messageChan (sizeQuota - 1) subQuota tBody
 
         let program = Program { content = PFun argName body, typeOf = goalType }
         guard (sizeOfProg program <= sizeQuota)
@@ -271,13 +285,13 @@ dfs mode env messageChan sizeQuota subQuota goalType
       lift $ addApp (show schema) (show alpha)
       
       -- subtract 1 from quota since the second term should be at least size 1
-      alphaTProgram <- dfs EMode env messageChan (sizeQuota - 1) subQuota schema :: TopDownSolver IO RProgram
+      alphaTProgram <- dfs EMode env args messageChan (sizeQuota - 1) subQuota schema :: TopDownSolver IO RProgram
 
       sub <- use typeAssignment
       let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType 
       
       lift $ addAppFilled alphaTProgram (show alpha) holedProgram
-      alphaProgram <- dfs IMode env messageChan (sizeQuota - sizeOfProg alphaTProgram) subQuota alphaSub :: TopDownSolver IO RProgram
+      alphaProgram <- dfs IMode env args messageChan (sizeQuota - sizeOfProg alphaTProgram) subQuota alphaSub :: TopDownSolver IO RProgram
       
       return Program {
           content = case content alphaTProgram of
@@ -317,6 +331,12 @@ dfs mode env messageChan sizeQuota subQuota goalType
       let subbedType = stypeSubstitute sub (shape freshVars)
       -- liftIO $ printf "quota %d %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
       --   sizeQuota subQuota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
+      
+      -- (holedProgram:_) <- lift get
+      -- when ("GHC.List.map (\\arg1 -> GHC.List.head arg1) (??" `isPrefixOf` show holedProgram) $ do
+      --   checked <- use isChecked
+      --   liftIO $ printf "\t\t >> t1: %s\n\t\t >> t2: %s (%s)\n\t\t >> isChecked: %s\n" (show t1) id (show t2) (show checked)
+      --   liftIO $ print $ filter (("GHC.List" `isInfixOf`) . fst) reorganizeSymbols
       
       guard =<< use isChecked
       return (id, subbedType)

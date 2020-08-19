@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable, StandaloneDeriving, NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 module Main (main) where
 

@@ -33,14 +33,14 @@ data OurProgram =
     Symbol String
   | Lam String OurProgram
   | App OurProgram OurProgram
-  -- Hole [type of hole] [\hole -> the program, but using `hole` to replace this hole]
+  -- | Hole [type of hole] [\hole -> the program, but using `hole` to replace this hole]
   | Hole OurType (OurProgram -> OurProgram)
 
 instance Show OurProgram where
   show (Hole t f) = show $ f (Symbol $ printf "(?? :: %s)" t)
   show (Symbol s) = s
   show (Lam x body) = printf "(\\%s -> %s)" x (show body)
-  show (App from to) = show from ++ " " ++ show to
+  show (App from to) = "(" ++ show from ++ " " ++ show to ++ ")"
 
 -- create hole for initial goal
 mkHole :: RType -> OurProgram
