@@ -25,10 +25,7 @@ solution: "\\f xs -> Data.Maybe.listToMaybe (Data.Maybe.mapMaybe f xs)"
 
 mergeEither
 synGuard' "Either a (Either a b) -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
-syn' "Either a (Either a b) -> Either a b" [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
 solution: "\\arg0 -> Data.Either.either Left (Data.Either.either Left Right) arg0"
-we get:     \arg0 -> Data.Either.either (\arg1 -> Data.Either.Left arg1) (\arg2 -> arg2) arg0
-which is equivalent
 
 (Quota 9) Done with <b> . <a> . (Either (a) ((Either (a) (b))) -> Either (a) (b))!
 size    subSize solution
@@ -66,12 +63,15 @@ synGuard' "String -> Char -> [String]" ["GHC.List.words", "GHC.List.map", "Data.
 solution: "\\xs x -> Data.List.words (Data.List.map (\\y -> Data.Bool.bool y ' ' (y == x)) xs)"
 
 splitAtFirst
-synGuard' "a -> [a] -> ([a], [a])" ["GHC.List.splitAt", "Data.Maybe.fromMaybe", "GHC.List.elemIndex"] [(["1", "[2,3,1,4,1,5]"], "([2,3],[4,1,5])")]
+synGuard' "a -> [a] -> ([a], [a])" ["GHC.List.splitAt", "Data.Maybe.fromMaybe", "GHC.List.elemIndex", "GHC.List.length"] [(["1", "[2,3,1,4,1,5]"], "([2,3],[4,1,5])")]
 solution: "\\x xs -> Data.List.splitAt (Data.Maybe.fromMaybe 0 (Data.List.elemIndex x xs)) xs"
+solution: "\\x xs -> GHC.List.splitAt (Data.Maybe.fromMaybe (GHC.List.length []) (GHC.List.elemIndex x xs)) xs"
 
+-- this one errors a lot
 mbToEither
 synGuard' "Maybe a -> b -> Either a b" ["Data.Bool.bool", ".Right", ".Left", "Data.Maybe.fromJust", "Data.Maybe.isJust"] [([Nothing, "1"], "Right 1"), ([Just 2, "3"], "Left 2")]
 solution: "\\mb x -> Data.Bool.bool (Right x) (Left (Data.Maybe.fromJust mb)) (Data.Maybe.isJust mb)"
+
 
 cartProduct
 synGuard' "[a] -> [b] -> [[(a,b)]]" ["GHC.List.map", "GHC.List.map", "Pair"] [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
@@ -85,8 +85,34 @@ solution: "\\xs ys -> Data.List.map (\\x -> Data.List.map (\y -> (,) x y) ys) xs
                     GHC.List.map (\arg2 -> GHC.List.map (\arg3 -> (arg2 , arg3)) arg1) arg0
 
 multiAppPair
-synGuard' "(a -> b, a -> c) -> a -> (b, c)" ["Pair", "Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
+synGuardO' "(a -> b, a -> c) -> a -> (b, c)" ["Pair", "Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
+synO' "(a -> b, a -> c) -> a -> (b, c)" [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
 solution: "\\arg0 arg1 -> (,) ((Data.Tuple.fst arg0) arg1) ((Data.Tuple.snd arg0) arg1)"
+
+(Quota 8) Done with <c> . <b> . <a> . (((a -> b) , (a -> c)) -> (a -> (b , c)))!
+size    subSize solution
+7       24      ((Data.Tuple.fst arg0 arg1) , (Data.Tuple.snd arg0 arg1))
+
+(GHC.List.concat [])
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: (b , c))
+((?? :: (tau0 -> (b , c))) (?? :: tau0))
+(((?? :: (tau1 -> (tau0 -> (b , c)))) (?? :: tau1)) (?? :: tau0))
+(((,) (?? :: tau1)) (?? :: tau0))
+(((,) ((?? :: (tau4 -> b)) (?? :: tau4))) (?? :: tau0))
+(((,) (((?? :: (tau5 -> (tau4 -> b))) (?? :: tau5)) (?? :: tau4))) (?? :: tau0))
+(((,) ((Data.Tuple.fst (?? :: tau5)) (?? :: tau4))) (?? :: tau0))
+(((,) (Data.Tuple.fst arg0 (?? :: tau4))) (?? :: tau0))
+((,) (Data.Tuple.fst arg0 arg1) (?? :: tau0))
+((,) (Data.Tuple.fst arg0 arg1) ((?? :: (tau8 -> c)) (?? :: tau8)))
+((,) (Data.Tuple.fst arg0 arg1) (((?? :: (tau9 -> (tau8 -> c))) (?? :: tau9)) (?? :: tau8)))
+((,) (Data.Tuple.fst arg0 arg1) ((Data.Tuple.snd (?? :: tau9)) (?? :: tau8)))
+((,) (Data.Tuple.fst arg0 arg1) (Data.Tuple.snd arg0 (?? :: tau8)))
+((Data.Tuple.fst arg0 arg1) , (Data.Tuple.snd arg0 arg1))
+-----------------
 
 hoogle01
 synGuard' "(a -> b) -> [a] -> b" ["GHC.List.head"] [(["\\xs -> GHC.List.length xs", "[[1,2,3], [1,2,3,4,5,6,7]]"], "3"), (["\\x -> [x, x]", "[6,5,4]"], "[6, 6]")]
@@ -212,29 +238,37 @@ pipe
 synGuard' "[(a -> a)] -> (a -> a)" ["GHC.List.foldr"] [(["[\\x -> x + 1, \\x -> x * 2, \\x -> x * x]", "3"], "19")]
 solution: "\\xs x -> Data.List.foldr ($) x xs"
 
-indexesOf
-synGuard' "([(a,Int)] -> [(a,Int)]) -> [a] -> [Int] -> [Int]" ["GHC.List.map", "Data.Tuple.snd", "GHC.List.zip"] [(["map (\\(x, y) -> (x, y * y))", "[1,2,3]", "[9,8,7]"], "[81, 64, 49]")]
-solution: "\\f xs ys -> Data.List.map Data.Tuple.snd (f (Data.List.zip xs ys))"
-
 lookup
 synGuard' "Eq a => [(a,b)] -> a -> b" ["Data.Maybe.fromJust", "GHC.List.lookup"] [(["[(1,2), (2,3), (4,6)]", "2"], "3")]
 solution: "\\xs k -> Data.Maybe.fromJust (Data.List.lookup k xs)"
 
 mbElem
 synGuard' "Eq a => a -> [a] -> Maybe a" [".bool", ".Nothing", ".Just", "GHC.List.elem"] [(["2", "[1,3,5,7,9]"], "Nothing"), (["3", "[1,3,5,7,9]"], "Just 3")]
+synGuardO' "Eq a => a -> [a] -> Maybe a" [".bool", ".Nothing", ".Just", "GHC.List.elem"] [(["2", "[1,3,5,7,9]"], "Nothing"), (["3", "[1,3,5,7,9]"], "Just 3")]
+synO' "Eq a => a -> [a] -> Maybe a" [(["2", "[1,3,5,7,9]"], "Nothing"), (["3", "[1,3,5,7,9]"], "Just 3")]
 solution: "\\x xs -> bool Nothing (Just x) (GHC.List.elem x xs)"
+tygar: \arg0 arg1 -> Data.Maybe.listToMaybe (GHC.List.dropWhile ((Data.Eq./=) arg0) arg1)
+synGuardO' "Eq a => a -> [a] -> Maybe a" [".listToMaybe", ".dropWhile", "/="] [(["2", "[1,3,5,7,9]"], "Nothing"), (["3", "[1,3,5,7,9]"], "Just 3")]
+
 
 areEq
 synGuard' "Eq a => a -> a -> Maybe a" [".bool", ".Nothing", ".Just", "=="] [(["1", "2"], "Nothing"), (["1", "1"], "Just 1")]
-solution: "\\x y -> bool Nothing (Just x) ((==) x y)"
+synGuardO' "Eq a => a -> a -> Maybe a" [".bool", ".Nothing", ".Just", "=="] [(["1", "2"], "Nothing"), (["1", "1"], "Just 1")]
+solution: "\\arg0 arg1 -> bool Nothing (Just arg0) ((==) arg0 arg1)"
+ours:              Data.Bool.bool (\arg2 -> Data.Maybe.Nothing) (\arg3 -> Data.Maybe.Just arg0) (arg0 == arg1) (Data.Maybe.Just tcarg0)
 
 containsEdge
-synGuard' "[Int] -> (Int,Int) -> Bool" ["Pair", "GHC.List.elem", "&&", "GHC.List.elem"] [(["[1,2,3,4]", "(1,2)"], "True"), (["[1,2,3,4]", "(1,5)"], "False")]
-solution: "\\xs (a,b) -> (a `Data.List.elem` xs) && (b `Data.List.elem` xs)"
+synGuard' "[Int] -> (Int,Int) -> Bool" ["Pair", "GHC.List.elem", "&&", "GHC.List.elem", "Data.Tuple.fst", "Data.Tuple.snd"] [(["[1,2,3,4]", "(1,2)"], "True"), (["[1,2,3,4]", "(1,5)"], "False")]
+solution: "\\xs p -> ((fst p) `Data.List.elem` xs) && ((snd p) `Data.List.elem` xs)"
 
 dedupe
-synGuard' "Eq a => [a] -> [a]" ["GHC.List.map", "GHC.List.head", "GHC.List.group"] [(["\"aaabbbccc\""], "\"abc\"")]
+synGuard' "Eq a => [a] -> [a]" ["GHC.List.map", "GHC.List.head", "Data.List.group"] [(["\"aaabbbccc\""], "\"abc\"")]
+synO' "Eq a => [a] -> [a]" [(["\"aaabbbccc\""], "\"abc\"")]
 solution: "\\xs -> Data.List.map Data.List.head (Data.List.group xs)"
+
+(Quota 7) Done with <a> . (@@hplusTC@@Eq (a) -> ([a] -> [a]))!
+size    subSize solution
+7       17      GHC.List.map (\arg1 -> GHC.List.head arg1) (Data.List.group tcarg0 arg0)
 
 inverseMap
 synGuard' "[a -> b] -> a -> [b]" ["GHC.List.map"] [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]

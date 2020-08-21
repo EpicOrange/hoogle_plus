@@ -1,6 +1,622 @@
 {-
 
 
+group :: <a> . (@@hplusTC@@Eq (a) -> ([a] -> [[a]]))
+
+p/HooglePlus.hs, interpreted ) [TH]
+Ok, 58 modules loaded.
+> synGuardO' "Eq a => [a] -> [a]" ["GHC.List.map", "GHC.List.head", "GHC.List.group", "@@hplusTC@@Eq"] [(["\"aaabbbccc\""], "\"abc\"")] 
+
+running dfs on <a> . (@@hplusTC@@Eq (a) -> ([a] -> [a])) at size 7
+| solved goal: arg0
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.head (GHC.List.map (\arg1 -> arg0) arg0)
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) arg0
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) tcarg0
+
+/tmp/d87245e6-7e41-498d-b0df-a34e9c95a58e.hs:16:31: error:
+    • Couldn't match expected type ‘[a]’ with actual type ‘p0 -> [a]’
+    • Probable cause: ‘head’ is applied to too few arguments
+  In the expression: head (map (\ arg1 -> \ arg2 -> arg0) arg0)
+  In the expression:
+    \ arg0 -> head (map (\ arg1 -> \ arg2 -> arg0) arg0)
+  In an equation for ‘ghcCheckedFunction’:
+      ghcCheckedFunction
+        = \ arg0 -> head (map (\ arg1 -> \ arg2 -> ...) arg0)
+    • Relevant bindings include
+    arg0 :: [a]
+      (bound at /tmp/d87245e6-7e41-498d-b0df-a34e9c95a58e.hs:16:23)
+    ghcCheckedFunction :: [a] -> [a]
+      (bound at /tmp/d87245e6-7e41-498d-b0df-a34e9c95a58e.hs:16:1)
+   |
+16 | ghcCheckedFunction = \arg0 -> GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0)
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<interactive>:1:11: error:
+    • Couldn't match expected type ‘[a1]’ with actual type ‘p0 -> [a1]’
+    • Probable cause: ‘head’ is applied to too few arguments
+  In the expression: head (map (\ arg1 -> \ arg2 -> arg0) arg0)
+  In the expression:
+      (\ arg0 -> head (map (\ arg1 -> \ arg2 -> arg0) arg0)) ::
+        (Eq a) => [a] -> [a]
+    • Relevant bindings include
+    arg0 :: [a1] (bound at <interactive>:1:3)
+
+| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) GHC.List.head
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) GHC.List.map
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg2) arg0) arg0
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.map GHC.List.head (GHC.List.map (\arg1 -> arg0) arg0)
+"\"aaaaaaaaa\""
+"\"abc\""
+| solved goal: GHC.List.map (\arg1 -> arg1) arg0
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.map (\arg1 -> arg1) (GHC.List.map (\arg2 -> arg2) arg0)
+"\"aaabbbccc\""
+"\"abc\""
+| solved goal: GHC.List.map (\arg1 -> GHC.List.head arg0) arg0
+"\"aaaaaaaaa\""
+"\"abc\""
+| current goal (sizeQuota 3): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: tau0)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+             >> t1: [a]
+             >> t2: [[a]]
+            >> isChecked: False
+             >> t1: @@hplusTC@@Eq (a)
+             >> t2: [[a]]
+            >> isChecked: False
+             >> t1: [tau6] -> tau6
+             >> t2: [[a]]
+            >> isChecked: False
+             >> t1: (tau7 -> tau6) -> [tau7] -> [tau6]
+             >> t2: [[a]]
+            >> isChecked: False
+| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau6 -> [[a]])) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+             >> t1: [a]
+             >> t2: tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: @@hplusTC@@Eq (a)
+             >> t2: tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: [tau7] -> tau7
+             >> t2: tau6 -> [[a]]
+            >> isChecked: True
+| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: (tau8 -> [[[a]]])) (?? :: tau8)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head GHC.List.head (?? :: tau8)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]])
+    *("tau8",[[[[a]]]])
+    *("tau9",[[[a]]])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head GHC.List.head (?? :: tau8)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]])
+    *("tau8",[[[[a]]]])
+    *("tau9",[[[a]]])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: (tau8 -> [[[a]]])) (?? :: tau8)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]])
+| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]])
+             >> t1: (tau8 -> tau7) -> [tau8] -> [tau7]
+             >> t2: tau6 -> [[a]]
+            >> isChecked: False
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau7 -> (tau6 -> [[a]]))) (?? :: tau7) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+             >> t1: [a]
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: @@hplusTC@@Eq (a)
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: [tau8] -> tau8
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: True
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau7) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau7",[tau6 -> [[a]]])
+    *("tau8",tau6 -> [[a]])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau7) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau7",[tau6 -> [[a]]])
+    *("tau8",tau6 -> [[a]])
+             >> t1: (tau9 -> tau8) -> [tau9] -> [tau8]
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: True
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map (?? :: tau7) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[tau9])
+    *("tau7",tau9 -> [a])
+    *("tau8",[a])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map GHC.List.head (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau10",[a])
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]] -> [a])
+    *("tau8",[a])
+    *("tau9",[[a]])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map GHC.List.head (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau10",[a])
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[[[a]]])
+    *("tau7",[[a]] -> [a])
+    *("tau8",[a])
+    *("tau9",[[a]])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map (?? :: tau7) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+    *("tau6",[tau9])
+    *("tau7",tau9 -> [a])
+    *("tau8",[a])
+| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau7 -> (tau6 -> [[a]]))) (?? :: tau7) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+             >> t1: [a]
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: @@hplusTC@@Eq (a)
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: [tau8] -> tau8
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: True
+             >> t1: (tau9 -> tau8) -> [tau9] -> [tau8]
+             >> t2: tau7 -> tau6 -> [[a]]
+            >> isChecked: True
+| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau6 -> [[a]])) (?? :: tau6)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+             >> t1: [a]
+             >> t2: tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: @@hplusTC@@Eq (a)
+             >> t2: tau6 -> [[a]]
+            >> isChecked: False
+             >> t1: [tau7] -> tau7
+             >> t2: tau6 -> [[a]]
+            >> isChecked: True
+             >> t1: (tau8 -> tau7) -> [tau8] -> [tau7]
+             >> t2: tau6 -> [[a]]
+            >> isChecked: False
+| current goal (sizeQuota 3): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: tau0)
+    *("tau0",[[a]])
+    *("tau1",[a] -> a)
+    *("tau2",a)
+    *("tau3",[a])
+    *("tau4",[a])
+    *("tau5",a)
+             >> t1: [a]
+             >> t2: [[a]]
+            >> isChecked: False
+             >> t1: @@hplusTC@@Eq (a)
+             >> t2: [[a]]
+            >> isChecked: False
+             >> t1: [tau6] -> tau6
+             >> t2: [[a]]
+            >> isChecked: False
+             >> t1: (tau7 -> tau6) -> [tau7] -> [tau6]
+             >> t2: [[a]]
+            >> isChecked: False
+*** Exception: user error (No answer.)
+> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HAIKU!!!!
+
+                                  program synthesis        
+                              "it's all algorithmic art?"  
+                                "yep always has been"      
+
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaa
+cccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaa
+aabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaab
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+aabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccca
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaa
+cccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaa
+aabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaab
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaa
+cccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaa
+aabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaab
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaabbbccaaa
+aaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccc
+aaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbcaaabbbca
+cccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaaccc
+aabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbccaabbbcca
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaacccbbbaaa
+cccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaacccbbbaaccc
+aabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaabbbcccaab
+aabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbcccaaabbbccca
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------
+
+
+
+
+indexesOf
+synGuardO' "([(a,Int)] -> [(a,Int)]) -> [a] -> [Int] -> [Int]" ["GHC.List.map", "Data.Tuple.snd", "GHC.List.zip"] [(["map (\\(x, y) -> (x, y * y))", "[1,2,3]", "[9,8,7]"], "[81, 64, 49]")]
+solution: "\\f xs ys -> Data.List.map Data.Tuple.snd (f (Data.List.zip xs ys))"
+
+    (Quota 8) Done with <a> . ((([(a , Int)] -> [(a , Int)])) -> ([a] -> ([Int] -> [Int])))!
+    size    subSize solution
+    6       24      GHC.List.map Data.Tuple.snd (arg0 (GHC.List.zip arg1 arg2))
+    -----------------
+    --- BACKTRACE ---
+    -----------------
+    (?? :: [Int])
+    (?? :: (tau0 -> [Int])) (?? :: tau0)
+    (?? :: (tau1 -> (tau0 -> [Int]))) (?? :: tau1) (?? :: tau0)
+    GHC.List.map (?? :: tau1) (?? :: tau0)
+    GHC.List.map Data.Tuple.snd (?? :: tau0)
+    GHC.List.map Data.Tuple.snd (?? :: (tau6 -> [(tau5 , Int)])) (?? :: tau6)
+    GHC.List.map Data.Tuple.snd arg0 (?? :: tau6)
+    GHC.List.map Data.Tuple.snd arg0 (?? :: (tau7 -> [(a , Int)])) (?? :: tau7)
+    GHC.List.map Data.Tuple.snd arg0 (?? :: (tau8 -> (tau7 -> [(a , Int)]))) (?? :: tau8) (?? :: tau7)
+    GHC.List.map Data.Tuple.snd arg0 GHC.List.zip (?? :: tau8) (?? :: tau7)
+    GHC.List.map Data.Tuple.snd arg0 GHC.List.zip arg1 (?? :: tau7)
+    GHC.List.map Data.Tuple.snd (arg0 (GHC.List.zip arg1 arg2))
+    -----------------
+    (5.45 secs, 1,671,473,336 bytes)
+
+mergeEither
+synGuardO' "Either a (Either a b) -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
+solution: "\\arg0 -> Data.Either.either Left (Data.Either.either Left Right) arg0"
+
+    (Quota 8) Done with <b> . <a> . (Either (a) ((Either (a) (b))) -> Either (a) (b))!
+    size    subSize solution
+    5       24      Data.Either.either Data.Either.Left (\arg1 -> arg1) arg0
+    -----------------
+    --- BACKTRACE ---
+    -----------------
+    (?? :: Either (a) (b))
+    (?? :: (tau0 -> Either (a) (b))) (?? :: tau0)
+    (?? :: (tau1 -> (tau0 -> Either (a) (b)))) (?? :: tau1) (?? :: tau0)
+    (?? :: (tau2 -> (tau1 -> (tau0 -> Either (a) (b))))) (?? :: tau2) (?? :: tau1) (?? :: tau0)
+    Data.Either.either (?? :: tau2) (?? :: tau1) (?? :: tau0)
+    Data.Either.either Data.Either.Left (?? :: tau1) (?? :: tau0)
+    Data.Either.either Data.Either.Left (\arg1 -> (?? :: tau4)) (?? :: tau0)
+    Data.Either.either Data.Either.Left (\arg1 -> arg1) (?? :: tau0)
+    Data.Either.either Data.Either.Left (\arg1 -> arg1) arg0
+    -----------------
+    (3.63 secs, 979,275,584 bytes)
+
+dedupe
+synGuard' "Eq a => [a] -> [a]" ["GHC.List.map", "GHC.List.head", "Data.List.group"] [(["\"aaabbbccc\""], "\"abc\"")]
+synGuardO' "Eq a => [a] -> [a]" ["GHC.List.map", "GHC.List.head", "Data.List.group", "@@hplusTC@@Eq"] [(["\"aaabbbccc\""], "\"abc\"")]
+synO' "Eq a => [a] -> [a]"  [(["\"aaabbbccc\""], "\"abc\"")]
+solution: "\\xs -> Data.List.map Data.List.head (Data.List.group xs)"
+our expecteed solution: "\\arg0 -> Data.List.map (\arg1 -> Data.List.head arg1) (Data.List.group arg0)"
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg0) (?? :: (tau6 -> [tau3])) (?? :: tau6)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg0) GHC.List.head (?? :: tau6) <-
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg0) GHC.List.head (?? :: tau6)<-
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg0) (?? :: (tau6 -> [tau3])) (?? :: tau6)
+    | current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg0) (?? :: tau0)<-
+    | current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: tau0)<-
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau6 -> [[a]])) (?? :: tau6)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau6)<-
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau6)<-
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau6 -> [[a]])) (?? :: tau6)
+    | current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: tau0)<-
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head (?? :: (tau6 -> [a])) (?? :: tau6)) (?? :: tau0)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1 (?? :: tau6)) (?? :: tau0)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head (arg1 arg0)) (?? :: tau0)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head (arg1 arg0)) (?? :: tau0)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head (arg1 tcarg0)) (?? :: tau0)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head (arg1 tcarg0)) (?? :: tau0)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head (arg1 GHC.List.head)) (?? :: tau0)
+    | current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head (arg1 GHC.List.head)) (?? :: tau0)
+    ---> loops and becomes unkillable
+
+splitAtFirst
+synGuardO' "a -> [a] -> ([a], [a])" ["GHC.List.splitAt", "Data.Maybe.fromMaybe", "GHC.List.elemIndex"] [(["1", "[2,3,1,4,1,5]"], "([2,3],[4,1,5])")]
+solution: "\\x xs -> Data.List.splitAt (Data.Maybe.fromMaybe 0 (Data.List.elemIndex x xs)) xs"
+
+    ---> doesn't seem to terminate (probably since solution contains 0)
+
+mbElem
+synGuardO' "Eq a => a -> [a] -> Maybe a" [".bool", ".Nothing", ".Just", "GHC.List.elem"] [(["2", "[1,3,5,7,9]"], "Nothing"), (["3", "[1,3,5,7,9]"], "Just 3")]
+solution: "\\x xs -> bool Nothing (Just x) (GHC.List.elem x xs)"
+
+    (Quota 8) Done with <a> . (@@hplusTC@@Eq (a) -> (a -> ([a] -> Maybe (a))))!
+    size    subSize solution
+    8       16      Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (GHC.List.elem tcarg0 arg0 arg1)
+    -----------------
+    --- BACKTRACE ---
+    -----------------
+    (?? :: Maybe (a))
+    (?? :: (tau0 -> Maybe (a))) (?? :: tau0)
+    (?? :: (tau1 -> (tau0 -> Maybe (a)))) (?? :: tau1) (?? :: tau0)
+    (?? :: (tau2 -> (tau1 -> (tau0 -> Maybe (a))))) (?? :: tau2) (?? :: tau1) (?? :: tau0)
+    Data.Bool.bool (?? :: tau2) (?? :: tau1) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (?? :: tau1) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (?? :: (tau5 -> Maybe (a))) (?? :: tau5) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing Data.Maybe.Just (?? :: tau5) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: (tau7 -> Bool)) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: (tau8 -> (tau7 -> Bool))) (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: (tau9 -> (tau8 -> (tau7 -> Bool)))) (?? :: tau9) (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) GHC.List.elem (?? :: tau9) (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) GHC.List.elem tcarg0 (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) GHC.List.elem tcarg0 arg0 (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (GHC.List.elem tcarg0 arg0 arg1)
+    -----------------
+    (6.96 secs, 2,634,667,288 bytes)
+
+areEq
+synGuardO' "Eq a => a -> a -> Maybe a" [".bool", ".Nothing", ".Just", "=="] [(["1", "2"], "Nothing"), (["1", "1"], "Just 1")]
+solution: "\\x y -> bool Nothing (Just x) ((==) x y)"
+
+    (Quota 8) Done with <a> . (@@hplusTC@@Eq (a) -> (a -> (a -> Maybe (a))))!
+    size    subSize solution
+    8       15      Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (arg0 == arg1)
+    -----------------
+    --- BACKTRACE ---
+    -----------------
+    (?? :: Maybe (a))
+    (?? :: (tau0 -> Maybe (a))) (?? :: tau0)
+    (?? :: (tau1 -> (tau0 -> Maybe (a)))) (?? :: tau1) (?? :: tau0)
+    (?? :: (tau2 -> (tau1 -> (tau0 -> Maybe (a))))) (?? :: tau2) (?? :: tau1) (?? :: tau0)
+    Data.Bool.bool (?? :: tau2) (?? :: tau1) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (?? :: tau1) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (?? :: (tau5 -> Maybe (a))) (?? :: tau5) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing Data.Maybe.Just (?? :: tau5) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: tau0)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: (tau7 -> Bool)) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: (tau8 -> (tau7 -> Bool))) (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (?? :: (tau9 -> (tau8 -> (tau7 -> Bool)))) (?? :: tau9) (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (Data.Eq.==) (?? :: tau9) (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (Data.Eq.==) tcarg0 (?? :: tau8) (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (Data.Eq.==) tcarg0 arg0 (?? :: tau7)
+    Data.Bool.bool Data.Maybe.Nothing (Data.Maybe.Just arg0) (arg0 == arg1)
+    -----------------
+    (30.57 secs, 11,791,510,528 bytes)
+
+takeNdropM
+synGuardO' "Int -> Int -> [a] -> ([a], [a])" ["GHC.List.take", "Pair", "GHC.List.drop"] [(["3", "5", "[1,2,3,4,5,6,7]"], "([1,2,3], [6,7])")]
+solution: "\\n m l -> (Data.List.take n l, Data.List.drop m l)"
+
+    (Quota 7) Done with <a> . (Int -> (Int -> ([a] -> ([a] , [a]))))!
+    size    subSize solution
+    7       16      ((GHC.List.take arg0 arg2) , (GHC.List.drop arg1 arg2))
+    -----------------
+    --- BACKTRACE ---
+    -----------------
+    (?? :: ([a] , [a]))
+    (?? :: (tau0 -> ([a] , [a]))) (?? :: tau0)
+    (?? :: (tau1 -> (tau0 -> ([a] , [a])))) (?? :: tau1) (?? :: tau0)
+    (,) (?? :: tau1) (?? :: tau0)
+    (,) (?? :: (tau4 -> [a])) (?? :: tau4) (?? :: tau0)
+    (,) GHC.List.take arg0 (?? :: tau4) (?? :: tau0)
+    (,) (GHC.List.take arg0 arg2) (?? :: tau0)
+    ((GHC.List.take arg0 arg2) , (GHC.List.drop arg1 arg2))
+    -----------------
+    (15.15 secs, 6,774,323,224 bytes)
+
+indexesOf
+synGuardO' "([(a,Int)] -> [(a,Int)]) -> [a] -> [Int] -> [Int]" ["GHC.List.map", "Data.Tuple.snd", "GHC.List.zip"] [(["map (\\(x, y) -> (x, y * y))", "[1,2,3]", "[9,8,7]"], "[81, 64, 49]")]
+solution: "\\f xs ys -> Data.List.map Data.Tuple.snd (f (Data.List.zip xs ys))"
+
+    (Quota 8) Done with <a> . ((([(a , Int)] -> [(a , Int)])) -> ([a] -> ([Int] -> [Int])))!
+    size    subSize solution
+    6       24      GHC.List.map Data.Tuple.snd (arg0 (GHC.List.zip arg1 arg2))
+    -----------------
+    --- BACKTRACE ---
+    -----------------
+    (?? :: [Int])
+    (?? :: (tau0 -> [Int])) (?? :: tau0)
+    (?? :: (tau1 -> (tau0 -> [Int]))) (?? :: tau1) (?? :: tau0)
+    GHC.List.map (?? :: tau1) (?? :: tau0)
+    GHC.List.map Data.Tuple.snd (?? :: tau0)
+    GHC.List.map Data.Tuple.snd (?? :: (tau6 -> [(tau5 , Int)])) (?? :: tau6)
+    GHC.List.map Data.Tuple.snd arg0 (?? :: tau6)
+    GHC.List.map Data.Tuple.snd arg0 (?? :: (tau7 -> [(a , Int)])) (?? :: tau7)
+    GHC.List.map Data.Tuple.snd arg0 (?? :: (tau8 -> (tau7 -> [(a , Int)]))) (?? :: tau8) (?? :: tau7)
+    GHC.List.map Data.Tuple.snd arg0 GHC.List.zip (?? :: tau8) (?? :: tau7)
+    GHC.List.map Data.Tuple.snd arg0 GHC.List.zip arg1 (?? :: tau7)
+    GHC.List.map Data.Tuple.snd (arg0 (GHC.List.zip arg1 arg2))
+    -----------------
+    (5.01 secs, 1,669,507,456 bytes)
+
+containsEdge
+synGuardO' "[Int] -> (Int,Int) -> Bool" ["Pair", "GHC.List.elem", "&&", "GHC.List.elem", "Data.Tuple.fst", "Data.Tuple.snd"] [(["[1,2,3,4]", "(1,2)"], "True"), (["[1,2,3,4]", "(1,5)"], "False")]
+solution: "\\xs p -> ((fst p) `Data.List.elem` xs) && ((snd p) `Data.List.elem` xs)"
+
+    ---> dies at quota 12 (out of memory)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9,7 +625,7 @@ stack run -- hplus topdown --query='Maybe(a->b)->a->b' --disableHO --
 
 Flags 
   json :: String, -- query, examples, guards?????????????
-  disableHO :: Bool,
+  disableHO :: Bool, -- a
   altIMode :: Bool, -- should we do imode w/ env first or regular i-mode
   memoize :: Bool -- should we memoize? 
   backtrace :: Bool -- should we print backtracing? 
@@ -336,42 +952,42 @@ splitting ((tau6 -> (tau5 -> (tau4 -> (tau3 -> (tau2 -> (tau1 -> (tau0 -> d)))))
 -- goal: b         program: 
 -- (\arg2 -> Data.Maybe.fromJust (Data.Maybe.fromJust (Data.Maybe.fromJust arg2))) $ arg2
 
-      {-
-        syn "arg0:Maybe (a -> b) -> arg1:a -> b"
-        (fromJust arg0) arg1
+  {-
+    syn "arg0:Maybe (a -> b) -> arg1:a -> b"
+    (fromJust arg0) arg1
 
-                                            ?? :: b
-                                               \
-                              $ ?? :: (tau1 -> b) -> (?? :: a) -> b
-                                  /                           \
-              fromJust ?? :: Maybe (tau1 -> b) -> (a -> b)   arg1 :: a
-                              /
-                      arg0  :: Maybe (a -> b)
+                                        ?? :: b
+                                           \
+                          $ ?? :: (tau1 -> b) -> (?? :: a) -> b
+                              /                           \
+          fromJust ?? :: Maybe (tau1 -> b) -> (a -> b)   arg1 :: a
+                          /
+                  arg0  :: Maybe (a -> b)
 
 
-        solution:       (Data.Maybe.fromJust arg0) $ arg1
-        we got:         (Data.Maybe.fromJust arg0 arg1) $ arg1
-        we prob want:   (\arg2 -> Data.Maybe.fromJust arg0 arg2) $ arg1
-        
-        
-        
-        overall goal: b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (b) -> b
-        overall goal: tau1 -> b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (tau1 -> b) -> tau1 -> b
+    solution:       (Data.Maybe.fromJust arg0) $ arg1
+    we got:         (Data.Maybe.fromJust arg0 arg1) $ arg1
+    we prob want:   (\arg2 -> Data.Maybe.fromJust arg0 arg2) $ arg1
+    
+    
+    
+    overall goal: b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (b) -> b
+    overall goal: tau1 -> b  component: tau4 (freshvars: (Maybe (tau4) -> tau4))    ====> Maybe (tau1 -> b) -> tau1 -> b
 
-        their solution: (Data.Maybe.fromJust arg0) $ arg1
-        starting goal type: b
-        component: arg0     :: Maybe (a -> b)
-        component: fromJust :: Maybe tau1 -> tau1
-        component: $        :: (((tau1 -> tau2)) -> (tau1 -> tau2))
+    their solution: (Data.Maybe.fromJust arg0) $ arg1
+    starting goal type: b
+    component: arg0     :: Maybe (a -> b)
+    component: fromJust :: Maybe tau1 -> tau1
+    component: $        :: (((tau1 -> tau2)) -> (tau1 -> tau2))
 
-        component: fromJust :: Maybe (tau1 -> tau2) -> (tau1 -> tau2)
+    component: fromJust :: Maybe (tau1 -> tau2) -> (tau1 -> tau2)
 
-        currently, we only check this:
-          unified: fromJust :: Maybe b -> b
-        but really we wanna check this too:
-          unified: fromJust :: Maybe (tau1 -> b) -> (tau1 -> b)
-        
-      -}
+    currently, we only check this:
+      unified: fromJust :: Maybe b -> b
+    but really we wanna check this too:
+      unified: fromJust :: Maybe (tau1 -> b) -> (tau1 -> b)
+    
+  -}
 
 
 {-
@@ -382,7 +998,7 @@ top-down enumeration that we might consider here:
 1. If our goal type is T we literally search for a component/variable whose
 type unifies with T. This won't work in your example with the query Maybe (a
 -> b) -> a -> b and component fromJust unless you also add $.
-      ======> (what we were doing before)
+  ======> (what we were doing before)
      
     T :: Maybe (a -> b) -> a -> b
     arg0 :: Maybe (a -> b)
@@ -391,10 +1007,10 @@ type unifies with T. This won't work in your example with the query Maybe (a
     [b] $ :: (tau -> b) -> tau -> b      (originally :: (tau -> tau1) -> tau -> tau1 )
     args: [(tau -> b), tau]
 
-        arg: tau -> b     is a functionType
-        newArgs = [arg2: tau]
-        add arg2 to the env
-        recursive with b as goal
+    arg: tau -> b     is a functionType
+    newArgs = [arg2: tau]
+    add arg2 to the env
+    recursive with b as goal
     
     arg2 :: tau
     T'' :: b
@@ -404,7 +1020,7 @@ type unifies with T. This won't work in your example with the query Maybe (a
     
     
     [tau -> b] fromJust :: Maybe b -> b
-        fromJust :: Maybe tau1 -> tau1
+    fromJust :: Maybe tau1 -> tau1
     T''' :: tau
     
 
@@ -421,73 +1037,73 @@ type unifies with T. This won't work in your example with the query Maybe (a
 2. Another way to do top-down is what Synquid does. If the goal is T and we
 are currently in the enumeration mode, Synquid will consider two
 possibilities: 
-      a) is there a variable (component) whose entire type unifies with T?  
+  a) is there a variable (component) whose entire type unifies with T?  
 
-      ======> comp :: <a,b,c> . a -> b -> c
-      ======> goal :: Int -> Bool -> Int         ~ T
-      
-      b) otherwise we are looking for an application, so generate two
-         subgoals alpha -> T and alpha, and repeat the process.
+  ======> comp :: <a,b,c> . a -> b -> c
+  ======> goal :: Int -> Bool -> Int         ~ T
+  
+  b) otherwise we are looking for an application, so generate two
+     subgoals alpha -> T and alpha, and repeat the process.
 
-        f: alpha -> (Int -> Bool -> Int)
-        x: alpha
+    f: alpha -> (Int -> Bool -> Int)
+    x: alpha
 
-      ======> just like using the component ($)
-      ======> which recurses on its arguments (a function alpha -> b and 
-              its argument alpha)
+  ======> just like using the component ($)
+  ======> which recurses on its arguments (a function alpha -> b and 
+          its argument alpha)
 
 The latter approach works for this example (without $):
 
   ***** ONE *****
   
     First our goal is: 
-      
-      fromJust : Maybe gamma -> gamma
-      x : Maybe(a -> b)
-      y : a 
-      |-
-      ?? : b
+  
+  fromJust : Maybe gamma -> gamma
+  x : Maybe(a -> b)
+  y : a 
+  |-
+  ?? : b
     
     We don't have variables of type b so, it's going to be an application, let's generate
     two subgoals 
 
-          alpha -> b   
-          alpha 
+      alpha -> b   
+      alpha 
     
     where alpha is a fresh type variable.
 
 
   * Now let's solve the subgoal (alpha -> b). fromJust unifies with it, with 
-      
-      gamma := b, 
-      alpha := Maybe b, 
+  
+  gamma := b, 
+  alpha := Maybe b, 
     
     but then for the seond subgoal (alpha) we need a (Maybe b) which will lead to a dead end.
 
   * So let's consider the other option for (alpha -> b), an application; this generates 
     two more subgoals: (this is still to solve (alpha -> b))
 
-        beta -> (alpha -> b)   
-        beta
-        
+    beta -> (alpha -> b)   
+    beta
+    
     Let's solve the first one (beta -> (alpha -> b)).
 
   * Again fromJust unifies with this subgoal, this time with
-        gamma := (alpha -> b),
-        beta := Maybe (alpha -> b) .
+    gamma := (alpha -> b),
+    beta := Maybe (alpha -> b) .
 
   * Our second subgoal (beta) becomes (Maybe (alpha -> b)) which can be solved with the variable
     x producing the substitution 
-        alpha := a
+    alpha := a
 
-      environment:
-        fromJust : Maybe gamma -> gamma
-        x : Maybe(a -> b)
-        y : a 
+  environment:
+    fromJust : Maybe gamma -> gamma
+    x : Maybe(a -> b)
+    y : a 
 
   * Popping up a level, we still have an open subgoal 
-        alpha (aka a) 
-        
+    alpha (aka a) 
+    
     which is solved by the variable y.
 
 
@@ -500,15 +1116,15 @@ Ideas for (1):
   * getExactUnified `mplus` getTypeVarUnified
 
 
-      ======> comp :: <a,b,c> . a -> b -> c
-      ======> goal :: Int -> Bool -> Int         ~ T
+  ======> comp :: <a,b,c> . a -> b -> c
+  ======> goal :: Int -> Bool -> Int         ~ T
 
     getExactUnified would return
-      => PSymbol id (sub freshVars)
+  => PSymbol id (sub freshVars)
 
 QUESTIONS:
     1. would we be interleaving the two approaches? 
-        answer: no. first try to (1) and then go to (2)
+    answer: no. first try to (1) and then go to (2)
 
 ------------------------------
 An interesting aside is that Synquid only had to look at components of a
@@ -526,9 +1142,9 @@ components, while you don't know when to stop. But the size ordering should
 take of that.
   ===> not sure how size takes care of it, but we'll probably run into it
   ===> if there is a solution we'll return the smallest one anyway
-       even if we search for huge a->b->c->d->e->f->g types
-         alpha -> T     size k
-         alpha          size quota - k
+   even if we search for huge a->b->c->d->e->f->g types
+     alpha -> T     size k
+     alpha          size quota - k
 ------------------------------
 
 So my main question is: is approach 1 + the $ component
@@ -576,19 +1192,19 @@ it finds (fromJust (arg0::Maybe (tau1 -> b))) $ (arg0::tau2)) $ (??::tau1)
 (\arg2 -> fromJust arg0 $ arg1) $ arg1
 
 * First, I don’t think (tau1 -> b) unifies with fromJust and results in 
-      
-      Maybe (tau1 -> b) -> (tau1 -> b)
+  
+  Maybe (tau1 -> b) -> (tau1 -> b)
 
 instead, it should be (Maybe b -> b) , and you cannot find a term of type (Maybe b) .
   
   =====> when unifying (tau1 -> b) w/ fromJust, you get (Maybe b -> b) 
 
 * Next, you will try to use ($) that returns type (tau1 -> b) , so you find that 
-      
-      $ :: (tau2 -> (tau1 -> b)) -> tau2 -> (tau1 -> b) 
-      
+  
+  $ :: (tau2 -> (tau1 -> b)) -> tau2 -> (tau1 -> b) 
+  
 and this time you will find the first argument unifies with 
-        fromJust :: Maybe (tau1 -> b) -> (tau1 -> b)
+    fromJust :: Maybe (tau1 -> b) -> (tau1 -> b)
 
 
 
@@ -600,11 +1216,11 @@ args = [Maybe (tau1 -> b), tau1]
 
 1. find stuff for Maybe (tau1 -> b)
 
-      find arg0
+  find arg0
 
 2. check if remaining type unifies with OG goalType tau1 -> b 
-      
-      => it does, so return here instead of going to next argument
+  
+  => it does, so return here instead of going to next argument
 
 
 ------------------
@@ -612,42 +1228,42 @@ FANGIRLING SECTION
 ------------------
 
 darya: we are going to first try changing our current implementation
-       but with moving the $ to the end of the components list that it checks against
-       (it’s currently in the front… which is front-loading a bunch of unnecessary synthesizing)
+   but with moving the $ to the end of the components list that it checks against
+   (it’s currently in the front… which is front-loading a bunch of unnecessary synthesizing)
 
 nadia: Yeah, I think this makes sense. So just to summarize the plan is:
 
-       1. Put $ at the end
-       2. Put in explicit type applications to bias against complex types
-       3. Look at the logs to see if the presence of $ causes enumeration of lot of redundant (equivalent) terms
-       4. If 3 is true, then implement a more Synquid-like enumeration
+   1. Put $ at the end
+   2. Put in explicit type applications to bias against complex types
+   3. Look at the logs to see if the presence of $ causes enumeration of lot of redundant (equivalent) terms
+   4. If 3 is true, then implement a more Synquid-like enumeration
 
 daniel: hey, could you explain what is biasing against complex types?
 
 nadia: ah, because type instantiations would be counted in the size of the program, 
-       as you are doing by-size enumeration, programs with larger type instantiations
-       will be enumerated later in the search and ones with smaller instantiations
-       earlier in the search
+   as you are doing by-size enumeration, programs with larger type instantiations
+   will be enumerated later in the search and ones with smaller instantiations
+   earlier in the search
 
 daniel: so for example, we have fromJust : <a> . Maybe a -> a, if we instantiate this
-        to like fromJust : Maybe b -> b  the "b" counts as +1 size?
+    to like fromJust : Maybe b -> b  the "b" counts as +1 size?
 
 nadia: yeah
-       because your actual program is now not just fromJust but `[b] fromJust`
+   because your actual program is now not just fromJust but `[b] fromJust`
 
 daniel: right now all the instantiations are in a map,
-        like {"a" ===> Int -> Int, "b" ===> Int} or something like that.
-        then instead of the length of this map like i said, we could add up like
-        (Int -> Int) + (Int) = 3 + 1   and get 4.
-        so a program that made this map in the environment gets a size of 4?
-      
+    like {"a" ===> Int -> Int, "b" ===> Int} or something like that.
+    then instead of the length of this map like i said, we could add up like
+    (Int -> Int) + (Int) = 3 + 1   and get 4.
+    so a program that made this map in the environment gets a size of 4?
+  
 nadia: right, so then you must be able to figure it out from that map.
-       basically, the size of a variable instead of always being 1 can now be 1 + size of its instantiation.
-       And the size of instantiation you'd have to figure out using the variables's type and those maps.
+   basically, the size of a variable instead of always being 1 can now be 1 + size of its instantiation.
+   And the size of instantiation you'd have to figure out using the variables's type and those maps.
 
 nadia: so I guess you could just use the size of the variable's type for simplicity...
-       (and not the size of the sub)
-       it's not quite the same, but idk which one would work better
+   (and not the size of the sub)
+   it's not quite the same, but idk which one would work better
 
 darya: ok. we’ll mess around with some things and see what happens
 
@@ -664,14 +1280,14 @@ darya: ok. we’ll mess around with some things and see what happens
 But either way, I feel like there are two somewhat orthogonal questions here: 
 
     1) should we search by unifying goal with component return types vs unifying the whole type
-            ===> unifying (a -> b) vs (b)
-            
+        ===> unifying (a -> b) vs (b)
+        
     2) when should we search for only application terms vs decompose an arrow goal into a lambda
-            ===> do we use $ or do it manually (approach 2)
+        ===> do we use $ or do it manually (approach 2)
 
 Re 2: in Synquid there are these two modes, where it searchers for 
-      I-terms (lambda terms)
-      E-terms (application terms). 
+  I-terms (lambda terms)
+  E-terms (application terms). 
 
 When it's in the first mode, and the goal is a -> b it will synthesize a
 lambda, adding the a to the context and making b the goal. 
@@ -680,8 +1296,8 @@ When it's in the second mode, then goal (a -> b) means "find a variable of type 
 application of (c -> a -> b) to a (c)". 
 
 And switching between these modes happens according to the rules of bidirectional type-checking.
-        ====> what is bidirectional type-checking (apparently we read about this? lol )
-                                                        - synquid paper? 
+    ====> what is bidirectional type-checking (apparently we read about this? lol )
+                                                    - synquid paper? 
 
 Whereas H+ works differently: essentially it's only in the I-mode once for the
 very top goal, and then once it added all the query args to the context, it
@@ -736,17 +1352,17 @@ note: using $ in the I-term mode is the same as synthesizing E-term
 
 yeah, so I would compare: 
     1) synquid vs H+ approach to i-terms and e-terms enumeration
-          synquid:  
-          H+:       lambda for top layer, and after that only look for full types 
-                    (don't split up the arrow types of the arguments to components)
+      synquid:  
+      H+:       lambda for top layer, and after that only look for full types 
+                (don't split up the arrow types of the arguments to components)
 
-          Whereas H+ works differently: essentially it's only in the I-mode once for the
-          very top goal, and then once it added all the query args to the context, it
-          stays in the E-mode forever. That's why it never synthesizes inner lambdas
+      Whereas H+ works differently: essentially it's only in the I-mode once for the
+      very top goal, and then once it added all the query args to the context, it
+      stays in the E-mode forever. That's why it never synthesizes inner lambdas
 
     2) synquid's approach to top-down vs your approach to top-down + $
-          synquid:    
-          ours + $: recurse on component arguments. when you see an arrow type as a goal, always split it up and add the arguments to the env (this creates lambdas)
+      synquid:    
+      ours + $: recurse on component arguments. when you see an arrow type as a goal, always split it up and add the arguments to the env (this creates lambdas)
 
 they are not quite orthogonal I think but you'll figure it out
 
@@ -756,10 +1372,10 @@ For your comment about comparison, we want to make sure we understand the differ
 For the query "Maybe (a->b) -> a -> b", compare: 
 
     1) synquid vs H+ approach to i-terms and e-terms enumeration
-          `H+`: lambda for top layer, and after that only look for full types (don't split up the arrow types of the arguments to components)
+      `H+`: lambda for top layer, and after that only look for full types (don't split up the arrow types of the arguments to components)
 
     2) synquid's approach to top-down vs your approach to top-down + $
-          `ours + $`: recurse on component arguments. when you see an arrow type as a goal, always split it up and add the arguments to the env (this creates lambdas)
+      `ours + $`: recurse on component arguments. when you see an arrow type as a goal, always split it up and add the arguments to the env (this creates lambdas)
 
 For Synquid, what particular part of it do you want us to compare to the other thing? 
 I think we're still kind of confused about what exactly Synquid does. We've discussed what parts of it do in different contexts but we're
@@ -781,20 +1397,20 @@ In a bidirectional system, analyzing a program starts with propagating its top-l
 
 * Query: "Maybe (a->b) -> a -> b"
 * Env: 
-      arg0     :: Maybe (a->b)
-      arg1     :: a
-      fromJust :: <tau0> . Maybe tau0 -> tau0
-      $        :: (tau1 -> tau2) -> tau1 -> tau2
+  arg0     :: Maybe (a->b)
+  arg1     :: a
+  fromJust :: <tau0> . Maybe tau0 -> tau0
+  $        :: (tau1 -> tau2) -> tau1 -> tau2
 
 {b}             fromJust (?? :: Maybe b)
-        args = [Maybe b]
+    args = [Maybe b]
 {Maybe b}       fromJust (?? :: Maybe (Maybe b))  
-        args = [Maybe (Maybe b)]
+    args = [Maybe (Maybe b)]
     => reject because of excess in quota
 
 {b}             $ (?? :: tau1 -> b) (?? :: tau1)
 {tau1 -> b}     
-      arg2     :: tau1
+  arg2     :: tau1
     {b}         fromJust (?? :: Maybe (Maybe b))                  
 
 => this entire approach fails since we never get Maybe (tau1 -> b) as a goal
@@ -805,10 +1421,10 @@ In a bidirectional system, analyzing a program starts with propagating its top-l
 
 * Query: "Maybe (a->b) -> a -> b"
 * Env: 
-      arg0     :: Maybe (a->b)
-      arg1     :: a
-      fromJust :: <tau0> . Maybe tau0 -> tau0
-      $        :: (tau1 -> tau2) -> tau1 -> tau2
+  arg0     :: Maybe (a->b)
+  arg1     :: a
+  fromJust :: <tau0> . Maybe tau0 -> tau0
+  $        :: (tau1 -> tau2) -> tau1 -> tau2
 
 {Maybe (a->b) -> a -> b}
   i guess [a->b]fromJust unifies?
@@ -821,10 +1437,10 @@ In a bidirectional system, analyzing a program starts with propagating its top-l
 
 * Query: "Maybe (a->b) -> a -> b"
 * Env: 
-      arg0     :: Maybe (a->b)
-      arg1     :: a
-      fromJust :: <tau0> . Maybe tau0 -> tau0
-      $        :: (tau1 -> tau2) -> tau1 -> tau2
+  arg0     :: Maybe (a->b)
+  arg1     :: a
+  fromJust :: <tau0> . Maybe tau0 -> tau0
+  $        :: (tau1 -> tau2) -> tau1 -> tau2
 
 
 
@@ -844,8 +1460,8 @@ to purely bottom-up inference.
 
 
 Re 2: in Synquid there are these two modes, where it searchers for 
-      I-terms (lambda terms)
-      E-terms (application terms). 
+  I-terms (lambda terms)
+  E-terms (application terms). 
 
 When it's in the first mode, and the goal is a -> b it will synthesize a
 lambda, adding the a to the context and making b the goal. 
@@ -878,17 +1494,17 @@ E-terms around above. More precisely, Synquid's search has two modes, the I-mode
 
     * In I-mode:
 
-        - if the goal is an arrow type T -> S , decompose it, i.e. synthesize a lambda 
-          by adding x:T to the context and changing goal to S
-        - if the goal is not an arrow, switch to E-mode
+    - if the goal is an arrow type T -> S , decompose it, i.e. synthesize a lambda 
+      by adding x:T to the context and changing goal to S
+    - if the goal is not an arrow, switch to E-mode
 
     * In E-mode, given the goal T we always synthesize a variable or an application:
 
-        - if there is (x: T )in the context, then we can return that variable
-        - or we can synthesize an application by synthesizing both 
+    - if there is (x: T )in the context, then we can return that variable
+    - or we can synthesize an application by synthesizing both 
 
-                a) a term of type alpha -> T in E-mode 
-                b) a term of type alpha in I-mode
+            a) a term of type alpha -> T in E-mode 
+            b) a term of type alpha in I-mode
 
 (of course you want to first synthesize the LHS and figure out what alpha is, at least 
 partially) and then proceed to synthesize the argument)
@@ -901,21 +1517,21 @@ they are FO.
 So, if we take this as the baseline, then by 
 
     1) synquid vs H+ I mean: the approach described above vs a modification where 
-       you don't switch back to I-mode to synthesize arguments, but just keep using 
-       E-mode forever once you switched to it the first time. If you do that, 
-       then all your HO arguments will come out as application-terms rather than lambdas.
+   you don't switch back to I-mode to synthesize arguments, but just keep using 
+   E-mode forever once you switched to it the first time. If you do that, 
+   then all your HO arguments will come out as application-terms rather than lambdas.
 
-          * way 1: do the synquid thing (switching back and forth between e and i mode)
-          * way 2: only do i mode 1 time, and then switch to emode forever
+      * way 1: do the synquid thing (switching back and forth between e and i mode)
+      * way 2: only do i mode 1 time, and then switch to emode forever
 
 TODO work on this question
     2) is the difference in how the E-mode is implemented. Instead of doing the E-mode 
-       like above (i.e. generate variable of goal type T or application of 
-       alpha -> T to alpha) you can say "just give me all the variables of types 
-       A1 -> ... -> An -> R" where `R` unifies with `T` for n >= 0, and then for 
-       each such variable, I create n new subgoals A1, ..., An. Now, each one of 
-       those could be solved using I-mode or E-mode, depending on what you choose 
-       for dimension 1.
+   like above (i.e. generate variable of goal type T or application of 
+   alpha -> T to alpha) you can say "just give me all the variables of types 
+   A1 -> ... -> An -> R" where `R` unifies with `T` for n >= 0, and then for 
+   each such variable, I create n new subgoals A1, ..., An. Now, each one of 
+   those could be solved using I-mode or E-mode, depending on what you choose 
+   for dimension 1.
 
 These two different approaches to 2 seem to be equivalent, even without $, when 
 type vars cannot be instantiated with arrows. But when they can, then approach 
@@ -941,7 +1557,7 @@ argue with me!)
 
 -----------
 Environment 1:
-      fromJust :: <tau0> . Maybe tau0 -> tau0
+  fromJust :: <tau0> . Maybe tau0 -> tau0
 
 query 1: "arg0:Maybe (a -> b) -> arg1:a -> b"
     solution: "fromJust arg0 $ arg1"
@@ -958,32 +1574,32 @@ way 1:
 --------
 * In I-mode:
 
-        - if the goal is an arrow type T -> S , decompose it, i.e. synthesize a lambda 
-          by adding x:T to the context and changing goal to S
-        - if the goal is not an arrow, switch to E-mode
+    - if the goal is an arrow type T -> S , decompose it, i.e. synthesize a lambda 
+      by adding x:T to the context and changing goal to S
+    - if the goal is not an arrow, switch to E-mode
 
 * In E-mode, given the goal T we always synthesize a variable or an application:
 
   - if there is (x: T )in the context, then we can return that variable
   - or we can synthesize an application by synthesizing both 
 
-          a) a term of type alpha -> T in E-mode 
-          b) a term of type alpha in I-mode
+      a) a term of type alpha -> T in E-mode 
+      b) a term of type alpha in I-mode
 --------
 
 query 1: "arg0:Maybe (a -> b) -> arg1:a -> b" (i-mode)
 
 * add args to the environment. new env: 
-      arg0     :: Maybe (a->b)
-      arg1     :: a
-      fromJust :: <tau0> . Maybe tau0 -> tau0
+  arg0     :: Maybe (a->b)
+  arg1     :: a
+  fromJust :: <tau0> . Maybe tau0 -> tau0
 
 query 2: b (e-mode)
 
 * nothing in env has type that unifies entirely with b
 * split into two goals (3a and 3b)
-      alpha -> b      3a
-      alpha           3b
+  alpha -> b      3a
+  alpha           3b
 
 query 3a: alpha -> b (e-mode)
 
@@ -1011,8 +1627,8 @@ query 4b: beta (i-mode)
 
 ==> this will continue forever, so at some point it stops because of reaching size limit. 
 ==> go back to query 3a and restart with 2 new queries (5a and 5b)
-        beta -> (alpha -> b)      5a
-        beta                      5b
+    beta -> (alpha -> b)      5a
+    beta                      5b
 
 query 5a: beta -> (alpha -> b) (e-mode)
 
@@ -1021,9 +1637,9 @@ query 5a: beta -> (alpha -> b) (e-mode)
 
 query 5b: beta (i-mode)
 
-      arg0     :: Maybe (a->b)
-      arg1     :: a
-      fromJust :: <tau0> . Maybe tau0 -> tau0
+  arg0     :: Maybe (a->b)
+  arg1     :: a
+  fromJust :: <tau0> . Maybe tau0 -> tau0
 
 * now beta maps to (Maybe (alpha -> b))
 * not an arrow type, so switch to e-mode
@@ -1048,10 +1664,10 @@ way 2:
 --------
 
   ==> for query 1, it will be the same, since in way 1, whenever we started with i-mode,
-      we never were searching for an arrow type and so it always just switched it directly
-      to e-mode. so same thing as just always doing e-mode.
+  we never were searching for an arrow type and so it always just switched it directly
+  to e-mode. so same thing as just always doing e-mode.
 
-      would return: fromJust arg0 arg1
+  would return: fromJust arg0 arg1
 --------
 
 
@@ -1060,9 +1676,9 @@ way 2:
 ----------------------
 ----------------------
 Environment 2:
-      map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
-      ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
-      
+  map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+  ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+  
 
 query 2: "[a] -> [b] -> [[(a,b)]]"
     solution: "\xs ys -> Data.List.map (\x -> Data.List.map ((,) x) ys) xs"
@@ -1082,27 +1698,27 @@ way 1:
 --------
 * In I-mode:
 
-        - if the goal is an arrow type T -> S , decompose it, i.e. synthesize a lambda 
-          by adding x:T to the context and changing goal to S
-        - if the goal is not an arrow, switch to E-mode
+    - if the goal is an arrow type T -> S , decompose it, i.e. synthesize a lambda 
+      by adding x:T to the context and changing goal to S
+    - if the goal is not an arrow, switch to E-mode
 
 * In E-mode, given the goal T we always synthesize a variable or an application:
 
   - if there is (x: T )in the context, then we can return that variable
   - or we can synthesize an application by synthesizing both 
 
-          a) a term of type alpha -> T in E-mode 
-          b) a term of type alpha in I-mode
+      a) a term of type alpha -> T in E-mode 
+      b) a term of type alpha in I-mode
 --------
 
 
 query 1: "[a] -> [b] -> [[(a,b)]]" (i-mode)
 
 * add args to the environment. new env: 
-      arg0 :: [a]
-      arg1 :: [b]
-      map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
-      ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+  arg0 :: [a]
+  arg1 :: [b]
+  map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+  ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
 
 * search for [[(a,b)]] in e-mode
 
@@ -1110,9 +1726,9 @@ query 2: [[(a,b)]] (e-mode)
 
 * nothing unifies with [[(a,b)]]
 * creates new goals:
-      alpha -> [[(a,b)]]  3a (e-mode)
-      alpha               3b (i-mode)
-      
+  alpha -> [[(a,b)]]  3a (e-mode)
+  alpha               3b (i-mode)
+  
 query 3a: alpha -> [[(a,b)]] (e-mode)
 
 * nothing unifies
@@ -1135,11 +1751,11 @@ query 4b: beta (i-mode)
 
 * in 4a, beta ==> (tau0 -> [(a,b)])
 * split into arguments. new env: 
-      arg0 :: [a]
-      arg1 :: [b]
-      arg2 :: tau0
-      map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
-      ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+  arg0 :: [a]
+  arg1 :: [b]
+  arg2 :: tau0
+  map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+  ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
 * find new goal [(a,b)]
 
 query 5: [(a,b)] (i-mode)
@@ -1147,10 +1763,10 @@ query 5: [(a,b)] (i-mode)
 * not arrow type, switch to (e-mode)
 (e-mode)
 * arg2 unifies 
-      ==> this would lead to (\arg2 -> arg2) in query 4,
-          which makes an identity function, map (\arg2 -> arg2) :: [[(a,b)]] -> [[(a,b)]], in query 3
-          and we get no progress with the goal
-      ==> split it up into 2 goals instead since this failed
+  ==> this would lead to (\arg2 -> arg2) in query 4,
+      which makes an identity function, map (\arg2 -> arg2) :: [[(a,b)]] -> [[(a,b)]], in query 3
+      and we get no progress with the goal
+  ==> split it up into 2 goals instead since this failed
 * create new goals:
 
     gamma -> [(a,b)]   6a (e-mode)
@@ -1161,12 +1777,12 @@ query 5: [(a,b)] (i-mode)
 query 6a: gamma -> [(a,b)]   6a (e-mode)
 
 * arg2 unifies
-      ==> this would lead to (\arg2 -> arg2) :: (gamma -> [(a,b)]) -> (gamma -> [(a,b)]) in query 4,
-          which makes an identity function, map (\arg2 -> arg2) :: [gamma -> [(a,b)]] -> [gamma -> [(a,b)]], in query 3
-          and turning the original goal from [[(a,b)]] to [gamma -> [(a,b)]]
-          isn't progressing towards what we want
-          (it will end up going down a rabbit hole that will eventually fail because of reaching too big a size)
-      ==> split it up into 2 goals instead since this failed
+  ==> this would lead to (\arg2 -> arg2) :: (gamma -> [(a,b)]) -> (gamma -> [(a,b)]) in query 4,
+      which makes an identity function, map (\arg2 -> arg2) :: [gamma -> [(a,b)]] -> [gamma -> [(a,b)]], in query 3
+      and turning the original goal from [[(a,b)]] to [gamma -> [(a,b)]]
+      isn't progressing towards what we want
+      (it will end up going down a rabbit hole that will eventually fail because of reaching too big a size)
+  ==> split it up into 2 goals instead since this failed
 * create new goals: 
 
     delta -> gamma -> [(a,b)]   7a (e-mode)
@@ -1185,12 +1801,12 @@ query 7b: delta                       7a (i-mode)
 
 * from 7a, delta ==> tau2 -> (a,b)
 * split up args and add to env. new env: 
-      arg0 :: [a]
-      arg1 :: [b]
-      arg2 :: tau0
-      arg3 :: tau2
-      map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
-      ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+  arg0 :: [a]
+  arg1 :: [b]
+  arg2 :: tau0
+  arg3 :: tau2
+  map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+  ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
 * new goal: (a,b) (i-mode)
 
 query 8: (a,b) (i-mode)
@@ -1198,33 +1814,33 @@ query 8: (a,b) (i-mode)
 * not arrow type, switch to (e-mode)
 (e-mode)
 * arg2 unifies
-      ==> this would lead to (\arg3 -> arg2) :: tau2 -> (a,b) in query 7b,
-          which makes an identity function, map (\arg3 -> arg2) :: [tau2] -> [(a,b)], in query 7a.
-          It would lead to something that looks like this: 
+  ==> this would lead to (\arg3 -> arg2) :: tau2 -> (a,b) in query 7b,
+      which makes an identity function, map (\arg3 -> arg2) :: [tau2] -> [(a,b)], in query 7a.
+      It would lead to something that looks like this: 
 
-            6a = map (\arg3 -> arg2) :: [tau2] -> [(a,b)]
-            6b = ?? :: gamma ~ [tau2]
-            6b = arg0 :: [a]
-            5 = map (\arg3 -> arg2) arg0 :: [(a,b)]
+        6a = map (\arg3 -> arg2) :: [tau2] -> [(a,b)]
+        6b = ?? :: gamma ~ [tau2]
+        6b = arg0 :: [a]
+        5 = map (\arg3 -> arg2) arg0 :: [(a,b)]
 
-            4a = map
-            4b = \arg2 -> map (\arg3 -> arg2) arg0 :: (a,b) -> [(a,b)]
+        4a = map
+        4b = \arg2 -> map (\arg3 -> arg2) arg0 :: (a,b) -> [(a,b)]
 
-            3a = map (\arg2 -> map (\arg3 -> arg2) arg0)
-            3b = (?? :: beta ~ (a,b) -> [(a,b)])
-                  --> requries finding a program for [(a,b)]
-                  --> which we will do anyway in the happy path
-                  --> with far less size
+        3a = map (\arg2 -> map (\arg3 -> arg2) arg0)
+        3b = (?? :: beta ~ (a,b) -> [(a,b)])
+              --> requries finding a program for [(a,b)]
+              --> which we will do anyway in the happy path
+              --> with far less size
 
-            2 = map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
-            1 = \arg0 arg1 -> map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
+        2 = map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
+        1 = \arg0 arg1 -> map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
 
-          This will eventually either never find something, or get cut off because of size limitations.
+      This will eventually either never find something, or get cut off because of size limitations.
 
-      ==> try next component in env
+  ==> try next component in env
 * arg3 unifies
-      ==> this would lead to (\arg3 -> arg3), which will again not advance our goal 
-      ==> split it up into 2 goals instead since this failed
+  ==> this would lead to (\arg3 -> arg3), which will again not advance our goal 
+  ==> split it up into 2 goals instead since this failed
 * create new goals:
 
     epsilon -> (a,b)     9a (e-mode)
@@ -1237,16 +1853,16 @@ query 9a: epsilon -> (a,b)    9a (e-mode)
 
 * create new goals: 
 
-      zeta -> epsilon -> (a,b)     10a (e-mode)
-      zeta                         10b (i-mode)
+  zeta -> epsilon -> (a,b)     10a (e-mode)
+  zeta                         10b (i-mode)
 
 query 10a: zeta -> epsilon -> (a,b)    10a (e-mode)
 
 * unifies with (,) into
     [tau4 ==> a, tau5 ==> b](,) <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
     where
-      zeta ==> a
-      epsilon ==> b
+  zeta ==> a
+  epsilon ==> b
 
 * Return (,)
 
@@ -1339,10 +1955,10 @@ way 2:
 query 1: "[a] -> [b] -> [[(a,b)]]" (i-mode)
 
 * add args to the environment. new env: 
-      arg0 :: [a]
-      arg1 :: [b]
-      map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
-      ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+  arg0 :: [a]
+  arg1 :: [b]
+  map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+  ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
 
 * search for [[(a,b)]] in e-mode
 
@@ -1350,8 +1966,8 @@ query 2: [[(a,b)]] (e-mode)
 
 * nothing unifies with [[(a,b)]]
 * creates new goals:
-      alpha -> [[(a,b)]]  3a
-      alpha               3b
+  alpha -> [[(a,b)]]  3a
+  alpha               3b
 
 query 3a: alpha -> [[(a,b)]] (e-mode)
 
@@ -1399,10 +2015,10 @@ query 5b: gamma (e-mode)
 query 6a: delta -> (tau2 -> (a,b)) (e-mode)
 
 * (,) unifies with goal to 
-      [tau4 ==> a, tau5 ==> b] <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
+  [tau4 ==> a, tau5 ==> b] <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
     where
-      delta ==> a
-      tau2 ==> b
+  delta ==> a
+  tau2 ==> b
 * return (,)
 
 query 6b: delta (e-mode)
@@ -1411,15 +2027,15 @@ query 6b: delta (e-mode)
 * nothing unifies with a
 * split into new goals: 
 
-      epsilon -> a   7a
-      epsilon        7b
+  epsilon -> a   7a
+  epsilon        7b
 
 query 7a: epsilon -> a (e-mode)
 
 * nothing unfies
 * split into new goals
-      zeta -> (epsilon -> a)   
-      zeta
+  zeta -> (epsilon -> a)   
+  zeta
 
 ===> here, we are never going to get something that unifies with anything looking
      like (T1 -> T2 -> ... -> Tn -> b)
@@ -1440,9 +2056,9 @@ query 3b: alpha (e-mode)
 ----------------
 
 CONCENSUS for question 1: we like Synquid way better because it solves both types of problems 
-      => we were able to solve both types of queries
-      => for query 1, the second way was the same as first
-      => for query 2. the second way couldn't even solve it 
+  => we were able to solve both types of queries
+  => for query 1, the second way was the same as first
+  => for query 2. the second way couldn't even solve it 
 
 
 
@@ -1451,26 +2067,26 @@ QUESTION 2:
 
 TODO work on this question
     2) is the difference in how the E-mode is implemented. Instead of doing the E-mode 
-       like above (i.e. generate variable of goal type T or application of 
-       alpha -> T to alpha) you can say "just give me all the variables of types 
-       A1 -> ... -> An -> R" where `R` unifies with `T` for n >= 0, and then for 
-       each such variable, I create n new subgoals A1, ..., An. Now, each one of 
-       those could be solved using I-mode or E-mode, depending on what you choose 
-       for dimension 1.
+   like above (i.e. generate variable of goal type T or application of 
+   alpha -> T to alpha) you can say "just give me all the variables of types 
+   A1 -> ... -> An -> R" where `R` unifies with `T` for n >= 0, and then for 
+   each such variable, I create n new subgoals A1, ..., An. Now, each one of 
+   those could be solved using I-mode or E-mode, depending on what you choose 
+   for dimension 1.
 
     e-mode above: 
-        - either find something that unifies with T
-        - split into 
-              alpha -> T
-              alpha
+    - either find something that unifies with T
+    - split into 
+          alpha -> T
+          alpha
 
     e-mode now:
-        - just check for components whose return type unifies with T
-        - make new subgoals for each argument of the components (or 
-          the part of the type that didn't unify with T)
-            => make (i-mode)
-        just give me all the variables of types A1 -> ... -> An -> R
-        - 
+    - just check for components whose return type unifies with T
+    - make new subgoals for each argument of the components (or 
+      the part of the type that didn't unify with T)
+        => make (i-mode)
+    just give me all the variables of types A1 -> ... -> An -> R
+    - 
 
 
 
@@ -1480,35 +2096,35 @@ TODO work on this question
 
 
 
-      T :: (Int -> Bool)
-      f :: Bool -> Char -> R:(Int -> Bool)
+  T :: (Int -> Bool)
+  f :: Bool -> Char -> R:(Int -> Bool)
 
 PREVIOUS:
 i-mode
   * if function type
-        split up the args
-        add them to env
-        get new goal (i-mode)
+    split up the args
+    add them to env
+    get new goal (i-mode)
   * if not function type, go to e-mode
 e-mode
   * if T in env, return that
   * if T not in env
-      alpha -> T   (e-mode)
-      alpha        (i-mode)
+  alpha -> T   (e-mode)
+  alpha        (i-mode)
 
 ALTERNATIVE:
 i-mode
   * if function type
-        split up the args
-        add them to env
-        get new goal (i-mode)
+    split up the args
+    add them to env
+    get new goal (i-mode)
   * if not function type, go to e-mode
 e-mode
   * if anything's return type unifies with T,
-        * create new goals based on the args
-        * return that comp + args
+    * create new goals based on the args
+    * return that comp + args
   * else
-        * do $ stuff (have it unify with $ basically)
+    * do $ stuff (have it unify with $ basically)
 
 ----
 
@@ -1540,41 +2156,41 @@ argue with me!)
 new (e-mode) way:
 ------------------------
 
-      T :: Maybe (a -> b) -> a -> b
+  T :: Maybe (a -> b) -> a -> b
 
 
 query 1: "arg0:Maybe (a -> b) -> arg1:a -> b" (i-mode)
 
 * add args to the environment. new env: 
-      arg0     :: Maybe (a->b)
-      arg1     :: a
-      fromJust :: <tau0> . Maybe tau0 -> tau0
-      $        :: <tau0> . <tau1> . (tau0 -> tau1) -> tau0 -> tau1
+  arg0     :: Maybe (a->b)
+  arg1     :: a
+  fromJust :: <tau0> . Maybe tau0 -> tau0
+  $        :: <tau0> . <tau1> . (tau0 -> tau1) -> tau0 -> tau1
 
 query 2: b (e-mode) (part 1)
 
 * return type of fromJust (tau0) unifies with b
-      [b] fromJust :: Maybe b -> b
+  [b] fromJust :: Maybe b -> b
 * make the following new goals: 
-      Maybe b             3a (i-mode)
+  Maybe b             3a (i-mode)
 
 query 3a: Maybe b (i-mode)
 
 * not a function type, switch to e-mode
 (e-mode)
 * return type of fromJust (tau0) unifies with (Maybe b)
-      [Maybe b] fromJust :: Maybe (Maybe b) -> (Maybe b)
+  [Maybe b] fromJust :: Maybe (Maybe b) -> (Maybe b)
 * make the following new goals: 
-      Maybe (Maybe b)             4a (i-mode)
+  Maybe (Maybe b)             4a (i-mode)
 
 query 4a: Maybe (Maybe b) (i-mode)
 
 * not a function type, switch to e-mode
 (e-mode)
 * return type of fromJust (tau0) unifies with (Maybe b)
-      [Maybe b] fromJust :: Maybe (Maybe b) -> (Maybe b)
+  [Maybe b] fromJust :: Maybe (Maybe b) -> (Maybe b)
 * make the following new goals: 
-      Maybe (Maybe b)             4a (i-mode)
+  Maybe (Maybe b)             4a (i-mode)
 
 ===> this will continue on forever! or it will size out at some point
 ===> go back to query 2 and look at the next component
@@ -1582,7 +2198,7 @@ query 4a: Maybe (Maybe b) (i-mode)
 query 2: b (e-mode) (part 2)
 
 * return type of $ (tau3) unifies with b
-        [b] $        :: <tau2> . (tau2 -> b) -> tau2 -> b
+    [b] $        :: <tau2> . (tau2 -> b) -> tau2 -> b
 * maybe the following new goals: 
     tau2 -> b       5a (i-mode)
     tau2            5b (i-mode)
@@ -1593,11 +2209,11 @@ query 5a: tau2 -> b (i-mode)
     * split up the args [tau2]
     * add them to the env
 
-      arg0     :: Maybe (a->b)
-      arg1     :: a
-      arg2     :: tau2
-      fromJust :: <tau0> . Maybe tau0 -> tau0
-      $        :: <tau0> . <tau1> . (tau0 -> tau1) -> tau0 -> tau1
+  arg0     :: Maybe (a->b)
+  arg1     :: a
+  arg2     :: tau2
+  fromJust :: <tau0> . Maybe tau0 -> tau0
+  $        :: <tau0> . <tau1> . (tau0 -> tau1) -> tau0 -> tau1
     
     * create new goal b (6)
 
@@ -1607,15 +2223,15 @@ query 6: b    (i-mode)
 * switch to (e-mode)
 (e-mode)
 * unifies with arg2
-        ==> this would lead to (\arg2 -> arg2) in 5a, which doesn't help anything
+    ==> this would lead to (\arg2 -> arg2) in 5a, which doesn't help anything
 * unifies with [b] fromJust :: Maybe b -> b
-        ==> this would lead to (\arg2 -> fromJust (?? :: Maybe b))
+    ==> this would lead to (\arg2 -> fromJust (?? :: Maybe b))
 * unifies with [b] $ :: <tau4> . (tau4 -> b) -> tau4 -> b
-        ==> this would lead to (\arg2 -> (?? :: tau4 -> b) $ (?? :: tau4))
+    ==> this would lead to (\arg2 -> (?? :: tau4 -> b) $ (?? :: tau4))
 * create new goals:
 
-        tau4 -> b     (7a)
-        tau4          (7b)
+    tau4 -> b     (7a)
+    tau4          (7b)
 
 query 7a: tau4 -> b (i-mode)
 
@@ -1640,9 +2256,9 @@ query 5b: tau2 (i-mode)
 
 ------------
 idea (might be wrong): - this way is bad because almost every query checks against the $
-      which leads to a lot of dumb enumeration
-      - whereas the alpha -> T and alpha way leads to controlling
-      when you use the $ functionality
+  which leads to a lot of dumb enumeration
+  - whereas the alpha -> T and alpha way leads to controlling
+  when you use the $ functionality
 
 fromJust ??, fromJust (fromJust ??), fromJust (frommJust ?? $ ??), .....
 are all checked before
@@ -1716,7 +2332,7 @@ map  :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
 * creates new goals:
     * `alpha -> [[(a,b)]]`  (3a) (e-mode)
     * `alpha `              (3b) (i-mode)
-      
+  
 **Query 3a:** `alpha -> [[(a,b)]]` (e-mode)
 
 * nothing unifies
@@ -1815,33 +2431,33 @@ HERE darya
 * not arrow type, switch to (e-mode)
 (e-mode)
 * arg2 unifies
-      ==> this would lead to (\arg3 -> arg2) :: tau2 -> (a,b) in Query 7b,
-          which makes an identity function, map (\arg3 -> arg2) :: [tau2] -> [(a,b)], in Query 7a.
-          It would lead to something that looks like this: 
+  ==> this would lead to (\arg3 -> arg2) :: tau2 -> (a,b) in Query 7b,
+      which makes an identity function, map (\arg3 -> arg2) :: [tau2] -> [(a,b)], in Query 7a.
+      It would lead to something that looks like this: 
 
-            6a = map (\arg3 -> arg2) :: [tau2] -> [(a,b)]
-            6b = ?? :: gamma ~ [tau2]
-            6b = arg0 :: [a]
-            5 = map (\arg3 -> arg2) arg0 :: [(a,b)]
+        6a = map (\arg3 -> arg2) :: [tau2] -> [(a,b)]
+        6b = ?? :: gamma ~ [tau2]
+        6b = arg0 :: [a]
+        5 = map (\arg3 -> arg2) arg0 :: [(a,b)]
 
-            4a = map
-            4b = \arg2 -> map (\arg3 -> arg2) arg0 :: (a,b) -> [(a,b)]
+        4a = map
+        4b = \arg2 -> map (\arg3 -> arg2) arg0 :: (a,b) -> [(a,b)]
 
-            3a = map (\arg2 -> map (\arg3 -> arg2) arg0)
-            3b = (?? :: beta ~ (a,b) -> [(a,b)])
-                  --> requries finding a program for [(a,b)]
-                  --> which we will do anyway in the happy path
-                  --> with far less size
+        3a = map (\arg2 -> map (\arg3 -> arg2) arg0)
+        3b = (?? :: beta ~ (a,b) -> [(a,b)])
+              --> requries finding a program for [(a,b)]
+              --> which we will do anyway in the happy path
+              --> with far less size
 
-            2 = map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
-            1 = \arg0 arg1 -> map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
+        2 = map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
+        1 = \arg0 arg1 -> map (\arg2 -> map (\arg3 -> arg2) arg0) (?? :: (a,b) -> [(a,b)])
 
-          This will eventually either never find something, or get cut off because of size limitations.
+      This will eventually either never find something, or get cut off because of size limitations.
 
-      ==> try next component in env
+  ==> try next component in env
 * arg3 unifies
-      ==> this would lead to (\arg3 -> arg3), which will again not advance our goal 
-      ==> split it up into 2 goals instead since this failed
+  ==> this would lead to (\arg3 -> arg3), which will again not advance our goal 
+  ==> split it up into 2 goals instead since this failed
 * create new goals:
 
     epsilon -> (a,b)     9a (e-mode)
@@ -1854,16 +2470,16 @@ Query 9a: epsilon -> (a,b)    9a (e-mode)
 
 * create new goals: 
 
-      zeta -> epsilon -> (a,b)     10a (e-mode)
-      zeta                         10b (i-mode)
+  zeta -> epsilon -> (a,b)     10a (e-mode)
+  zeta                         10b (i-mode)
 
 Query 10a: zeta -> epsilon -> (a,b)    10a (e-mode)
 
 * unifies with (,) into
     [tau4 ==> a, tau5 ==> b](,) <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
     where
-      zeta ==> a
-      epsilon ==> b
+  zeta ==> a
+  epsilon ==> b
 
 * Return (,)
 
@@ -1949,10 +2565,10 @@ way 2:
 Query 1: "[a] -> [b] -> [[(a,b)]]" (i-mode)
 
 * add args to the environment. new env: 
-      arg0 :: [a]
-      arg1 :: [b]
-      map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
-      ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
+  arg0 :: [a]
+  arg1 :: [b]
+  map :: <tau0> . <tau1> . (tau0 -> tau1) -> [tau0] -> [tau1]
+  ,   :: <tau0> . <tau1> . tau0 -> tau1 -> (tau0, tau1)
 
 * search for [[(a,b)]] in e-mode
 
@@ -1960,8 +2576,8 @@ Query 2: [[(a,b)]] (e-mode)
 
 * nothing unifies with [[(a,b)]]
 * creates new goals:
-      alpha -> [[(a,b)]]  3a
-      alpha               3b
+  alpha -> [[(a,b)]]  3a
+  alpha               3b
 
 Query 3a: alpha -> [[(a,b)]] (e-mode)
 
@@ -2009,10 +2625,10 @@ Query 5b: gamma (e-mode)
 Query 6a: delta -> (tau2 -> (a,b)) (e-mode)
 
 * (,) unifies with goal to 
-      [tau4 ==> a, tau5 ==> b] <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
+  [tau4 ==> a, tau5 ==> b] <tau4> . <tau5> . tau4 -> tau5 -> (tau4, tau5)
     where
-      delta ==> a
-      tau2 ==> b
+  delta ==> a
+  tau2 ==> b
 * return (,)
 
 Query 6b: delta (e-mode)
@@ -2021,15 +2637,15 @@ Query 6b: delta (e-mode)
 * nothing unifies with a
 * split into new goals: 
 
-      epsilon -> a   7a
-      epsilon        7b
+  epsilon -> a   7a
+  epsilon        7b
 
 Query 7a: epsilon -> a (e-mode)
 
 * nothing unfies
 * split into new goals
-      zeta -> (epsilon -> a)   
-      zeta
+  zeta -> (epsilon -> a)   
+  zeta
 
 ===> here, we are never going to get something that unifies with anything looking
      like (T1 -> T2 -> ... -> Tn -> b)

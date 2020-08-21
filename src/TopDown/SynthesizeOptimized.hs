@@ -182,8 +182,12 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   -- liftIO $ printf "| solved goal: %s\n" (show solution)
   lift $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
 
+
+  if filterParamsNew solution
+    then liftIO $ printf "(passed     filter) %s\n" (show solution)
+    else liftIO $ printf "(not passed filter) %s\n" (show solution)
   -- check if the program has all the arguments that it should have (avoids calling check)  
-  guard (filterParams solution)
+  guard (filterParamsNew solution)
   
   -- call check on the program
   guard =<< liftIO (check' solution)
@@ -197,9 +201,27 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
     goalType :: RType
     goalType = lastType $ toMonotype goal 
 
+    filterParamsNew :: RProgram -> Bool
+    filterParamsNew program = all (`elem` programIds) $ Map.keys $ env ^. arguments 
+      where
+        programIds :: [Id]
+        programIds = flattenProgramIds $ content program
+        
+        flattenProgramIds :: BareProgram RType -> [Id]
+        flattenProgramIds (PSymbol id) = [id]
+        flattenProgramIds (PApp id progs) = id : concatMap (flattenProgramIds . content) progs
+        flattenProgramIds (PFun id prog) = id : (flattenProgramIds . content) prog
+
+
+
+
+
     -- determines if the result has all the appropriate arguments ()
+    -- 
     filterParams :: RProgram -> Bool
-    filterParams program = all (`isInfixOf` show program) $ filter (not . ("tcarg" `isInfixOf`) ) $ Map.keys $ env ^. arguments
+    filterParams program = all (`isInfixOf` show program) $ Map.keys $ env ^. arguments
+    -- (tcarg0)
+    -- filterParams program = all (`isInfixOf` show program) $ filter (not . ("tcarg" `isInfixOf`) ) $ Map.keys $ env ^. arguments
 
     -- wrapper for `check` function
     check' :: RProgram -> IO Bool
@@ -303,9 +325,17 @@ dfs mode env args messageChan sizeQuota subQuota goalType
     -- guards away programs that we don't want
     guardCheck :: RProgram -> TopDownSolver IO ()
     guardCheck prog = do
+      -- remove erroring partial functions
+      -- TODO later we'll do this in memoize
       guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` show prog
       guard $ not $ "GHC.List.head []" `isInfixOf` show prog
       guard $ not $ "GHC.List.last []" `isInfixOf` show prog
+      guard $ not $ "GHC.List.tail []" `isInfixOf` show prog
+      guard $ not $ "GHC.List.init []" `isInfixOf` show prog
+      guard $ not $ "GHC.List.cycle []" `isInfixOf` show prog
+      guard $ not $ "[] !!" `isInfixOf` show prog
+      guard $ not $ "(GHC.List.!!) []" `isInfixOf` show prog
+
       guard (sizeOfProg prog <= sizeQuota)
       subSize <- sizeOfSub
       guard (subSize <= subQuota)
