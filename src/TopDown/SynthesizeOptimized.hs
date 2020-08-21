@@ -172,7 +172,7 @@ memoizeProgram mode quota args goalType compute = do
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [1..50]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [7..]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
 
@@ -325,20 +325,55 @@ dfs mode env args messageChan sizeQuota subQuota goalType
     -- guards away programs that we don't want
     guardCheck :: RProgram -> TopDownSolver IO ()
     guardCheck prog = do
-      -- remove erroring partial functions
+      -- remove erroring or redundant partial functions
       -- TODO later we'll do this in memoize
-      guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` show prog
-      guard $ not $ "GHC.List.head []" `isInfixOf` show prog
-      guard $ not $ "GHC.List.last []" `isInfixOf` show prog
-      guard $ not $ "GHC.List.tail []" `isInfixOf` show prog
-      guard $ not $ "GHC.List.init []" `isInfixOf` show prog
-      guard $ not $ "GHC.List.cycle []" `isInfixOf` show prog
-      guard $ not $ "[] !!" `isInfixOf` show prog
-      guard $ not $ "(GHC.List.!!) []" `isInfixOf` show prog
+      let showProg = show prog
+      let uselessSubPrograms = -- these all error or are redundant
+                               [ "Data.Maybe.fromJust Data.Maybe.Nothing"
+                               , "GHC.List.head []"
+                               , "GHC.List.last []"
+                               , "GHC.List.tail []"
+                               , "GHC.List.init []"
+                               , "GHC.List.cycle []"
+                               , "[] !!"
+                               -- these are all []
+                               , "[] ++ []"
+                               , "GHC.List.zip [] []"
+                               , "(GHC.List.!!) []"
+                               , "GHC.List.concat []"
+                               , "GHC.List.reverse []"
+                               , "Data.Either.lefts []"
+                               , "Data.Either.rights []"
+                               , "Data.Maybe.catMaybes []"
+                               , "Data.Maybe.maybeToList Data.Maybe.Nothing"
+                               , "GHC.Maybe.listToMaybe []" -- == Data.Maybe.Nothing
+                               , "GHC.List.zipWith (,)" -- == GHC.List.zip
+                              ]
+      guard $ all (not . (`isInfixOf` showProg)) uselessSubPrograms
+      -- guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.head []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.last []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.tail []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.init []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.cycle []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.zip [] []" `isInfixOf` showProg
+      -- guard $ not $ "[] !!" `isInfixOf` showProg
+      -- guard $ not $ "[] ++ []" `isInfixOf` showProg
+      -- guard $ not $ "(GHC.List.!!) []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.concat []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.reverse []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.Maybe.listToMaybe []" `isInfixOf` showProg
+      -- guard $ not $ "Data.Maybe.maybeToList Data.Maybe.Nothing" `isInfixOf` showProg
+      -- guard $ not $ "Data.Either.lefts []" `isInfixOf` showProg
+      -- guard $ not $ "Data.Either.rights []" `isInfixOf` showProg
+      -- guard $ not $ "Data.Maybe.catMaybes []" `isInfixOf` showProg
+      -- guard $ not $ "GHC.List.zipWith (,)" `isInfixOf` showProg -- == GHC.List.zip
+      
+
 
       guard (sizeOfProg prog <= sizeQuota)
       subSize <- sizeOfSub
-      guard (subSize <= subQuota)
+      guard (subSize <= 45) -- we never go past quota 15 anyways
 
 
     -- Using the components in env, like ("length", <a>. [a] -> Int)

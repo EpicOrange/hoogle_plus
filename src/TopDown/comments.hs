@@ -1,6 +1,36 @@
 {-
 
 
+Hi Zheng, we have drawn some conclusions over our issues with `Test.ChasingBottoms.approxShow`.
+
+If we use `Test.ChasingBottoms.approxShow` then there are some disparities from show: like (1,2) vs. (1, 2)
+  and also `Test.ChasingBottoms.approxShow` gets angry about types like (Left 2 :: Either Integer b)
+  with the error: `Couldn't match expected type ‘Either Integer b0 -> t0’ with actual type ‘Either a0 b1’`
+
+But if we don't use `Test.ChasingBottoms.approxShow`,
+  then testing programs like (`repeat arg0`) will send the terminal into an unkillable printing loop
+  which tends to crash VS Code
+
+Since our examples all use types that implement `show`, we opted for a solution that just shows the first 100 characters of the solution:
+
+before (in `Examples.ExampleChecker.hs`):
+```
+let progCall = printf "Test.ChasingBottoms.approxShow 100 (f %s)" (unwords parensedInputs)
+...
+expectedOutput <- runStmt mdls (printf "Test.ChasingBottoms.approxShow 100 (%s)" $ output ex)
+``
+
+after:
+```
+let progCall = printf "(take 100 $ show $ f %s)" (unwords parensedInputs)
+...
+expectedOutput <- runStmt mdls (printf "(take 100 $ show $ %s)" $ output ex)
+``
+
+
+
+
+
 group :: <a> . (@@hplusTC@@Eq (a) -> ([a] -> [[a]]))
 
 p/HooglePlus.hs, interpreted ) [TH]
@@ -442,6 +472,7 @@ solution: "\\f xs ys -> Data.List.map Data.Tuple.snd (f (Data.List.zip xs ys))"
 
 mergeEither
 synGuardO' "Either a (Either a b) -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
+synO' "Either a (Either a b) -> Either a b" [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
 solution: "\\arg0 -> Data.Either.either Left (Data.Either.either Left Right) arg0"
 
     (Quota 8) Done with <b> . <a> . (Either (a) ((Either (a) (b))) -> Either (a) (b))!
