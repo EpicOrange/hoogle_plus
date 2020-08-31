@@ -1,338 +1,248 @@
 {-
 
-
-Hi Zheng, we have drawn some conclusions over our issues with `Test.ChasingBottoms.approxShow`.
-
-If we use `Test.ChasingBottoms.approxShow` then there are some disparities from show: like (1,2) vs. (1, 2)
-  and also `Test.ChasingBottoms.approxShow` gets angry about types like (Left 2 :: Either Integer b)
-  with the error: `Couldn't match expected type ‘Either Integer b0 -> t0’ with actual type ‘Either a0 b1’`
-
-But if we don't use `Test.ChasingBottoms.approxShow`,
-  then testing programs like (`repeat arg0`) will send the terminal into an unkillable printing loop
-  which tends to crash VS Code
-
-Since our examples all use types that implement `show`, we opted for a solution that just shows the first 100 characters of the solution:
-
-before (in `Examples.ExampleChecker.hs`):
-```
-let progCall = printf "Test.ChasingBottoms.approxShow 100 (f %s)" (unwords parensedInputs)
-...
-expectedOutput <- runStmt mdls (printf "Test.ChasingBottoms.approxShow 100 (%s)" $ output ex)
-``
-
-after:
-```
-let progCall = printf "(take 100 $ show $ f %s)" (unwords parensedInputs)
-...
-expectedOutput <- runStmt mdls (printf "(take 100 $ show $ %s)" $ output ex)
-``
+------------------
+Type-based weights
+------------------
 
 
+The goal is to discourage the search from building programs
+with unnaturally large types, like `head (head (head …))` or `fst (fst (fst
+…))`
+
+The main idea is to, conceptually, treat type parameters just like extra
+parameters to a component and make type applications explicit in the terms.
+
+E.g. you can think of a signature of a polymorphic function being: 
+    
+    `head :: a:Type -> [a] -> a` 
+             Type -> [a] -> a
+
+(it takes in a type, the a list of values of that type,
+and returns a value of that type). Then if `xs :: Int`, then instead of
+writing `head xs` you must write `head Int xs`. Hence the size of `head Int
+xs` is now 3 and not 2. On the contrary, the size of `sum xs` is 2 (assuming
+monomorphic `sum :: [Int] -> Int`).
+
+        head xs   (size 2)   ==>   head Int xs  (size 3)
+
+Now if we rewrite the unnatural term like `head (head (head []))`  for goal
+type `Int` in this way, we get: 
+
+    `head (head (head []))`   ==>
+    `head Int (head [Int] (head [[Int]] ([] [[[Int]]])))`
+
+Assuming size([T]) = 1 + size(T), the size of this term is now (1 + 1) + (1 +
+2) + (1 + 3) + (1 + 4) = 14, so hopefully we will encounter this program much
+later than a more reasonable program with 4 components.
 
 
 
-group :: <a> . (@@hplusTC@@Eq (a) -> ([a] -> [[a]]))
+      (head :: alpha -> Int) (?? :: alpha)
+        (Int : Type) -> [Int] -> Int
 
-p/HooglePlus.hs, interpreted ) [TH]
-Ok, 58 modules loaded.
-> synGuardO' "Eq a => [a] -> [a]" ["GHC.List.map", "GHC.List.head", "GHC.List.group", "@@hplusTC@@Eq"] [(["\"aaabbbccc\""], "\"abc\"")] 
+  * for every forall in the type signature of the componenet (before unification)
+      * look in sub to see if it is there
+            * get the type of its sub and add that to regular size of program
 
-running dfs on <a> . (@@hplusTC@@Eq (a) -> ([a] -> [a])) at size 7
-| solved goal: arg0
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.head (GHC.List.map (\arg1 -> arg0) arg0)
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) arg0
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) tcarg0
 
-/tmp/d87245e6-7e41-498d-b0df-a34e9c95a58e.hs:16:31: error:
-    • Couldn't match expected type ‘[a]’ with actual type ‘p0 -> [a]’
-    • Probable cause: ‘head’ is applied to too few arguments
-  In the expression: head (map (\ arg1 -> \ arg2 -> arg0) arg0)
-  In the expression:
-    \ arg0 -> head (map (\ arg1 -> \ arg2 -> arg0) arg0)
-  In an equation for ‘ghcCheckedFunction’:
-      ghcCheckedFunction
-        = \ arg0 -> head (map (\ arg1 -> \ arg2 -> ...) arg0)
-    • Relevant bindings include
-    arg0 :: [a]
-      (bound at /tmp/d87245e6-7e41-498d-b0df-a34e9c95a58e.hs:16:23)
-    ghcCheckedFunction :: [a] -> [a]
-      (bound at /tmp/d87245e6-7e41-498d-b0df-a34e9c95a58e.hs:16:1)
-   |
-16 | ghcCheckedFunction = \arg0 -> GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0)
-   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<interactive>:1:11: error:
-    • Couldn't match expected type ‘[a1]’ with actual type ‘p0 -> [a1]’
-    • Probable cause: ‘head’ is applied to too few arguments
-  In the expression: head (map (\ arg1 -> \ arg2 -> arg0) arg0)
-  In the expression:
-      (\ arg0 -> head (map (\ arg1 -> \ arg2 -> arg0) arg0)) ::
-        (Eq a) => [a] -> [a]
-    • Relevant bindings include
-    arg0 :: [a1] (bound at <interactive>:1:3)
 
-| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) GHC.List.head
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg0) arg0) GHC.List.map
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.head (GHC.List.map (\arg1 -> \arg2 -> arg2) arg0) arg0
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.map GHC.List.head (GHC.List.map (\arg1 -> arg0) arg0)
-"\"aaaaaaaaa\""
-"\"abc\""
-| solved goal: GHC.List.map (\arg1 -> arg1) arg0
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.map (\arg1 -> arg1) (GHC.List.map (\arg2 -> arg2) arg0)
-"\"aaabbbccc\""
-"\"abc\""
-| solved goal: GHC.List.map (\arg1 -> GHC.List.head arg0) arg0
-"\"aaaaaaaaa\""
-"\"abc\""
-| current goal (sizeQuota 3): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: tau0)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-             >> t1: [a]
-             >> t2: [[a]]
-            >> isChecked: False
-             >> t1: @@hplusTC@@Eq (a)
-             >> t2: [[a]]
-            >> isChecked: False
-             >> t1: [tau6] -> tau6
-             >> t2: [[a]]
-            >> isChecked: False
-             >> t1: (tau7 -> tau6) -> [tau7] -> [tau6]
-             >> t2: [[a]]
-            >> isChecked: False
-| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau6 -> [[a]])) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-             >> t1: [a]
-             >> t2: tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: @@hplusTC@@Eq (a)
-             >> t2: tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: [tau7] -> tau7
-             >> t2: tau6 -> [[a]]
-            >> isChecked: True
-| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: (tau8 -> [[[a]]])) (?? :: tau8)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head GHC.List.head (?? :: tau8)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]])
-    *("tau8",[[[[a]]]])
-    *("tau9",[[[a]]])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head GHC.List.head (?? :: tau8)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]])
-    *("tau8",[[[[a]]]])
-    *("tau9",[[[a]]])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: (tau8 -> [[[a]]])) (?? :: tau8)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]])
-| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]])
-             >> t1: (tau8 -> tau7) -> [tau8] -> [tau7]
-             >> t2: tau6 -> [[a]]
-            >> isChecked: False
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau7 -> (tau6 -> [[a]]))) (?? :: tau7) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-             >> t1: [a]
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: @@hplusTC@@Eq (a)
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: [tau8] -> tau8
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: True
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau7) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau7",[tau6 -> [[a]]])
-    *("tau8",tau6 -> [[a]])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.head (?? :: tau7) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau7",[tau6 -> [[a]]])
-    *("tau8",tau6 -> [[a]])
-             >> t1: (tau9 -> tau8) -> [tau9] -> [tau8]
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: True
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map (?? :: tau7) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[tau9])
-    *("tau7",tau9 -> [a])
-    *("tau8",[a])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map GHC.List.head (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau10",[a])
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]] -> [a])
-    *("tau8",[a])
-    *("tau9",[[a]])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map GHC.List.head (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau10",[a])
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[[[a]]])
-    *("tau7",[[a]] -> [a])
-    *("tau8",[a])
-    *("tau9",[[a]])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) GHC.List.map (?? :: tau7) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-    *("tau6",[tau9])
-    *("tau7",tau9 -> [a])
-    *("tau8",[a])
-| current goal (sizeQuota 1): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau7 -> (tau6 -> [[a]]))) (?? :: tau7) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-             >> t1: [a]
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: @@hplusTC@@Eq (a)
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: [tau8] -> tau8
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: True
-             >> t1: (tau9 -> tau8) -> [tau9] -> [tau8]
-             >> t2: tau7 -> tau6 -> [[a]]
-            >> isChecked: True
-| current goal (sizeQuota 2): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: (tau6 -> [[a]])) (?? :: tau6)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-             >> t1: [a]
-             >> t2: tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: @@hplusTC@@Eq (a)
-             >> t2: tau6 -> [[a]]
-            >> isChecked: False
-             >> t1: [tau7] -> tau7
-             >> t2: tau6 -> [[a]]
-            >> isChecked: True
-             >> t1: (tau8 -> tau7) -> [tau8] -> [tau7]
-             >> t2: tau6 -> [[a]]
-            >> isChecked: False
-| current goal (sizeQuota 3): GHC.List.map (\arg1 -> GHC.List.head arg1) (?? :: tau0)
-    *("tau0",[[a]])
-    *("tau1",[a] -> a)
-    *("tau2",a)
-    *("tau3",[a])
-    *("tau4",[a])
-    *("tau5",a)
-             >> t1: [a]
-             >> t2: [[a]]
-            >> isChecked: False
-             >> t1: @@hplusTC@@Eq (a)
-             >> t2: [[a]]
-            >> isChecked: False
-             >> t1: [tau6] -> tau6
-             >> t2: [[a]]
-            >> isChecked: False
-             >> t1: (tau7 -> tau6) -> [tau7] -> [tau6]
-             >> t2: [[a]]
-            >> isChecked: False
-*** Exception: user error (No answer.)
-> 
+
+Implementation: The `head` example from above is easy to implement: For the
+outermost `head` your goal type is `alpha → Int`, so you immediately know
+`alpha = [Int]`, and `head`s type param `a = Int`, so `size(a) = 1` and you
+count the size of `head` as 1 + 1 = 2. For the next `head` the goal type is
+`beta → [Int]`, so `beta = [[Int]]` and `a = [Int]` so the size of this head
+is 1 + 2 = 3. And so on, and the same for [].
+
+Challenge: The problem arises when you don’t immediately know the
+instantiation of all type parameters when you pick a component. For example,
+for a goal `beta → alpha → [Int]` and component: `map :: (a -> b) -> [a] ->
+[b]`, you know what b is but not a, so you can’t immediate determine the size
+of this `map` instance. 
+          `map :: (a -> b) -> [a] -> [b]`
+          `map :: forall a . forall b . (a -> b) -> [a] -> [b]`
+          `beta → alpha → [Int]`
+    unified:   forall a . (a -> Int) -> [a] -> [Int]
+    size of this is ???????? 
+
+One idea is to handle this just like you handle real
+arguments, which are always unknown: i.e. partition the size budget a-priori.
+
+For example, if my total budget is 10, and I picked `map` with `b = Int`, then
+I used up 2 units (map and Int), and have 8 remaining units to distribute between 3 things
+now: 
+
+      1) the type to replace a           :: type of a
+      2) the first argument to `map`     :: a -> Int
+      3) the second argument to `map`.   :: [a]
+
+If I decided to allocate, say, 1, 9, 1, then I start
+enumerating functions of the type `a -> Int`, but I also have to keep in mind
+that `a` is limited to size 1 (i.e. make it part of my spec, and the memo
+key). Alternatively, I can a-priori enumerate all possible types of size 1 as
+candidates for a; then I don’t have to modify the notion of goal and I gain a
+nice property that all my I-goals will always be ground (have no free type
+variables).
+
+way 1a:
+      dfs on `a -> Int`
+      check what a unifies with after solving
+      discard all programs that have a be something larger than 1
+
+way 1b:
+    typeA <- choices (all size 1 types)
+    dfs on `typeA -> Int` like a normal person
+
+On the flip side, enumerating all these types might be expensive.
+One mitigation strategy is to limit the maximum type size to some small
+heuristic bound (say 3 or 4). 
+
+      ==> limit the size of a to be at max size 3 or 4
+
+way 2:
+
+Another approach is to enumerate first arg to
+map disregarding the bound on type `a` and then take its size into account
+later. You can think of it as switching the order of arguments to map to
+something like: 
+
+        ((?? :: beta → alpha → [Int]) (?? :: beta)) (?? :: alpha)
+        `map :: forall a . forall b . (a -> b) -> [a] -> [b]`
+        `map :: b:Type -> (a -> b) -> a: Type -> [a] -> [b]`, 
+        
+        first we look at [b] --> this decides b:Type
+        then we look at (a->b) --> this decides a:Type
+        then we look at [a]
+        so the order ends up being
+        `map :: b:Type -> (a -> b) -> a: Type -> [a] -> [b]`, 
+
+        query: [Int] -> [Int]
+        
+        [Int]                                                         quota 10
+            splits (?? :: alpha -> [Int]) (?? :: alpha)
+        (?? :: alpha -> [Int])                                        quota 9
+            slits (?? :: beta → alpha → [Int]) (?? :: beta)
+        (?? :: beta → alpha → [Int])                                  quota 8
+                  map :: forall a b. (a->b)->[a]->[b]
+              ==> map (a:Type) (Int:Type)   size: 1 (map) + 1 (Int) + 1 (a)
+                                                  3
+                  beta ~ a -> Int
+                  alpha ~ [a]
+        (?? :: (a -> Int))                                            quota 9 - 3 = 6
+                  inc :: Int->Int
+              ==> inc :: (Int -> Int)       size: 1 (inc) + 0 for type of inc bc no forall's in it
+        (?? :: [a])                                                   quota 9 - 3 - 1 = 5
+                  arg0 :: [Int]
+              ==> arg0 :: [Int]
+                  a ~ Int                   size: 1 (arg0) + 0 for type of arg0 bc no forall's in it
+                  (need to make sure a is size 1!!! because that's what we assumed previously)
+        map   inc    arg0
+
+questions:
+    * how do we keep track of a having to be size 1???
+          keep a map in our state :: String -> Int
+
+where the a:Type argument is already determined by the choice of (a -> b), so
+there’s only one choice for it, but the size accounting still works as usual
+(we subtract its size from the total budget before looking for the [a]
+argument). This actually shows that this strategy is not very different from
+the previous strategy (where we explicitly enumerate type argos): in both, the
+type arg is just treated as normal arg, it’s just the order of args is swapped
+(which is something you can always control in your synthesizer!). Which one is
+more efficient, essentially depends on which one constrains the search more
+(ideally we’d like to try both).
+
+
+
+
+Alternative approaches:  I think what you currently do with limiting the size
+of the whole substitution is similar to limiting the size of type
+instantiation to 3. But not quite because you also include the instantiations
+for the `alpha`s, i.e. the type variables invented by the synthesizer in
+E-mode, rather than those present in the components, and these instantiations
+we don’t necessarily want to keep small, because they correspond to inherent
+types of the components.
+
+E.g. for a components like `catMaybes :: [Maybe a] -> a`, 
+we care to make `a` small, but we don’t necessarily care that it will be
+matched with `alpha → Int` and then `alpha` has to be `[Maybe a]`, which is
+relatively complex (size 3). This is not necessarily a bad thing: we are just
+using a complex component, but we are not using it in a “complex” way. Well,
+this is just my hunch, this is actually something that would be good to check:
+
+  ==> do we want to discourage the synthesizer from using complex types 
+    * in general (let’s call it metric A)?
+          what we currently do with limiting size of sub
+    * just using polymorphic components in complex ways (let’s call it metric B)?
+          what she suggested above 
+
+The approach above with explicit type applications implements metric B. (!!!!)
+If you want to implement metric A, then one way to do this is to define the size of a
+term to include the size of type at each node (or only at variable nodes?)
+
+E.g. the size of `head [] :: Int` = 
+                size(type(head)) + size(type([])) + size (type(application node))
+              = size([?] -> Int) + size([?])      + size(Int) 
+              = 4                + 2               + 1
+              = 7.
+
+Here I write ? for the type of list element because it remains
+uninstantiated. I consider `size(?) = 1` but actually now that I think about
+it: uninstantiated types should be discouraged or even disallowed out right!
+
+Side idea: prune programs with uninstantiated types. Similarly to how we prune
+programs with unused arguments, perhaps we should prune programs with “unused
+type argument” (i.e. uninstantiated type variables). This would outlaw
+programs like `head []` (which is good), but also programs like `length []`,
+which might be good or bad. Worth checking whether this technique would work
+on our benchmarks?
+
+    head :: [a] -> a
+    Nil  :: <a> . [a]
+    when they're unified, 
+
+to check this:
+    after we unify, check if the schema has any foralls left???
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+
+TODO later stuff
+for after we finish stuff above
+
+(can ignore for now since we're ignoring memo for now lol)
+-- Memo and free variables in goals: A related thing to think about is how we
+-- memoize goals with free type variables. One question we already discussed: we
+-- might be missing out on memoized results because free type variables might be
+-- too fresh. Another facet is: we might have a goal like `Int → Int` which is a
+-- “sub-goal” of `alpha → Int` (i.e. the results for the former are a subset of
+-- the results for the latter). Can we store our memo results in some kind of
+-- lattice so that we can efficiently recall not only `alpha → Int` but also
+-- results for all instantiations thereof? 
+
+
+------------------------
+Other sources of weights
+------------------------
+
+We can also try assigning unequal weights to components based on their
+simplicity / popularity / partiality / efficiency etc. These weights could be
+designed manually or automatically extracted from a corpus or from the
+libraries themselves, for example: analyze some Haskell code and collect
+frequencies of each component, and assign weights proportional to negative log
+frequencies [David Justo started doing that at some point and even has some
+data, you could talk to him] same as above but also collect frequencies of
+type constructors, which will give us weights on types same as above but
+collect frequencies of instances of polymorphic components, meaning we would
+have a co-occurrence matrix of components and types. We might not have enough
+data for this.
+
+
 
 
 
