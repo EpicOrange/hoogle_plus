@@ -1,5 +1,36 @@
 {-
 
+typeOf alphaTProgram ((,)) = (b -> (a -> (b , a)))
+      (((?? :: (tau1 -> (tau0 -> (b , a)))) (?? :: tau1)) (?? :: tau0))
+-----
+typeOf alphaTProgram (GHC.List.head) = ([b] -> b)
+      ((((,) ((?? :: (tau4 -> b)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
+typeOf alphaProgram ([]) = [b]
+      ((((,) ((GHC.List.head (?? :: tau4)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
+typeOf alphaProgram (GHC.List.head []) = b
+      ((((,) ((GHC.List.head (?? :: tau4)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
+-----
+typeOf alphaTProgram ((,) (GHC.List.head [])) = (tau0 -> (b , a))
+      ((((,) ((GHC.List.head (?? :: tau4)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
+typeOf alphaProgram (arg0) = a
+      ((((,) ((GHC.List.head ((,) (GHC.List.head []) (?? :: tau0))) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
+(passed     filter) ((GHC.List.head []) , arg0)
+RESULTS:{"outCandidates":[{"outExamples":[],"solution":"\\arg0 -> ((GHC.List.head []) , arg0)"}],"outDocs":[{"functionSig":"[a] -> a","functionName":"head","functionDesc":"<math>. Extract the first element of a list, which must be\nnon-empty.\n"},{"functionSig":"IntMap a","functionName":"Nil","functionDesc":""},{"functionSig":"f a -> g a -> Product f g a","functionName":"Pair","functionDesc":""},{"functionSig":"a","functionName":"arg0","functionDesc":""}],"outError":""}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ------------------
 Type-based weights
 ------------------

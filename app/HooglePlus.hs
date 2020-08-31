@@ -25,8 +25,7 @@ import Database.Util
 import Synquid.Util (showme)
 
 import HooglePlus.Synthesize
-import TopDown.SynthesizeOptimized
--- import TopDown.Synthesize
+import TopDown.Synthesize
 -- import TopDown.SynthesizeOutside
 -- import BottomUp.Synthesize
 
@@ -311,7 +310,7 @@ executeSearch topDown synquidParams searchParams inStr = catch (do
   env <- readBuiltinData synquidParams env'
   -- printf "env: %s\n" (show $ env ^. symbols)
 
-  let synthesize = if topDown then TopDown.SynthesizeOptimized.synthesize else HooglePlus.Synthesize.synthesize
+  let synthesize = if topDown then TopDown.Synthesize.synthesize else HooglePlus.Synthesize.synthesize
   
   goal <- envToGoal env tquery
 

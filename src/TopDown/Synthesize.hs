@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.SynthesizeOptimized(synthesize, envToGoal, synO, synGuardO, synO', synGuardO') where
+module TopDown.Synthesize(synthesize, envToGoal, syn, synGuard, syn', synGuard') where
 
 -- import HooglePlus.TypeChecker
 import TopDown.TypeChecker
@@ -39,12 +39,12 @@ import Text.Printf (printf)
 -- a wrapper for synthesize that you can run from `stack ghci`
 -- usage: syn "Int -> Int"
 -- or:    program <- syn "Int -> Int"
-synO :: String -> IO ()
-synO inStr = synO' inStr []
+syn :: String -> IO ()
+syn inStr = syn' inStr []
 -- What if we can pass the guardInclude list into here??? :D
   
-synGuardO :: String -> [String] -> IO ()
-synGuardO inStr guards = do
+synGuard :: String -> [String] -> IO ()
+synGuard inStr guards = do
   env' <- readEnv $ envPath defaultSynquidParams
   env <- readBuiltinData defaultSynquidParams env'
   let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
@@ -59,8 +59,8 @@ synGuardO inStr guards = do
 --   , (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")
 --   ]
 -- :}
-synO' :: String -> [([String], String)] -> IO ()
-synO' inStr ex = do
+syn' :: String -> [([String], String)] -> IO ()
+syn' inStr ex = do
   env' <- readEnv $ envPath defaultSynquidParams
   env <- readBuiltinData defaultSynquidParams env'
   goal <- envToGoal env inStr
@@ -68,8 +68,8 @@ synO' inStr ex = do
   let examples = map (uncurry Example) ex
   synthesize defaultSearchParams goal examples solverChan
 
-synGuardO' :: String -> [String] -> [([String], String)] -> IO ()
-synGuardO' inStr guards ex = do
+synGuard' :: String -> [String] -> [([String], String)] -> IO ()
+synGuard' inStr guards ex = do
   env' <- readEnv $ envPath defaultSynquidParams
   env <- readBuiltinData defaultSynquidParams env'
   let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
@@ -172,7 +172,7 @@ memoizeProgram mode quota args goalType compute = do
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [7..]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [4]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
 
@@ -296,6 +296,11 @@ dfs mode env args messageChan sizeQuota subQuota goalType
       
       -- we split (?? :: T) into (??::alpha -> T) (??::alpha)
 
+
+
+
+
+
       -- need to save the name counter so it generates the same tau for each freshType call
       nameCtr <- getNameCounter
       alpha <- freshType (env ^. boundTypeVars) (ForallT "alpha" $ Monotype $ alpha') :: TopDownSolver IO RType
@@ -308,19 +313,55 @@ dfs mode env args messageChan sizeQuota subQuota goalType
       
       -- subtract 1 from quota since the second term should be at least size 1
       alphaTProgram <- dfs EMode env args messageChan (sizeQuota - 1) subQuota schema :: TopDownSolver IO RProgram
+      
+      holedProgram <- head <$> lift get
+      liftIO $ printf "-----\ntypeOf alphaTProgram (%s) = %s\n      %s\n" (show alphaTProgram) (show $ typeOf alphaTProgram) (show holedProgram)
 
       sub <- use typeAssignment
-      let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType 
+      let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType
       
       lift $ addAppFilled alphaTProgram (show alpha) holedProgram
       alphaProgram <- dfs IMode env args messageChan (sizeQuota - sizeOfProg alphaTProgram) subQuota alphaSub :: TopDownSolver IO RProgram
+      holedProgram <- head <$> lift get
+      liftIO $ printf "typeOf alphaProgram (%s) = %s\n      %s\n" (show alphaProgram) (show $ typeOf alphaProgram) (show holedProgram)
       
+      -- alphaTProgram  =  head  :: [a1] -> a1
+      -- alphaProgram   =  []    :: [a2]
+
+-- typeOf alphaTProgram (GHC.List.head) = ([Char] -> Char)
+-- typeOf alphaProgram (arg0) = [Char]
+
+      -- TODO check if schema has any foralls left
+      -- filter out the ones that do ???
+      -- e.g. head [], length [], fromJust Nothing
+
+      {-
+      example:
+      
+      goalType = alpha -> [a]
+      ("head", forall a. [a] -> a) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
+      -}
+
+
       return Program {
           content = case content alphaTProgram of
                       PSymbol id -> PApp id [alphaProgram]
                       PApp id xs -> PApp id $ xs ++ [alphaProgram],
           typeOf = goalType
         }
+
+-- -----
+-- typeOf alphaTProgram (GHC.List.head) = (tau -> a)
+-- typeOf alphaProgram (arg0) = [a]
+-- typeOf alphaProgram ([]) = [a]
+-- (not passed filter) GHC.List.head []
+-- map head arg0
+-- map sees head :: <a> . [a] -> a
+
+-- query: a -> (b, a)
+-- Pair (head []) arg0
+-- synGuard "a -> (b, a)" ["Pair", "head", "Nil"]
+-- -----
 
     -- guards away programs that we don't want
     guardCheck :: RProgram -> TopDownSolver IO ()
@@ -330,7 +371,8 @@ dfs mode env args messageChan sizeQuota subQuota goalType
       let showProg = show prog
       let uselessSubPrograms = -- these all error or are redundant
                                [ "Data.Maybe.fromJust Data.Maybe.Nothing"
-                               , "GHC.List.head []"
+                              --  , "GHC.List.head []"
+                               , "GHC.List.head arg0" -- TODO remove this
                                , "GHC.List.last []"
                                , "GHC.List.tail []"
                                , "GHC.List.init []"
@@ -349,26 +391,7 @@ dfs mode env args messageChan sizeQuota subQuota goalType
                                , "GHC.Maybe.listToMaybe []" -- == Data.Maybe.Nothing
                                , "GHC.List.zipWith (,)" -- == GHC.List.zip
                               ]
-      guard $ all (not . (`isInfixOf` showProg)) uselessSubPrograms
-      -- guard $ not $ "Data.Maybe.fromJust Data.Maybe.Nothing" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.head []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.last []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.tail []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.init []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.cycle []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.zip [] []" `isInfixOf` showProg
-      -- guard $ not $ "[] !!" `isInfixOf` showProg
-      -- guard $ not $ "[] ++ []" `isInfixOf` showProg
-      -- guard $ not $ "(GHC.List.!!) []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.concat []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.reverse []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.Maybe.listToMaybe []" `isInfixOf` showProg
-      -- guard $ not $ "Data.Maybe.maybeToList Data.Maybe.Nothing" `isInfixOf` showProg
-      -- guard $ not $ "Data.Either.lefts []" `isInfixOf` showProg
-      -- guard $ not $ "Data.Either.rights []" `isInfixOf` showProg
-      -- guard $ not $ "Data.Maybe.catMaybes []" `isInfixOf` showProg
-      -- guard $ not $ "GHC.List.zipWith (,)" `isInfixOf` showProg -- == GHC.List.zip
-      
+      guard $ all (not . (`isInfixOf` showProg)) uselessSubPrograms      
 
 
       guard (sizeOfProg prog <= sizeQuota)
