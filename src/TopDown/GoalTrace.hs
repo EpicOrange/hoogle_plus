@@ -14,13 +14,12 @@ import Text.Printf
 type OurType = String
 type GoalTrace = [OurProgram]
 
-
 printGoalTrace :: MonadIO m => StateT GoalTrace m ()
 printGoalTrace = do
   goalTrace <- get
   liftIO $ printf "-----------------\n--- BACKTRACE ---\n-----------------\n"
   liftIO $ mapM_ print $ reverse goalTrace
-  liftIO $ printf "-----------------\n\n"
+  liftIO $ printf "-----------------\n"
 
 -- The purpose of this is to be able to print out partially filled programs, like
 --   (?? :: b)

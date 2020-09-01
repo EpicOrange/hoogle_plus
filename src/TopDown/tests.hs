@@ -58,6 +58,21 @@ syn' "[a] -> (a -> Bool) -> Int" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"
 synO' "[a] -> (a -> Bool) -> Int" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2")]
 solution: "\\xs f -> Data.List.length (Data.List.filter f xs)"
 
+stack exec -- hplus --json='{
+  "query": "a -> [Maybe a] -> a", 
+  "inExamples": [
+    {"inputs": ["1", "[Nothing ,Just 3, Nothing]"], "output":"3"}
+  ]
+}'
+
+stack run -- hplus topdown --json='{
+    "query": "[a] -> (a -> Bool) -> Int", 
+    "inExamples": [
+      {"inputs": ["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "output": "2"},
+      {"inputs": ["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "output": "2"}
+    ] }' --disable-alt-imode
+stack run -- hplus topdown --json='{ "query": "[a] -> (a -> Bool) -> Int", "inExamples": [ {"inputs": ["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "output": "2"}, {"inputs": ["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "output": "2"} ] }' --disable-alt-imode
+
 splitStr
 synGuard' "String -> Char -> [String]" ["GHC.List.words", "GHC.List.map", "Data.Bool.bool", "=="] []
 solution: "\\xs x -> Data.List.words (Data.List.map (\\y -> Data.Bool.bool y ' ' (y == x)) xs)"
@@ -166,6 +181,9 @@ map
 synGuard' "(a->b)->[a]->[b]" ["GHC.List.map"] [(["\\x -> x * x", "[1,2,3]"], "[1,4,9]")]
 solution: "\\f xs -> Data.List.map f xs"
 
+stack run -- hplus topdown --json='{"query": "(a->b)->[a]->[b]", "inExamples": [{"inputs": ["\\x -> x * x", "[1,2,3]"], "output":"[1,4,9]"}]}' --disable-memoize
+
+
 repl-funcs
 synGuard' "(a->b)->Int->[a->b]" ["GHC.List.replicate"] []
 solution: "\\f n -> Data.List.replicate n f"
@@ -177,6 +195,9 @@ synGuardO' "b -> (a -> b) -> [a] -> b" ["fst", "sum"] [(["2", "\\x -> x * x", "[
 syn' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 synO' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 solution: "\\x f xs -> Data.Maybe.maybe x f (Data.Maybe.listToMaybe xs)"
+
+stack run -- hplus topdown --json='{"query": "b -> (a -> b) -> [a] -> b", "inExamples": [ {"inputs": ["2", "\\x -> x * x", "[3,4,5]"], "output":"9"}, {"inputs": ["2", "\\x -> x * x", "[]"], "output":"2"} ]}' --disable-memoize
+
 
 
 (Quota 5) Done with <b> . <a> . (b -> (((a -> b)) -> ([a] -> b)))!

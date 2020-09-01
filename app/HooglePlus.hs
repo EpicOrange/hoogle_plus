@@ -158,20 +158,20 @@ main = do
             readSuite fp >>= runTypeInferenceEval
         TopDown { json
                 , disable_higher_order
-                , alt_imode
-                , memoize
-                , backtrace
+                , disable_alt_imode
+                , disable_memoize
+                , enable_debug
                 } -> 
         -- json :: String, -- query, examples, guards?????????????
         -- disable_higher_order :: Bool,
-        -- alt_imode :: Bool, -- should we do imode w/ env first or regular i-mode
-        -- memoize :: Bool, -- should we memoize? 
-        -- backtrace :: Bool -- should we print backtracing? 
+        -- disable_alt_imode :: Bool, -- should we do imode w/ env first or regular i-mode
+        -- disable_memoize :: Bool, -- should we memoize? 
+        -- enable_debug :: Bool -- should we print backtracing? 
                   let searchParams = defaultSearchParams 
                                         { _useHO = not disable_higher_order
-                                        , _topDownUseAltIMode = alt_imode
-                                        , _topDownUseMemoize = memoize
-                                        , _topDownPrintBacktrace = backtrace
+                                        , _topDownUseAltIMode = not disable_alt_imode
+                                        , _topDownUseMemoize = not disable_memoize
+                                        , _topDownEnableDebug = enable_debug
                                         }
                    in executeSearch True defaultSynquidParams searchParams json
 
@@ -225,16 +225,13 @@ data CommandLineArgs
         file_path :: String
       }
       | TopDown {
-        json :: String, -- query, examples, guards?????????????
+        json :: String,
         disable_higher_order :: Bool,
-        alt_imode :: Bool, -- should we do imode w/ env first or regular i-mode
-        memoize :: Bool, -- should we memoize? 
-        backtrace :: Bool -- should we print backtracing? 
+        disable_alt_imode :: Bool,
+        disable_memoize :: Bool, 
+        enable_debug :: Bool
+        -- TODO add some guards here like synguard
       }
-      -- TODO: left off running:
-      --   stack run -- hplus topdown --json='{"query": "Int -> Int", "inExamples": []}' --alt_imode=True
-      -- but got:
-      --   Unknown flag: --alt_imode
   deriving (Data, Typeable, Show, Eq)
 
 synt = Synthesis {
@@ -279,11 +276,11 @@ evaluation = Evaluation {
 
 
 topdown = TopDown {
-  json                 = ""              &= help ("query, examples, guards?????????????"),
+  json                 = ""              &= help ("Input query from a json string"),
   disable_higher_order = False           &= help ("Disable higher order functions (default: False)"),
-  alt_imode             = False           &= help ("Should we do imode w/ env first or regular i-mode"),
-  memoize              = True            &= help ("Should we memoize?"),
-  backtrace            = False           &= help ("Should we print backtracing?")
+  disable_alt_imode    = False           &= help ("Disable searching in env first when in i-mode (default: False)"),
+  disable_memoize      = False           &= help ("Disable memoization (default: False)"),
+  enable_debug         = False           &= help ("Should we enable debug output?")
 } &= help "Run Hoogle+ with top-down backend"
 
 mode = cmdArgsMode $ modes [synt, generate, evaluation, topdown] &=

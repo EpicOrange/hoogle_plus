@@ -53,7 +53,7 @@ data SearchParams = SearchParams {
   -- topDown stuff below
   _topDownUseAltIMode :: Bool,
   _topDownUseMemoize :: Bool,
-  _topDownPrintBacktrace :: Bool
+  _topDownEnableDebug :: Bool
 } deriving (Eq, Show)
 
 makeLenses ''SearchParams
@@ -107,7 +107,7 @@ defaultSearchParams = SearchParams {
   -- topDown stuff below
   _topDownUseAltIMode = False,
   _topDownUseMemoize = True,
-  _topDownPrintBacktrace = False
+  _topDownEnableDebug = False
 }
 
 type ExperimentName = String
