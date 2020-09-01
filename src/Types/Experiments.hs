@@ -105,7 +105,7 @@ defaultSearchParams = SearchParams {
   _disableBlack = False,
   _disableFilter = True,
   -- topDown stuff below
-  _topDownUseAltIMode = False,
+  _topDownUseAltIMode = True,
   _topDownUseMemoize = True,
   _topDownEnableDebug = False
 }

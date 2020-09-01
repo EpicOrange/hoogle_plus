@@ -52,7 +52,8 @@ synGuard inStr guards = do
   let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
   goal <- envToGoal (env { _symbols = rawSyms}) inStr
   solverChan <- newChan
-  synthesize defaultSearchParams goal [] solverChan
+  let searchP = defaultSearchParams {_topDownEnableDebug = True}
+  synthesize searchP goal [] solverChan
 
 -- usage:
 -- :{
@@ -68,7 +69,8 @@ syn' inStr ex = do
   goal <- envToGoal env inStr
   solverChan <- newChan
   let examples = map (uncurry Example) ex
-  synthesize defaultSearchParams goal examples solverChan
+  let searchP = defaultSearchParams {_topDownEnableDebug = True}
+  synthesize searchP goal examples solverChan
 
 synGuard' :: String -> [String] -> [([String], String)] -> IO ()
 synGuard' inStr guards ex = do
@@ -78,7 +80,8 @@ synGuard' inStr guards ex = do
   goal <- envToGoal (env { _symbols = rawSyms}) inStr
   solverChan <- newChan
   let examples = map (uncurry Example) ex
-  synthesize defaultSearchParams goal examples solverChan
+  let searchP = defaultSearchParams {_topDownEnableDebug = True}
+  synthesize searchP goal examples solverChan
 
 synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
 synthesize searchParams goal examples messageChan = do
@@ -132,7 +135,7 @@ evalTopDownSolver goalType messageChan m =
     f = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
     g = (`evalStateT` [mkHole goalType])                         -- for StateT GoalTrace
 
--- convert to Logic a
+-- | convert to Logic a
 choices :: (Traversable f, MonadPlus m) => f a -> m a
 choices = msum . fmap return
 
@@ -194,7 +197,9 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   subSize <- sizeOfSub
   debug $ printf "\n\n"
   when enableDebug $ lift printGoalTrace
-  debug $ printf "\n(Quota %d) Done with %s!\nsize\tsubSize\tsolution\n%d\t%d\t%s\n\n" quota (show goal) (sizeOfProg solution) subSize (show solution)
+  let progSize = sizeOfContent solution
+  debug $ printf "\n(Quota %d) Done with %s!\nsize +\tsubSize\tsolution\n%d\t%d\t%s\n\n" quota (show goal) progSize subSize (show solution)
+  when enableDebug $ printSub
 
   return solution
   where
@@ -230,6 +235,16 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
     debug :: (MonadIO m) => IO () -> m ()
     debug m = when enableDebug $ liftIO m
 
+
+printSub :: (MonadIO m) => StateT CheckerState m ()
+printSub = do
+  liftIO $ printf "sub = {\n"
+  sub <- use typeAssignment
+  liftIO $ mapM_ (\(id, t) -> printf "\t%s ==> %s (size %d)\n" id (show t) (sizeOfType t)) (Map.toList sub) --- * tau ==> Int
+  subSize <- sizeOfSub
+  liftIO $ printf "      } (size %d)\n\n" (subSize)
+  
+
 --
 -- does DFS in either E-mode or I-mode
 -- in E-mode:
@@ -246,6 +261,9 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
   | useMemoize     = memoizeProgram mode sizeQuota args goalType doDfs
   | otherwise      = doDfs
   where
+
+    -- | does DFS without memoization
+    doDfs :: TopDownSolver IO RProgram
     doDfs = do
       memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
       prog <- inEnv `mplus` doSplit mode
@@ -257,18 +275,20 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
     useMemoize  = _topDownUseMemoize searchParams
     enableDebug = _topDownEnableDebug searchParams
 
-    -- only prints things when we've enabled debugging
+    -- | only prints things when we've enabled debugging
     debug :: (MonadIO m) => IO () -> m ()
     debug m = when enableDebug $ liftIO m
     
-    -- return components whose entire type unify with goal type
+    -- | return components whose entire type unify with goal type
+    inEnv :: TopDownSolver IO RProgram
     inEnv = do
       -- only check env if e mode, or if we're using the alt I mode
       guard (useAltIMode || mode == EMode)
       (id, schema) <- getUnifiedComponent :: TopDownSolver IO (Id, SType)
       return Program { content = PSymbol id, typeOf = addTrue schema }
 
-    -- add args to env, and search for the return type
+    -- | add args to env, and search for the return type
+    doSplit :: SynMode -> TopDownSolver IO RProgram
     doSplit IMode = case goalType of
       ScalarT _ _            -> doSplit EMode
       FunctionT _ tArg tBody -> do
@@ -284,7 +304,8 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
         body <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) subQuota tBody
 
         let program = Program { content = PFun argName body, typeOf = goalType }
-        guard (sizeOfProg program <= sizeQuota)
+        progSize <- sizeOfProg program
+        guard (progSize <= sizeQuota)
 
         return program
 
@@ -293,11 +314,11 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
       let alpha' = ScalarT (TypeVarT Map.empty "alpha") ftrue :: RType
       let schema' = ForallT "alpha" $ Monotype $ FunctionT "myArg" alpha' goalType :: RSchema
       
-      -- need to save the name counter so it generates the same tau for each freshType call
+      -- need to save the name counter so it generates the same tau for each ourFreshType call
       nameCtr <- getNameCounter
-      alpha <- freshType (env ^. boundTypeVars) (ForallT "alpha" $ Monotype $ alpha') :: TopDownSolver IO RType
+      alpha <- ourFreshType (env ^. boundTypeVars) (ForallT "alpha" $ Monotype $ alpha') "alpha" :: TopDownSolver IO RType
       setNameCounter nameCtr
-      schema <- freshType (env ^. boundTypeVars) schema' :: TopDownSolver IO RType
+      schema <- ourFreshType (env ^. boundTypeVars) schema' "alpha" :: TopDownSolver IO RType
 
       -- need to save the last trace program so it replaces the right hole after the first dfs
       holedProgram <- head <$> lift get
@@ -306,17 +327,21 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
       -- subtract 1 from quota since the second term should be at least size 1
       alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 1) subQuota schema :: TopDownSolver IO RProgram
       
-      holedProgram <- head <$> lift get
-      debug $ printf "-----\ntypeOf alphaTProgram (%s) = %s\n      %s\n" (show alphaTProgram) (show $ typeOf alphaTProgram) (show holedProgram)
+      -- holedProgram <- head <$> lift get
+      -- debug $ printf "-----\ntypeOf alphaTProgram (%s) = %s\n      %s\n" (show alphaTProgram) (show $ typeOf alphaTProgram) (show holedProgram)
 
       sub <- use typeAssignment
       let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType
       
       lift $ addAppFilled alphaTProgram (show alpha) holedProgram
-      alphaProgram <- dfs IMode env args messageChan searchParams (sizeQuota - sizeOfProg alphaTProgram) subQuota alphaSub :: TopDownSolver IO RProgram
-      holedProgram <- head <$> lift get
-      debug $ printf "typeOf alphaProgram (%s) = %s\n      %s\n" (show alphaProgram) (show $ typeOf alphaProgram) (show holedProgram)
-      
+
+      alphaProgram <- dfs IMode env args messageChan searchParams (sizeQuota - sizeOfContent alphaTProgram) subQuota alphaSub :: TopDownSolver IO RProgram
+      -- holedProgram <- head <$> lift get
+      -- debug $ printf "typeOf alphaProgram (%s) = %s\n      %s\n" (show alphaProgram) (show $ typeOf alphaProgram) (show holedProgram)
+      -- debug $ printf "--------------------\n"
+      -- holedProgram <- head <$> lift get
+      -- debug $ printf "current trace (remaining quota: %d): %s\n" (sizeQuota) (show holedProgram) 
+
       return Program {
           content = case content alphaTProgram of
                       PSymbol id -> PApp id [alphaProgram]
@@ -324,7 +349,7 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
           typeOf = goalType
         }
 
-    -- guards away programs that we don't want
+    -- | guards away programs that we don't want
     guardCheck :: RProgram -> TopDownSolver IO ()
     guardCheck prog = do
       -- remove erroring or redundant partial functions
@@ -332,7 +357,7 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
       let showProg = show prog
       let uselessSubPrograms = -- these all error or are redundant
                                [ "Data.Maybe.fromJust Data.Maybe.Nothing"
-                               , "GHC.List.head []"
+                              --  , "GHC.List.head []"
                               --  , "GHC.List.head arg0" -- TODO remove this
                                , "GHC.List.last []"
                                , "GHC.List.tail []"
@@ -354,19 +379,20 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
                               ]
       guard $ all (not . (`isInfixOf` showProg)) uselessSubPrograms      
 
-      guard (sizeOfProg prog <= sizeQuota)
-      subSize <- sizeOfSub
-      guard (subSize <= 45) -- we never go past quota 15 anyways
+      progSize <- sizeOfProg prog
+      guard (progSize <= sizeQuota) 
+      -- subSize <- sizeOfSub
+      -- guard (subSize <= 45) -- we never go past quota 15 anyways
 
 
-    -- Using the components in env, like ("length", <a>. [a] -> Int)
-    -- tries to instantiate each, replacing type vars in order to unify with goalType
+    -- | Using the components in env, like ("length", <a>. [a] -> Int)
+    -- | tries to instantiate each, replacing type vars in order to unify with goalType
     getUnifiedComponent :: TopDownSolver IO (Id, SType)
     getUnifiedComponent = do
       (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
 
       -- replaces "a" "b" with "tau1" "tau2"
-      freshVars <- freshType (env ^. boundTypeVars) schema
+      freshVars <- ourFreshType (env ^. boundTypeVars) schema "tau"
 
       let t1 = shape freshVars :: SType
       let t2 = shape goalType :: SType
@@ -391,3 +417,12 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
         ogSymbols            = Map.toList $ env ^. symbols
         (args, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
         withoutDataFunctions = snd $ partition (("Data.Function" `isInfixOf`) . fst) withoutArgs
+
+    -- | Replace all bound type variables with fresh free variables
+    ourFreshType :: (CheckMonad (t m), MonadIO m) => [Id] -> RSchema -> Id -> t m RType
+    ourFreshType bounds t id = ourFreshType' Map.empty [] t
+      where
+        ourFreshType' subst constraints (ForallT a sch) = do
+            a' <- freshId bounds id
+            ourFreshType' (Map.insert a (vart a' ftrue) subst) (a':constraints) sch
+        ourFreshType' subst constraints (Monotype t) = return (typeSubstitute subst t)

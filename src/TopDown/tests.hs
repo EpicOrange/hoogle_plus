@@ -17,7 +17,10 @@ solution: "\\x xs -> Data.Maybe.fromMaybe x (Data.Maybe.listToMaybe (Data.Maybe.
 
 mapEither
 synGuard' "(a -> Either b c) -> [a] -> ([b], [c])" ["Data.Either.partitionEithers", "GHC.List.map"] [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
+syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
 solution: "\\f xs -> Data.Either.partitionEithers (Data.List.map f xs)"
+
+
 
 mapMaybes
 synGuard' "(a -> Maybe b) -> [a] -> Maybe b" ["Data.Maybe.listToMaybe", "Data.Maybe.mapMaybe"] [(["\\x -> if x < 3 then Nothing else Just (x * x)", "[2,4,6]"], "Just 16")]
@@ -203,6 +206,7 @@ stack run -- hplus topdown --json='{"query": "b -> (a -> b) -> [a] -> b", "inExa
 (Quota 5) Done with <b> . <a> . (b -> (((a -> b)) -> ([a] -> b)))!
 size    subSize solution
 5       10      Data.Maybe.maybe arg0 arg1 (Data.Maybe.listToMaybe arg2)
+                Data.Maybe.maybe arg0 arg1 (Data.Maybe.listToMaybe arg2)
 
 (46.89 secs, 25,324,355,536 bytes)
 

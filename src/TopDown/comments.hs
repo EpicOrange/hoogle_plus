@@ -1,21 +1,806 @@
 {-
 
-typeOf alphaTProgram ((,)) = (b -> (a -> (b , a)))
-      (((?? :: (tau1 -> (tau0 -> (b , a)))) (?? :: tau1)) (?? :: tau0))
------
-typeOf alphaTProgram (GHC.List.head) = ([b] -> b)
-      ((((,) ((?? :: (tau4 -> b)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
-typeOf alphaProgram ([]) = [b]
-      ((((,) ((GHC.List.head (?? :: tau4)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
-typeOf alphaProgram (GHC.List.head []) = b
-      ((((,) ((GHC.List.head (?? :: tau4)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
------
-typeOf alphaTProgram ((,) (GHC.List.head [])) = (tau0 -> (b , a))
-      ((((,) ((GHC.List.head (?? :: tau4)) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
-typeOf alphaProgram (arg0) = a
-      ((((,) ((GHC.List.head ((,) (GHC.List.head []) (?? :: tau0))) (?? :: tau4))) (?? :: tau1)) (?? :: tau0))
-(passed     filter) ((GHC.List.head []) , arg0)
-RESULTS:{"outCandidates":[{"outExamples":[],"solution":"\\arg0 -> ((GHC.List.head []) , arg0)"}],"outDocs":[{"functionSig":"[a] -> a","functionName":"head","functionDesc":"<math>. Extract the first element of a list, which must be\nnon-empty.\n"},{"functionSig":"IntMap a","functionName":"Nil","functionDesc":""},{"functionSig":"f a -> g a -> Product f g a","functionName":"Pair","functionDesc":""},{"functionSig":"a","functionName":"arg0","functionDesc":""}],"outError":""}
+
+
+==================
+Starting!
+Arguments: fromList [("arg0",a)]
+Goal: b
+==================
+
+running dfs on <b> . <a> . (a -> b) at size 13
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
+sub = {
+        alpha0 ==> [b] (size 2)
+        tau0 ==> b (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [b] (size 2)
+      } (size 5)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (GHC.List.head (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [b] (size 2)
+      } (size 5)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        alpha2 ==> [[[b]]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [[b]] (size 3)
+        tau3 ==> [[b]] (size 3)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        alpha2 ==> [[[b]]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [[b]] (size 3)
+        tau3 ==> [[b]] (size 3)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        alpha2 ==> [[[b]]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [[b]] (size 3)
+        tau3 ==> [[b]] (size 3)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        alpha2 ==> [[[b]]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [[b]] (size 3)
+        tau3 ==> [[b]] (size 3)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head ((GHC.List.head (?? :: alpha2)) (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha2 ==> [alpha1 -> [b]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> alpha1 -> [b] (size 3)
+        tau2 ==> alpha1 -> [b] (size 3)
+      } (size 7)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> [b]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> a -> [b] (size 3)
+        tau2 ==> a -> [b] (size 3)
+      } (size 7)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> [b]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> a -> [b] (size 3)
+        tau2 ==> a -> [b] (size 3)
+      } (size 7)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [tau3] (size 2)
+        alpha2 ==> [[tau3] -> [b]] (size 5)
+        tau0 ==> b (size 1)
+        tau1 ==> [tau3] -> [b] (size 4)
+        tau2 ==> [tau3] -> [b] (size 4)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [tau3] (size 2)
+        alpha2 ==> [[tau3] -> [b]] (size 5)
+        tau0 ==> b (size 1)
+        tau1 ==> [tau3] -> [b] (size 4)
+        tau2 ==> [tau3] -> [b] (size 4)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head ((GHC.List.head (?? :: alpha2)) (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha2 ==> [alpha1 -> [b]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> alpha1 -> [b] (size 3)
+        tau2 ==> alpha1 -> [b] (size 3)
+      } (size 7)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [b] (size 2)
+      } (size 5)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        alpha2 ==> [[[b]]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [[b]] (size 3)
+        tau3 ==> [[b]] (size 3)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> [b]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> a -> [b] (size 3)
+        tau2 ==> a -> [b] (size 3)
+      } (size 7)
+
+--------------------
+current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [tau3] (size 2)
+        alpha2 ==> [[tau3] -> [b]] (size 5)
+        tau0 ==> b (size 1)
+        tau1 ==> [tau3] -> [b] (size 4)
+        tau2 ==> [tau3] -> [b] (size 4)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+      } (size 4)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> [a -> b] (size 3)
+        tau0 ==> a -> b (size 2)
+        tau1 ==> a -> b (size 2)
+      } (size 4)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha0 ==> [tau2] -> tau2 (size 3)
+        alpha1 ==> [([tau2] -> tau2) -> b] (size 5)
+        tau0 ==> ([tau2] -> tau2) -> b (size 4)
+        tau1 ==> ([tau2] -> tau2) -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha0 ==> [tau2] (size 2)
+        alpha1 ==> [[tau2] -> b] (size 4)
+        tau0 ==> [tau2] -> b (size 3)
+        tau1 ==> [tau2] -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [alpha0] (size 2)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [alpha0] (size 2)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 10): (GHC.List.head [] ((GHC.List.head (?? :: alpha3)) (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha3 ==> [alpha2 -> alpha0] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> alpha2 -> alpha0 (size 2)
+        tau3 ==> alpha2 -> alpha0 (size 2)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head [] (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> alpha0] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> a -> alpha0 (size 2)
+        tau3 ==> a -> alpha0 (size 2)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head [] (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> alpha0] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> a -> alpha0 (size 2)
+        tau3 ==> a -> alpha0 (size 2)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 10): (GHC.List.head [] ((GHC.List.head (?? :: alpha3)) (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha3 ==> [alpha2 -> alpha0] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> alpha2 -> alpha0 (size 2)
+        tau3 ==> alpha2 -> alpha0 (size 2)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [alpha0] (size 2)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head [] (?? :: alpha2)))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> alpha0] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> a -> alpha0 (size 2)
+        tau3 ==> a -> alpha0 (size 2)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 11): ((GHC.List.head (GHC.List.head (?? :: alpha2))) (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [[alpha0 -> b]] (size 4)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> [alpha0 -> b] (size 3)
+        tau2 ==> [alpha0 -> b] (size 3)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head (GHC.List.head (?? :: alpha2))) (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [[alpha0 -> b]] (size 4)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> [alpha0 -> b] (size 3)
+        tau2 ==> [alpha0 -> b] (size 3)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (GHC.List.head []) (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> [a -> b] (size 3)
+        alpha2 ==> [[a -> b]] (size 4)
+        tau0 ==> a -> b (size 2)
+        tau1 ==> [a -> b] (size 3)
+        tau2 ==> [a -> b] (size 3)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 11): ((GHC.List.head (GHC.List.head (?? :: alpha2))) (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [[alpha0 -> b]] (size 4)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> [alpha0 -> b] (size 3)
+        tau2 ==> [alpha0 -> b] (size 3)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 11): (((GHC.List.head (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
+        tau0 ==> alpha1 -> alpha0 -> b (size 3)
+        tau1 ==> alpha1 -> alpha0 -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> alpha0 -> b] (size 4)
+        tau0 ==> a -> alpha0 -> b (size 3)
+        tau1 ==> a -> alpha0 -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> a -> b] (size 4)
+        tau0 ==> a -> a -> b (size 3)
+        tau1 ==> a -> a -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
+sub = {
+        alpha0 ==> [tau2] (size 2)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> [tau2] -> b] (size 5)
+        tau0 ==> a -> [tau2] -> b (size 4)
+        tau1 ==> a -> [tau2] -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 10): (GHC.List.head [] arg0 (GHC.List.head (?? :: alpha3)))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha0] (size 2)
+        tau0 ==> a -> alpha0 -> b (size 3)
+        tau1 ==> a -> alpha0 -> b (size 3)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 (GHC.List.head (?? :: alpha3)))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha0] (size 2)
+        tau0 ==> a -> alpha0 -> b (size 3)
+        tau1 ==> a -> alpha0 -> b (size 3)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 10): (GHC.List.head [] arg0 (GHC.List.head (?? :: alpha3)))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha0] (size 2)
+        tau0 ==> a -> alpha0 -> b (size 3)
+        tau1 ==> a -> alpha0 -> b (size 3)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> [tau2] (size 2)
+        alpha2 ==> [[tau2] -> alpha0 -> b] (size 5)
+        tau0 ==> [tau2] -> alpha0 -> b (size 4)
+        tau1 ==> [tau2] -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] [] (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> [tau2] (size 2)
+        alpha2 ==> [[tau2] -> a -> b] (size 5)
+        tau0 ==> [tau2] -> a -> b (size 4)
+        tau1 ==> [tau2] -> a -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 10): ((GHC.List.head [] (GHC.List.head (?? :: alpha3))) (?? :: alpha0))
+sub = {
+        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha1] (size 2)
+        tau0 ==> alpha1 -> alpha0 -> b (size 3)
+        tau1 ==> alpha1 -> alpha0 -> b (size 3)
+        tau2 ==> alpha1 (size 1)
+        tau3 ==> alpha1 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] (GHC.List.head (?? :: alpha3))) (?? :: alpha0))
+sub = {
+        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha1] (size 2)
+        tau0 ==> alpha1 -> alpha0 -> b (size 3)
+        tau1 ==> alpha1 -> alpha0 -> b (size 3)
+        tau2 ==> alpha1 (size 1)
+        tau3 ==> alpha1 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head []) (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha2 ==> [alpha1 -> a -> b] (size 4)
+        alpha3 ==> [alpha1] (size 2)
+        tau0 ==> alpha1 -> a -> b (size 3)
+        tau1 ==> alpha1 -> a -> b (size 3)
+        tau2 ==> alpha1 (size 1)
+        tau3 ==> alpha1 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 10): ((GHC.List.head [] (GHC.List.head (?? :: alpha3))) (?? :: alpha0))
+sub = {
+        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha1] (size 2)
+        tau0 ==> alpha1 -> alpha0 -> b (size 3)
+        tau1 ==> alpha1 -> alpha0 -> b (size 3)
+        tau2 ==> alpha1 (size 1)
+        tau3 ==> alpha1 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 10): ((((GHC.List.head (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha3 ==> [alpha2 -> alpha1 -> alpha0 -> b] (size 5)
+        tau0 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
+        tau1 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 11): (((GHC.List.head [] (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> alpha1 -> alpha0 -> b] (size 5)
+        tau0 ==> a -> alpha1 -> alpha0 -> b (size 4)
+        tau1 ==> a -> alpha1 -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] arg0 (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> a -> alpha0 -> b] (size 5)
+        tau0 ==> a -> a -> alpha0 -> b (size 4)
+        tau1 ==> a -> a -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 arg0 (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> a (size 1)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> a -> a -> b] (size 5)
+        tau0 ==> a -> a -> a -> b (size 4)
+        tau1 ==> a -> a -> a -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 10): ((((GHC.List.head (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha3 ==> [alpha2 -> alpha1 -> alpha0 -> b] (size 5)
+        tau0 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
+        tau1 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 11): (((GHC.List.head (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
+        tau0 ==> alpha1 -> alpha0 -> b (size 3)
+        tau1 ==> alpha1 -> alpha0 -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 11): (((GHC.List.head [] (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> alpha1 -> alpha0 -> b] (size 5)
+        tau0 ==> a -> alpha1 -> alpha0 -> b (size 4)
+        tau1 ==> a -> alpha1 -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+      } (size 4)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [[alpha0 -> b]] (size 4)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> [alpha0 -> b] (size 3)
+        tau2 ==> [alpha0 -> b] (size 3)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> alpha0 -> b] (size 4)
+        tau0 ==> a -> alpha0 -> b (size 3)
+        tau1 ==> a -> alpha0 -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> [tau2] (size 2)
+        alpha2 ==> [[tau2] -> alpha0 -> b] (size 5)
+        tau0 ==> [tau2] -> alpha0 -> b (size 4)
+        tau1 ==> [tau2] -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha1] (size 2)
+        tau0 ==> alpha1 -> alpha0 -> b (size 3)
+        tau1 ==> alpha1 -> alpha0 -> b (size 3)
+        tau2 ==> alpha1 (size 1)
+        tau3 ==> alpha1 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 12): ((GHC.List.head [] arg0 (?? :: alpha1)) (?? :: alpha0))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> a -> alpha0 -> b] (size 5)
+        tau0 ==> a -> a -> alpha0 -> b (size 4)
+        tau1 ==> a -> a -> alpha0 -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
+sub = {
+        alpha0 ==> [b] (size 2)
+        tau0 ==> b (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [b] (size 2)
+      } (size 5)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [[b]] (size 3)
+        alpha2 ==> [[[b]]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> [b] (size 2)
+        tau2 ==> [[b]] (size 3)
+        tau3 ==> [[b]] (size 3)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> [b]] (size 4)
+        tau0 ==> b (size 1)
+        tau1 ==> a -> [b] (size 3)
+        tau2 ==> a -> [b] (size 3)
+      } (size 7)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
+sub = {
+        alpha0 ==> [b] (size 2)
+        alpha1 ==> [tau3] (size 2)
+        alpha2 ==> [[tau3] -> [b]] (size 5)
+        tau0 ==> b (size 1)
+        tau1 ==> [tau3] -> [b] (size 4)
+        tau2 ==> [tau3] -> [b] (size 4)
+      } (size 9)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> [a -> b] (size 3)
+        tau0 ==> a -> b (size 2)
+        tau1 ==> a -> b (size 2)
+      } (size 4)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha0 ==> [tau2] -> tau2 (size 3)
+        alpha1 ==> [([tau2] -> tau2) -> b] (size 5)
+        tau0 ==> ([tau2] -> tau2) -> b (size 4)
+        tau1 ==> ([tau2] -> tau2) -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha0 ==> [tau2] (size 2)
+        alpha1 ==> [[tau2] -> b] (size 4)
+        tau0 ==> [tau2] -> b (size 3)
+        tau1 ==> [tau2] -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> [alpha0] (size 2)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
+sub = {
+        alpha1 ==> [alpha0 -> b] (size 3)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> alpha0] (size 3)
+        tau0 ==> alpha0 -> b (size 2)
+        tau1 ==> alpha0 -> b (size 2)
+        tau2 ==> a -> alpha0 (size 2)
+        tau3 ==> a -> alpha0 (size 2)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head (GHC.List.head []) (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> [a -> b] (size 3)
+        alpha2 ==> [[a -> b]] (size 4)
+        tau0 ==> a -> b (size 2)
+        tau1 ==> [a -> b] (size 3)
+        tau2 ==> [a -> b] (size 3)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> a -> b] (size 4)
+        tau0 ==> a -> a -> b (size 3)
+        tau1 ==> a -> a -> b (size 3)
+      } (size 6)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
+sub = {
+        alpha0 ==> [tau2] (size 2)
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> [tau2] -> b] (size 5)
+        tau0 ==> a -> [tau2] -> b (size 4)
+        tau1 ==> a -> [tau2] -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
+sub = {
+        alpha1 ==> a (size 1)
+        alpha2 ==> [a -> alpha0 -> b] (size 4)
+        alpha3 ==> [alpha0] (size 2)
+        tau0 ==> a -> alpha0 -> b (size 3)
+        tau1 ==> a -> alpha0 -> b (size 3)
+        tau2 ==> alpha0 (size 1)
+        tau3 ==> alpha0 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] [] (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> [tau2] (size 2)
+        alpha2 ==> [[tau2] -> a -> b] (size 5)
+        tau0 ==> [tau2] -> a -> b (size 4)
+        tau1 ==> [tau2] -> a -> b (size 4)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head []) (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha2 ==> [alpha1 -> a -> b] (size 4)
+        alpha3 ==> [alpha1] (size 2)
+        tau0 ==> alpha1 -> a -> b (size 3)
+        tau1 ==> alpha1 -> a -> b (size 3)
+        tau2 ==> alpha1 (size 1)
+        tau3 ==> alpha1 (size 1)
+      } (size 8)
+
+--------------------
+current trace (remaining quota: 13): (GHC.List.head [] arg0 arg0 (?? :: alpha0))
+sub = {
+        alpha0 ==> a (size 1)
+        alpha1 ==> a (size 1)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [a -> a -> a -> b] (size 5)
+        tau0 ==> a -> a -> a -> b (size 4)
+        tau1 ==> a -> a -> a -> b (size 4)
+      } (size 8)
+
+
+
+
+
+
+
 
 
 
@@ -185,6 +970,7 @@ more efficient, essentially depends on which one constrains the search more
 
 
 
+Way 3:
 
 Alternative approaches:  I think what you currently do with limiting the size
 of the whole substitution is similar to limiting the size of type
@@ -193,6 +979,23 @@ for the `alpha`s, i.e. the type variables invented by the synthesizer in
 E-mode, rather than those present in the components, and these instantiations
 we don’t necessarily want to keep small, because they correspond to inherent
 types of the components.
+
+sub
+
+tau2 ==> [tau1]
+tau3 ==> tau1 -> tau1
+
+tau1 ==> Int
+tau2 ==> [Int]
+tau3 ==> Int -> Int
+
+sub
+
+2 types of taus
+    * ones that come from freshVars
+            care about these
+    * ones that come from alpha -> T & alpha
+            don't care about these
 
 E.g. for a components like `catMaybes :: [Maybe a] -> a`, 
 we care to make `a` small, but we don’t necessarily care that it will be
@@ -212,14 +1015,16 @@ If you want to implement metric A, then one way to do this is to define the size
 term to include the size of type at each node (or only at variable nodes?)
 
 E.g. the size of `head [] :: Int` = 
-                size(type(head)) + size(type([])) + size (type(application node))
+                size(type(head)) + size(type([])) + size(type(whole thing))
               = size([?] -> Int) + size([?])      + size(Int) 
-              = 4                + 2               + 1
+              = 4                + 2              + 1
               = 7.
 
 Here I write ? for the type of list element because it remains
 uninstantiated. I consider `size(?) = 1` but actually now that I think about
 it: uninstantiated types should be discouraged or even disallowed out right!
+
+Way 4: 
 
 Side idea: prune programs with uninstantiated types. Similarly to how we prune
 programs with unused arguments, perhaps we should prune programs with “unused
@@ -237,6 +1042,80 @@ to check this:
 
 
 
+
+
+------------------------------------------------------------------------------------------------
+
+questions!!!
+
+Nadia quote: 
+
+Hello! Nadia, we know that you are on vacation so we don't expect an answer until you get back. We wanted to message here for your return (and while our question is still fresh in our heads). 
+
+We are trying to understand the document you gave us, specifically the following part of it: 
+
+"Do we want to discourage the synthesizer from using complex types in general (let’s call it metric A)? or just using polymorphic components in complex ways (let’s call it metric B)?"
+
+We want to make sure our understanding of the difference between Metric A and B are correct. 
+
+* is Metric A congruent with our old definition of "size of program's type": add all the sizes of types assigned to every fresh type variable
+* is Metric B congruent with the following definition of "size of program's type": add all the sizes of types assigned to every fresh type variable, *excluding* those alphas that come from splitting into `(?? :: alpha -> T) (?? :: alpha)`
+
+
+
+
+
+TODO for the rest of the day:
+
+- rewrite sizeOfProg to take our new sizeOfSub into acct
+- test if that works (print out the size of programs while synthesizing "Maybe(a->b)->a->b")
+- wrap up
+
+
+------------------------------------------------------------------------------------------------
+
+
+Now if we rewrite the unnatural term like `head (head (head []))`  for goal
+type `Int` in this way, we get: 
+
+    `head (head (head []))`   ==>
+    `head Int (head [Int] (head [[Int]] ([] [[Int]])))`
+
+    head (head (head [])) with...
+    head :: <a> . [a] -> a
+    head :: [tau0] -> tau0
+
+    Nil :: <a> . [a]
+    Nil :: tau3 . [tau3]
+
+    (head :: alpha0 -> Int) (?? :: alpha0)
+    (head :: [Int] -> Int) ((head :: alpha1 -> [Int]) (?? :: alpha1))
+    (head :: [Int] -> Int) ((head :: [[Int]] -> [Int]) (head :: alpha2 -> [[Int]]) (?? :: alpha2)))
+    (head :: [Int] -> Int) ((head :: [[Int]] -> [Int]) (head :: alpha2 -> [[Int]]) ([] :: [tau3])))
+      alpha2 ~ [tau3]
+      alpha2 ~ [[[Int]]]
+      so tau3 ~ [[Int]]
+    (head :: [Int] -> Int) ((head :: [[Int]] -> [Int]) (head :: alpha2 -> [[Int]]) ([] :: [[[Int]]])))
+    
+
+    alpha0 ==> [Int]
+    alpha1 ==> nothing
+    tau0 ==> Int        1
+    tau1 ==> [Int]      2
+    tau2 ==> [[Int]]    3
+    tau3 ==> [[Int]]    3
+
+    size of `head (head (head []))` is 4
+
+    total = 13
+
+synGuard "a -> b" ["Nil", "head"]
+
+
+
+Assuming size([T]) = 1 + size(T), the size of this term is now (1 + 1) + (1 +
+2) + (1 + 3) + (1 + 4) = 14, so hopefully we will encounter this program much
+later than a more reasonable program with 4 components.
 
 
 
