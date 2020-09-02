@@ -22,6 +22,7 @@ solution: "\\f xs -> Data.Either.partitionEithers (Data.List.map f xs)"
 
 
 
+
 mapMaybes
 synGuard' "(a -> Maybe b) -> [a] -> Maybe b" ["Data.Maybe.listToMaybe", "Data.Maybe.mapMaybe"] [(["\\x -> if x < 3 then Nothing else Just (x * x)", "[2,4,6]"], "Just 16")]
 solution: "\\f xs -> Data.Maybe.listToMaybe (Data.Maybe.mapMaybe f xs)"
@@ -87,9 +88,11 @@ solution: "\\x xs -> GHC.List.splitAt (Data.Maybe.fromMaybe (GHC.List.length [])
 
 -- this one errors a lot
 mbToEither
-synGuard' "Maybe a -> b -> Either a b" ["Data.Bool.bool", ".Right", ".Left", "Data.Maybe.fromJust", "Data.Maybe.isJust"] [([Nothing, "1"], "Right 1"), ([Just 2, "3"], "Left 2")]
+synGuard' "Maybe a -> b -> Either a b" ["Data.Bool.bool", ".Right", ".Left", "Data.Maybe.fromJust", "Data.Maybe.isJust"] [(["Nothing", "1"], "Right 1"), (["Just 2", "3"], "Left 2")]
+syn' "Maybe a -> b -> Either a b" [(["Nothing", "1"], "Right 1"), (["Just 2", "3"], "Left 2")]
 solution: "\\mb x -> Data.Bool.bool (Right x) (Left (Data.Maybe.fromJust mb)) (Data.Maybe.isJust mb)"
-
+solution: "\\arg0 arg1 -> Data.Bool.bool (Right arg1) (Left (Data.Maybe.fromJust arg0)) (Data.Maybe.isJust arg0)"
+                          Data.Bool.bool (Right arg1) (Left (Data.Maybe.fromJust arg0)) (Data.Maybe.isJust arg0)
 
 cartProduct
 synGuard' "[a] -> [b] -> [[(a,b)]]" ["GHC.List.map", "GHC.List.map", "Pair"] [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
@@ -198,10 +201,9 @@ synGuardO' "b -> (a -> b) -> [a] -> b" ["fst", "sum"] [(["2", "\\x -> x * x", "[
 syn' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 synO' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 solution: "\\x f xs -> Data.Maybe.maybe x f (Data.Maybe.listToMaybe xs)"
+                        Data.Maybe.maybe arg0 arg1 (Data.Maybe.listToMaybe arg2)    
 
 stack run -- hplus topdown --json='{"query": "b -> (a -> b) -> [a] -> b", "inExamples": [ {"inputs": ["2", "\\x -> x * x", "[3,4,5]"], "output":"9"}, {"inputs": ["2", "\\x -> x * x", "[]"], "output":"2"} ]}' --disable-memoize
-
-
 
 (Quota 5) Done with <b> . <a> . (b -> (((a -> b)) -> ([a] -> b)))!
 size    subSize solution

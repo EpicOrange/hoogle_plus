@@ -1,807 +1,670 @@
 {-
 
 
+> synGuard "Maybe (a->b) -> a -> b" ["fromJust", "fst"]
 
 ==================
 Starting!
-Arguments: fromList [("arg0",a)]
+Arguments: fromList [("arg0",Maybe (((a -> b)))),("arg1",a)]
 Goal: b
 ==================
 
-running dfs on <b> . <a> . (a -> b) at size 13
---------------------
-current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 2
+args to dfs: (EMode,fromList [],2,b)
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 4
+args to dfs: (EMode,fromList [],4,b)
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha0 -> b))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+-----------------
+args to dfs: (IMode,fromList [],3,Maybe (b))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha1 -> Maybe (b)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],3,(b , tau0))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha1 -> (b , tau0)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],3,(b , tau0))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha1 -> (b , tau0)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+-----------------
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 6
+args to dfs: (EMode,fromList [],6,b)
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha0 -> b))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+-----------------
+args to dfs: (IMode,fromList [],5,Maybe (b))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],3,(alpha1 -> Maybe (b)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha2 -> (alpha1 -> Maybe (b))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (((?? :: (alpha2 -> (alpha1 -> Maybe (b)))) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],5,(b , tau0))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],3,(alpha1 -> (b , tau0)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha2 -> (alpha1 -> (b , tau0))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],5,(b , tau0))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],3,(alpha1 -> (b , tau0)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha2 -> (alpha1 -> (b , tau0))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha1 -> (alpha0 -> b)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+-----------------
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 8
+args to dfs: (EMode,fromList [],8,b)
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+args to dfs: (EMode,fromList [],6,(alpha0 -> b))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+-----------------
+args to dfs: (IMode,fromList [],7,Maybe (b))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],5,(alpha1 -> Maybe (b)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],6,Maybe ((Maybe (b))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Maybe.fromJust (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> Maybe ((Maybe (b)))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Maybe.fromJust (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe ((Maybe (b))))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> Maybe ((Maybe (b))))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Maybe.fromJust (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe ((Maybe (b))))) (?? :: alpha2))))
+(Data.Maybe.fromJust (Data.Maybe.fromJust (((?? :: (alpha3 -> (alpha2 -> Maybe ((Maybe (b)))))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (IMode,fromList [],6,(Maybe (b) , tau1))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Tuple.fst (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> (Maybe (b) , tau1)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Tuple.fst (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Tuple.fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> (Maybe (b) , tau1))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Tuple.fst (?? :: alpha1)))
+(Data.Maybe.fromJust (Data.Tuple.fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
+(Data.Maybe.fromJust (Data.Tuple.fst (((?? :: (alpha3 -> (alpha2 -> (Maybe (b) , tau1)))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (IMode,fromList [],6,(Maybe (b) , tau1))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (fst (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> (Maybe (b) , tau1)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (fst (?? :: alpha1)))
+(Data.Maybe.fromJust (fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> (Maybe (b) , tau1))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (fst (?? :: alpha1)))
+(Data.Maybe.fromJust (fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
+(Data.Maybe.fromJust (fst (((?? :: (alpha3 -> (alpha2 -> (Maybe (b) , tau1)))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],3,(alpha2 -> (alpha1 -> Maybe (b))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (((?? :: (alpha2 -> (alpha1 -> Maybe (b)))) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha3 -> (alpha2 -> (alpha1 -> Maybe (b)))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+(Data.Maybe.fromJust (((?? :: (alpha2 -> (alpha1 -> Maybe (b)))) (?? :: alpha2)) (?? :: alpha1)))
+(Data.Maybe.fromJust ((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> Maybe (b))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],7,(b , tau0))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],5,(alpha1 -> (b , tau0)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],6,Maybe (((b , tau0))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (Data.Maybe.fromJust (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> Maybe (((b , tau0)))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (Data.Maybe.fromJust (?? :: alpha1)))
+(Data.Tuple.fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> Maybe (((b , tau0))))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (Data.Maybe.fromJust (?? :: alpha1)))
+(Data.Tuple.fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
+(Data.Tuple.fst (Data.Maybe.fromJust (((?? :: (alpha3 -> (alpha2 -> Maybe (((b , tau0)))))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (Data.Tuple.fst (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (Data.Tuple.fst (?? :: alpha1)))
+(Data.Tuple.fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (Data.Tuple.fst (?? :: alpha1)))
+(Data.Tuple.fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+(Data.Tuple.fst (Data.Tuple.fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (fst (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (fst (?? :: alpha1)))
+(Data.Tuple.fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (fst (?? :: alpha1)))
+(Data.Tuple.fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+(Data.Tuple.fst (fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],3,(alpha2 -> (alpha1 -> (b , tau0))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha3 -> (alpha2 -> (alpha1 -> (b , tau0)))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Tuple.fst (?? :: alpha0))
+(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(Data.Tuple.fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
+(Data.Tuple.fst ((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (b , tau0))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],7,(b , tau0))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+-----------------
+args to dfs: (EMode,fromList [],5,(alpha1 -> (b , tau0)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+-----------------
+args to dfs: (IMode,fromList [],6,Maybe (((b , tau0))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (Data.Maybe.fromJust (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> Maybe (((b , tau0)))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (Data.Maybe.fromJust (?? :: alpha1)))
+(fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> Maybe (((b , tau0))))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (Data.Maybe.fromJust (?? :: alpha1)))
+(fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
+(fst (Data.Maybe.fromJust (((?? :: (alpha3 -> (alpha2 -> Maybe (((b , tau0)))))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (Data.Tuple.fst (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (Data.Tuple.fst (?? :: alpha1)))
+(fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (Data.Tuple.fst (?? :: alpha1)))
+(fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+(fst (Data.Tuple.fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (fst (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (fst (?? :: alpha1)))
+(fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (fst (?? :: alpha1)))
+(fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
+(fst (fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],3,(alpha2 -> (alpha1 -> (b , tau0))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha3 -> (alpha2 -> (alpha1 -> (b , tau0)))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(fst (?? :: alpha0))
+(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
+(fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
+(fst ((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (b , tau0))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],4,(alpha1 -> (alpha0 -> b)))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+-----------------
+args to dfs: (IMode,fromList [],5,Maybe (((alpha0 -> b))))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((Data.Maybe.fromJust (?? :: alpha1)) (?? :: alpha0))
+-----------------
+args to dfs: (IMode,fromList [],6,a)
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((Data.Maybe.fromJust (?? :: alpha1)) (?? :: alpha0))
+(Data.Maybe.fromJust arg0 (?? :: alpha0))
+-----------------
+RESULTS:{"outCandidates":[{"outExamples":[],"solution":"\\arg0 arg1 -> Data.Maybe.fromJust arg0 arg1"}],"outDocs":[{"functionSig":"HasCallStack => Maybe a -> a","functionName":"fromJust","functionDesc":"The fromJust function extracts the element out of a Just\nand throws an error if its argument is Nothing.\n\nExamples\n\nBasic usage:\n\n\n>>> fromJust (Just 1)\n1\n\n\n\n>>> 2 * (fromJust (Just 10))\n20\n\n\n\n>>> 2 * (fromJust Nothing)\n*** Exception: Maybe.fromJust: Nothing\n\n"},{"functionSig":"Maybe (((a -> b)))","functionName":"arg0","functionDesc":""},{"functionSig":"a","functionName":"arg1","functionDesc":""}],"outError":""}
+
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((Data.Maybe.fromJust (?? :: alpha1)) (?? :: alpha0))
+(Data.Maybe.fromJust arg0 (?? :: alpha0))
+Data.Maybe.fromJust arg0 arg1
+-----------------
+
+(Quota 8) Done with <b> . <a> . (Maybe (((a -> b))) -> (a -> b))!
+size +  subSize solution
+3       2       Data.Maybe.fromJust arg0 arg1
+
 sub = {
-        alpha0 ==> [b] (size 2)
-        tau0 ==> b (size 1)
-        tau1 ==> b (size 1)
+        alpha0 ==> a (size 1)
+        alpha1 ==> Maybe (a -> b) (size 3)
+        tau0 ==> a -> b (size 2)
       } (size 2)
 
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [b] (size 2)
-      } (size 5)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (GHC.List.head (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [b] (size 2)
-      } (size 5)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        alpha2 ==> [[[b]]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [[b]] (size 3)
-        tau3 ==> [[b]] (size 3)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        alpha2 ==> [[[b]]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [[b]] (size 3)
-        tau3 ==> [[b]] (size 3)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        alpha2 ==> [[[b]]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [[b]] (size 3)
-        tau3 ==> [[b]] (size 3)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head (GHC.List.head (GHC.List.head (?? :: alpha2))))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        alpha2 ==> [[[b]]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [[b]] (size 3)
-        tau3 ==> [[b]] (size 3)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head ((GHC.List.head (?? :: alpha2)) (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha2 ==> [alpha1 -> [b]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> alpha1 -> [b] (size 3)
-        tau2 ==> alpha1 -> [b] (size 3)
-      } (size 7)
-
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> [b]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> a -> [b] (size 3)
-        tau2 ==> a -> [b] (size 3)
-      } (size 7)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> [b]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> a -> [b] (size 3)
-        tau2 ==> a -> [b] (size 3)
-      } (size 7)
-
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [tau3] (size 2)
-        alpha2 ==> [[tau3] -> [b]] (size 5)
-        tau0 ==> b (size 1)
-        tau1 ==> [tau3] -> [b] (size 4)
-        tau2 ==> [tau3] -> [b] (size 4)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [tau3] (size 2)
-        alpha2 ==> [[tau3] -> [b]] (size 5)
-        tau0 ==> b (size 1)
-        tau1 ==> [tau3] -> [b] (size 4)
-        tau2 ==> [tau3] -> [b] (size 4)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head ((GHC.List.head (?? :: alpha2)) (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha2 ==> [alpha1 -> [b]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> alpha1 -> [b] (size 3)
-        tau2 ==> alpha1 -> [b] (size 3)
-      } (size 7)
-
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [b] (size 2)
-      } (size 5)
-
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        alpha2 ==> [[[b]]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [[b]] (size 3)
-        tau3 ==> [[b]] (size 3)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> [b]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> a -> [b] (size 3)
-        tau2 ==> a -> [b] (size 3)
-      } (size 7)
-
---------------------
-current trace (remaining quota: 12): (GHC.List.head (GHC.List.head [] (?? :: alpha1)))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [tau3] (size 2)
-        alpha2 ==> [[tau3] -> [b]] (size 5)
-        tau0 ==> b (size 1)
-        tau1 ==> [tau3] -> [b] (size 4)
-        tau2 ==> [tau3] -> [b] (size 4)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-      } (size 4)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> [a -> b] (size 3)
-        tau0 ==> a -> b (size 2)
-        tau1 ==> a -> b (size 2)
-      } (size 4)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha0 ==> [tau2] -> tau2 (size 3)
-        alpha1 ==> [([tau2] -> tau2) -> b] (size 5)
-        tau0 ==> ([tau2] -> tau2) -> b (size 4)
-        tau1 ==> ([tau2] -> tau2) -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha0 ==> [tau2] (size 2)
-        alpha1 ==> [[tau2] -> b] (size 4)
-        tau0 ==> [tau2] -> b (size 3)
-        tau1 ==> [tau2] -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [alpha0] (size 2)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [alpha0] (size 2)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 10): (GHC.List.head [] ((GHC.List.head (?? :: alpha3)) (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha3 ==> [alpha2 -> alpha0] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> alpha2 -> alpha0 (size 2)
-        tau3 ==> alpha2 -> alpha0 (size 2)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head [] (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> alpha0] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> a -> alpha0 (size 2)
-        tau3 ==> a -> alpha0 (size 2)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head [] (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> alpha0] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> a -> alpha0 (size 2)
-        tau3 ==> a -> alpha0 (size 2)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 10): (GHC.List.head [] ((GHC.List.head (?? :: alpha3)) (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha3 ==> [alpha2 -> alpha0] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> alpha2 -> alpha0 (size 2)
-        tau3 ==> alpha2 -> alpha0 (size 2)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [alpha0] (size 2)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 11): (GHC.List.head [] (GHC.List.head [] (?? :: alpha2)))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> alpha0] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> a -> alpha0 (size 2)
-        tau3 ==> a -> alpha0 (size 2)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 11): ((GHC.List.head (GHC.List.head (?? :: alpha2))) (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [[alpha0 -> b]] (size 4)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> [alpha0 -> b] (size 3)
-        tau2 ==> [alpha0 -> b] (size 3)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head (GHC.List.head (?? :: alpha2))) (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [[alpha0 -> b]] (size 4)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> [alpha0 -> b] (size 3)
-        tau2 ==> [alpha0 -> b] (size 3)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (GHC.List.head []) (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> [a -> b] (size 3)
-        alpha2 ==> [[a -> b]] (size 4)
-        tau0 ==> a -> b (size 2)
-        tau1 ==> [a -> b] (size 3)
-        tau2 ==> [a -> b] (size 3)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 11): ((GHC.List.head (GHC.List.head (?? :: alpha2))) (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [[alpha0 -> b]] (size 4)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> [alpha0 -> b] (size 3)
-        tau2 ==> [alpha0 -> b] (size 3)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 11): (((GHC.List.head (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
-        tau0 ==> alpha1 -> alpha0 -> b (size 3)
-        tau1 ==> alpha1 -> alpha0 -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> alpha0 -> b] (size 4)
-        tau0 ==> a -> alpha0 -> b (size 3)
-        tau1 ==> a -> alpha0 -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> a -> b] (size 4)
-        tau0 ==> a -> a -> b (size 3)
-        tau1 ==> a -> a -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
-sub = {
-        alpha0 ==> [tau2] (size 2)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> [tau2] -> b] (size 5)
-        tau0 ==> a -> [tau2] -> b (size 4)
-        tau1 ==> a -> [tau2] -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 10): (GHC.List.head [] arg0 (GHC.List.head (?? :: alpha3)))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha0] (size 2)
-        tau0 ==> a -> alpha0 -> b (size 3)
-        tau1 ==> a -> alpha0 -> b (size 3)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 (GHC.List.head (?? :: alpha3)))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha0] (size 2)
-        tau0 ==> a -> alpha0 -> b (size 3)
-        tau1 ==> a -> alpha0 -> b (size 3)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 10): (GHC.List.head [] arg0 (GHC.List.head (?? :: alpha3)))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha0] (size 2)
-        tau0 ==> a -> alpha0 -> b (size 3)
-        tau1 ==> a -> alpha0 -> b (size 3)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> [tau2] (size 2)
-        alpha2 ==> [[tau2] -> alpha0 -> b] (size 5)
-        tau0 ==> [tau2] -> alpha0 -> b (size 4)
-        tau1 ==> [tau2] -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] [] (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> [tau2] (size 2)
-        alpha2 ==> [[tau2] -> a -> b] (size 5)
-        tau0 ==> [tau2] -> a -> b (size 4)
-        tau1 ==> [tau2] -> a -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 10): ((GHC.List.head [] (GHC.List.head (?? :: alpha3))) (?? :: alpha0))
-sub = {
-        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha1] (size 2)
-        tau0 ==> alpha1 -> alpha0 -> b (size 3)
-        tau1 ==> alpha1 -> alpha0 -> b (size 3)
-        tau2 ==> alpha1 (size 1)
-        tau3 ==> alpha1 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] (GHC.List.head (?? :: alpha3))) (?? :: alpha0))
-sub = {
-        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha1] (size 2)
-        tau0 ==> alpha1 -> alpha0 -> b (size 3)
-        tau1 ==> alpha1 -> alpha0 -> b (size 3)
-        tau2 ==> alpha1 (size 1)
-        tau3 ==> alpha1 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head []) (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha2 ==> [alpha1 -> a -> b] (size 4)
-        alpha3 ==> [alpha1] (size 2)
-        tau0 ==> alpha1 -> a -> b (size 3)
-        tau1 ==> alpha1 -> a -> b (size 3)
-        tau2 ==> alpha1 (size 1)
-        tau3 ==> alpha1 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 10): ((GHC.List.head [] (GHC.List.head (?? :: alpha3))) (?? :: alpha0))
-sub = {
-        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha1] (size 2)
-        tau0 ==> alpha1 -> alpha0 -> b (size 3)
-        tau1 ==> alpha1 -> alpha0 -> b (size 3)
-        tau2 ==> alpha1 (size 1)
-        tau3 ==> alpha1 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 10): ((((GHC.List.head (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha3 ==> [alpha2 -> alpha1 -> alpha0 -> b] (size 5)
-        tau0 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
-        tau1 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 11): (((GHC.List.head [] (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> alpha1 -> alpha0 -> b] (size 5)
-        tau0 ==> a -> alpha1 -> alpha0 -> b (size 4)
-        tau1 ==> a -> alpha1 -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] arg0 (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> a -> alpha0 -> b] (size 5)
-        tau0 ==> a -> a -> alpha0 -> b (size 4)
-        tau1 ==> a -> a -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 arg0 (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> a (size 1)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> a -> a -> b] (size 5)
-        tau0 ==> a -> a -> a -> b (size 4)
-        tau1 ==> a -> a -> a -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 10): ((((GHC.List.head (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha3 ==> [alpha2 -> alpha1 -> alpha0 -> b] (size 5)
-        tau0 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
-        tau1 ==> alpha2 -> alpha1 -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 11): (((GHC.List.head (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
-        tau0 ==> alpha1 -> alpha0 -> b (size 3)
-        tau1 ==> alpha1 -> alpha0 -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 11): (((GHC.List.head [] (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> alpha1 -> alpha0 -> b] (size 5)
-        tau0 ==> a -> alpha1 -> alpha0 -> b (size 4)
-        tau1 ==> a -> alpha1 -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-      } (size 4)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [[alpha0 -> b]] (size 4)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> [alpha0 -> b] (size 3)
-        tau2 ==> [alpha0 -> b] (size 3)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> alpha0 -> b] (size 4)
-        tau0 ==> a -> alpha0 -> b (size 3)
-        tau1 ==> a -> alpha0 -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> [tau2] (size 2)
-        alpha2 ==> [[tau2] -> alpha0 -> b] (size 5)
-        tau0 ==> [tau2] -> alpha0 -> b (size 4)
-        tau1 ==> [tau2] -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha2 ==> [alpha1 -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha1] (size 2)
-        tau0 ==> alpha1 -> alpha0 -> b (size 3)
-        tau1 ==> alpha1 -> alpha0 -> b (size 3)
-        tau2 ==> alpha1 (size 1)
-        tau3 ==> alpha1 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 12): ((GHC.List.head [] arg0 (?? :: alpha1)) (?? :: alpha0))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> a -> alpha0 -> b] (size 5)
-        tau0 ==> a -> a -> alpha0 -> b (size 4)
-        tau1 ==> a -> a -> alpha0 -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
-sub = {
-        alpha0 ==> [b] (size 2)
-        tau0 ==> b (size 1)
-        tau1 ==> b (size 1)
-      } (size 2)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [b] (size 2)
-      } (size 5)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [[b]] (size 3)
-        alpha2 ==> [[[b]]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> [b] (size 2)
-        tau2 ==> [[b]] (size 3)
-        tau3 ==> [[b]] (size 3)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> [b]] (size 4)
-        tau0 ==> b (size 1)
-        tau1 ==> a -> [b] (size 3)
-        tau2 ==> a -> [b] (size 3)
-      } (size 7)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (?? :: alpha0))
-sub = {
-        alpha0 ==> [b] (size 2)
-        alpha1 ==> [tau3] (size 2)
-        alpha2 ==> [[tau3] -> [b]] (size 5)
-        tau0 ==> b (size 1)
-        tau1 ==> [tau3] -> [b] (size 4)
-        tau2 ==> [tau3] -> [b] (size 4)
-      } (size 9)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> [a -> b] (size 3)
-        tau0 ==> a -> b (size 2)
-        tau1 ==> a -> b (size 2)
-      } (size 4)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha0 ==> [tau2] -> tau2 (size 3)
-        alpha1 ==> [([tau2] -> tau2) -> b] (size 5)
-        tau0 ==> ([tau2] -> tau2) -> b (size 4)
-        tau1 ==> ([tau2] -> tau2) -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha0 ==> [tau2] (size 2)
-        alpha1 ==> [[tau2] -> b] (size 4)
-        tau0 ==> [tau2] -> b (size 3)
-        tau1 ==> [tau2] -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> [alpha0] (size 2)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (?? :: alpha0))
-sub = {
-        alpha1 ==> [alpha0 -> b] (size 3)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> alpha0] (size 3)
-        tau0 ==> alpha0 -> b (size 2)
-        tau1 ==> alpha0 -> b (size 2)
-        tau2 ==> a -> alpha0 (size 2)
-        tau3 ==> a -> alpha0 (size 2)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head (GHC.List.head []) (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> [a -> b] (size 3)
-        alpha2 ==> [[a -> b]] (size 4)
-        tau0 ==> a -> b (size 2)
-        tau1 ==> [a -> b] (size 3)
-        tau2 ==> [a -> b] (size 3)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> a -> b] (size 4)
-        tau0 ==> a -> a -> b (size 3)
-        tau1 ==> a -> a -> b (size 3)
-      } (size 6)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
-sub = {
-        alpha0 ==> [tau2] (size 2)
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> [tau2] -> b] (size 5)
-        tau0 ==> a -> [tau2] -> b (size 4)
-        tau1 ==> a -> [tau2] -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 (?? :: alpha0))
-sub = {
-        alpha1 ==> a (size 1)
-        alpha2 ==> [a -> alpha0 -> b] (size 4)
-        alpha3 ==> [alpha0] (size 2)
-        tau0 ==> a -> alpha0 -> b (size 3)
-        tau1 ==> a -> alpha0 -> b (size 3)
-        tau2 ==> alpha0 (size 1)
-        tau3 ==> alpha0 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] [] (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> [tau2] (size 2)
-        alpha2 ==> [[tau2] -> a -> b] (size 5)
-        tau0 ==> [tau2] -> a -> b (size 4)
-        tau1 ==> [tau2] -> a -> b (size 4)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] (GHC.List.head []) (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha2 ==> [alpha1 -> a -> b] (size 4)
-        alpha3 ==> [alpha1] (size 2)
-        tau0 ==> alpha1 -> a -> b (size 3)
-        tau1 ==> alpha1 -> a -> b (size 3)
-        tau2 ==> alpha1 (size 1)
-        tau3 ==> alpha1 (size 1)
-      } (size 8)
-
---------------------
-current trace (remaining quota: 13): (GHC.List.head [] arg0 arg0 (?? :: alpha0))
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> a (size 1)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [a -> a -> a -> b] (size 5)
-        tau0 ==> a -> a -> a -> b (size 4)
-        tau1 ==> a -> a -> a -> b (size 4)
-      } (size 8)
-
-
-
-
-
-
-
-
+(2.24 secs, 235,030,712 bytes)
+> 
 
 
 
@@ -1126,14 +989,15 @@ TODO later stuff
 for after we finish stuff above
 
 (can ignore for now since we're ignoring memo for now lol)
--- Memo and free variables in goals: A related thing to think about is how we
--- memoize goals with free type variables. One question we already discussed: we
--- might be missing out on memoized results because free type variables might be
--- too fresh. Another facet is: we might have a goal like `Int → Int` which is a
--- “sub-goal” of `alpha → Int` (i.e. the results for the former are a subset of
--- the results for the latter). Can we store our memo results in some kind of
--- lattice so that we can efficiently recall not only `alpha → Int` but also
--- results for all instantiations thereof? 
+
+Memo and free variables in goals: A related thing to think about is how we
+memoize goals with free type variables. One question we already discussed: we
+might be missing out on memoized results because free type variables might be
+too fresh. Another facet is: we might have a goal like `Int → Int` which is a
+“sub-goal” of `alpha → Int` (i.e. the results for the former are a subset of
+the results for the latter). Can we store our memo results in some kind of
+lattice so that we can efficiently recall not only `alpha → Int` but also
+results for all instantiations thereof? 
 
 
 ------------------------

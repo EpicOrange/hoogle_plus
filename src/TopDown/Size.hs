@@ -18,6 +18,9 @@ import Data.List
 
 -- | gets the size of a program
 
+sizeOfProg' :: (Monad m) => RProgram -> StateT CheckerState m Int
+sizeOfProg' p = return $ sizeOfContent p
+
 sizeOfProg :: (Monad m) => RProgram -> StateT CheckerState m Int
 sizeOfProg p = do
   subSize <- sizeOfSub
@@ -63,6 +66,17 @@ sizeOfType t =
 
 -- | gets the size of the typeAssignment substitution map
 -- TODO is this metric B now? 
+sizeOfSub' :: (Monad m) => StateT CheckerState m Int
+sizeOfSub' = do
+  st <- get
+  let sub = st ^. typeAssignment :: Map Id SType
+  -- let sub' = Map.filterWithKey (\id _ -> "tau" `isPrefixOf` id) sub
+  return $ Map.foldr f 0 sub
+  where
+    f :: SType -> Int -> Int
+    f t acc = sizeOfType t + acc
+
+-- new version
 sizeOfSub :: (Monad m) => StateT CheckerState m Int
 sizeOfSub = do
   st <- get

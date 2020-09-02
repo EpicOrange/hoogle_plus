@@ -45,6 +45,11 @@ syn :: String -> IO ()
 syn inStr = syn' inStr []
 -- What if we can pass the guardInclude list into here??? :D
   
+-- default search params when calling syn
+searchP :: SearchParams
+searchP = defaultSearchParams {_topDownEnableDebug = False, _topDownUseMemoize = False}
+
+
 synGuard :: String -> [String] -> IO ()
 synGuard inStr guards = do
   env' <- readEnv $ envPath defaultSynquidParams
@@ -52,7 +57,6 @@ synGuard inStr guards = do
   let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
   goal <- envToGoal (env { _symbols = rawSyms}) inStr
   solverChan <- newChan
-  let searchP = defaultSearchParams {_topDownEnableDebug = True}
   synthesize searchP goal [] solverChan
 
 -- usage:
@@ -69,7 +73,6 @@ syn' inStr ex = do
   goal <- envToGoal env inStr
   solverChan <- newChan
   let examples = map (uncurry Example) ex
-  let searchP = defaultSearchParams {_topDownEnableDebug = True}
   synthesize searchP goal examples solverChan
 
 synGuard' :: String -> [String] -> [([String], String)] -> IO ()
@@ -80,7 +83,6 @@ synGuard' inStr guards ex = do
   goal <- envToGoal (env { _symbols = rawSyms}) inStr
   solverChan <- newChan
   let examples = map (uncurry Example) ex
-  let searchP = defaultSearchParams {_topDownEnableDebug = True}
   synthesize searchP goal examples solverChan
 
 synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
@@ -179,13 +181,13 @@ memoizeProgram mode quota args goalType compute = do
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [1..]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [2,4..]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
 
   -- plotted our tests, and solutions tend to have sub size = 3.7 * program size
   -- tests say (sub quota = 3 * program size quota) is best
-  solution <- dfs EMode env Map.empty messageChan searchParams quota (quota * 3) goalType :: TopDownSolver IO RProgram
+  solution <- dfs EMode env Map.empty messageChan searchParams quota {-(quota * 3)-} goalType :: TopDownSolver IO RProgram
   lift $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
 
   -- check if the program has all the arguments that it should have (avoids calling check)  
@@ -255,16 +257,20 @@ printSub = do
 --    * if is a function type, add args to env, search for the return type, and return a lambda 
 --    * if not, search in e-mode
 --
-dfs :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> Int -> Int -> RType -> TopDownSolver IO RProgram
-dfs mode env args messageChan searchParams sizeQuota subQuota goalType 
+dfs :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> Int {- -> Int-} -> RType -> TopDownSolver IO RProgram
+dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType 
   | sizeQuota <= 0 = mzero
-  | useMemoize     = memoizeProgram mode sizeQuota args goalType doDfs
+  | useMemoize     = error "broken, don't use memoize" -- memoizeProgram mode sizeQuota args goalType doDfs
   | otherwise      = doDfs
   where
 
     -- | does DFS without memoization
     doDfs :: TopDownSolver IO RProgram
     doDfs = do
+      debug $ printf "args to dfs: %s\n" (show $ (mode, args, sizeQuota, goalType))
+      when enableDebug $ lift printGoalTrace
+      -- holedProgram <- head <$> lift get
+      -- debug $ printf "%s -> %s\n" (show goalType) (show holedProgram)
       memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
       prog <- inEnv `mplus` doSplit mode
       guardCheck prog
@@ -301,7 +307,7 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
         -- we're synthesizing the body for the lambda
         -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
         lift $ addLam argName (show tArg)
-        body <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) subQuota tBody
+        body <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) {-subQuota-} tBody
 
         let program = Program { content = PFun argName body, typeOf = goalType }
         progSize <- sizeOfProg program
@@ -324,9 +330,11 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
       holedProgram <- head <$> lift get
       lift $ addApp (show schema) (show alpha)
       
-      -- subtract 1 from quota since the second term should be at least size 1
-      alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 1) subQuota schema :: TopDownSolver IO RProgram
-      
+      -- subtract 2; we may be setting the quota too low if alphaTProgram happens to be size 1,
+      -- but that's rare, and we'll solve it in the next iteration anyways
+      -- the time savings are worth it
+      alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 2) {-subQuota-} schema :: TopDownSolver IO RProgram
+      -- debug $ printf "here!! %s\n" (show alphaTProgram)
       -- holedProgram <- head <$> lift get
       -- debug $ printf "-----\ntypeOf alphaTProgram (%s) = %s\n      %s\n" (show alphaTProgram) (show $ typeOf alphaTProgram) (show holedProgram)
 
@@ -335,7 +343,7 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
       
       lift $ addAppFilled alphaTProgram (show alpha) holedProgram
 
-      alphaProgram <- dfs IMode env args messageChan searchParams (sizeQuota - sizeOfContent alphaTProgram) subQuota alphaSub :: TopDownSolver IO RProgram
+      alphaProgram <- dfs IMode env args messageChan searchParams (sizeQuota - sizeOfContent alphaTProgram) {-subQuota-} alphaSub :: TopDownSolver IO RProgram
       -- holedProgram <- head <$> lift get
       -- debug $ printf "typeOf alphaProgram (%s) = %s\n      %s\n" (show alphaProgram) (show $ typeOf alphaProgram) (show holedProgram)
       -- debug $ printf "--------------------\n"
@@ -357,7 +365,7 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
       let showProg = show prog
       let uselessSubPrograms = -- these all error or are redundant
                                [ "Data.Maybe.fromJust Data.Maybe.Nothing"
-                              --  , "GHC.List.head []"
+                               , "GHC.List.head []"
                               --  , "GHC.List.head arg0" -- TODO remove this
                                , "GHC.List.last []"
                                , "GHC.List.tail []"
@@ -382,7 +390,7 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
       progSize <- sizeOfProg prog
       guard (progSize <= sizeQuota) 
       -- subSize <- sizeOfSub
-      -- guard (subSize <= 45) -- we never go past quota 15 anyways
+      -- guard (subSize <= {-subQuota-})
 
 
     -- | Using the components in env, like ("length", <a>. [a] -> Int)
@@ -404,7 +412,7 @@ dfs mode env args messageChan searchParams sizeQuota subQuota goalType
 
       let subbedType = stypeSubstitute sub (shape freshVars)
       -- debug $ printf "quota %d %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
-      --   sizeQuota subQuota id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
+      --   sizeQuota {-subQuota-} id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
       
       guard =<< use isChecked
       return (id, subbedType)
