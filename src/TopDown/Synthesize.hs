@@ -11,6 +11,7 @@ import TopDown.GoalTrace
 import HooglePlus.GHCChecker (check)
 import HooglePlus.Synthesize (envToGoal)
 import Database.Convert (addTrue)
+import Data.Maybe (fromJust)
 import Synquid.Program
 import Synquid.Logic
 import Synquid.Type
@@ -126,8 +127,15 @@ synthesize searchParams goal examples messageChan = do
     writeChan messageChan (MesgClose CSNormal)
 
 data SynMode = IMode | EMode deriving (Eq, Ord, Show)
--- MemoMap: (mode, query, quota, args, sub) ==> (program), sub
-type MemoMap = Map (SynMode, RType, Int, Map Id RType, Map Id SType) (Logic (RProgram, Map Id SType))
+data MemoKey = MemoKey {
+    _mode :: SynMode,
+    _goalType :: RType,
+    _quota :: Int,
+    _args :: Map Id RType,
+    _sub :: Map Id SType
+  } deriving (Eq, Ord)
+-- MemoMap:        MemoKey ==> stream of (program,  sub)
+type MemoMap = Map MemoKey     (Logic    (RProgram, Map Id SType))
 type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT MemoMap m)))
 
 evalTopDownSolver :: Monad m => RType -> Chan Message -> [TopDownSolver m a] -> m a
@@ -141,42 +149,164 @@ evalTopDownSolver goalType messageChan m =
 choices :: (Traversable f, MonadPlus m) => f a -> m a
 choices = msum . fmap return
 
+-- evaluate runs `compute` until completion so it can have all of the results
+-- evaluate adds one program at a time to the memo map ????
+-- problem with adding one at a time: while calculating a goal T, if you later
+--   encounter goal T again, then you will return a partial result
+-- problem with using a flag to mark incomplete memo map items:
+--   what do you do when the flag says incomplete??
+--   do you double add? do you recompute and ignore memoization?
+{-
+  -----
+  New way!!! store it at the actual size of the program instead of the quota
+  like the bank for bottom up
+  -----
+
+  (?? :: T1 at quota 3)
+    <- lookup (3, T1)   from the old map
+    f (?? :: T2 at quota 2)
+      a :: T2      quota 2
+        send (f a) through check
+          (1, T2) ==> [a] (incomplete)
+          (2, T1) ==> [f a] (incomplete)
+      b :: T2      quota 2
+        send (f b) through check
+          (1, T2) ==> [a, b] (incomplete)
+          (2, T1) ==> [f a, f b] (incomplete)    <- we don't want to redo this work!!
+      mzero
+        mark T2 at quota 2 complete here
+          (1, T2) ==> [a, b] (complete)
+          (2, T2) ==> [] (complete)
+    g (?? :: T1 at quota 2)
+      we see (1, T1), (2, T1), and we see
+      (2, T1) ==> [f a, f b] (incomplete)    <- we don't want to redo this work!!
+      -- just keep going, ignoring the memo map
+      f (?? :: T2 at quota 1)
+        (1, T2) ==> [a, b] (complete)
+        (2, T1) ==> [f a, f b] (incomplete)   <- overwrite existing
+          [f a, f b] <- return this, but it's incomplete
+            so we will re-evaluate everything and get:
+          f a <- don't return it (guard)
+          f b <- don't return it (guard)
+          g (f a) <- add and return it   (hypothetically, but doesn't happen in this example)
+        (2, T1) ==> [f a, f b] (incomplete)
+        mzero
+          mark T2 at quota 1 complete here
+            (this is redundant)
+      g (?? :: T1 at quota 1)
+        mzero
+          mark T1 at quota 1 as complete here
+            (1, T1) ==> [] (complete)
+      mzero
+        mark T1 at quota 2 as complete here
+          (2, T1) ==> [f a, f b] (complete)
+          <-------
+    mzero
+      mark T1 at quota 3 as complete here
+        (2, T1) ==> [f a, f b, g (f a), g (f b)] (complete)
+-}
+
+{-
+
+==============
+  PSEUDOCODE
+==============
+
+
+Map Key ([(RProgram, Sub)], Bool)
+key = 
+    change quota to be actual size of program
+we have a goal and quota! lookup the key with size (1..quota-1)
+  we get 
+    Just list -> do
+        (prog, sub) <- choices list
+        return prog and update sub
+    Nothing ->
+        keep going to the next size
+if we reach here, then we know that nothing of size 1..quota-1 was any good. 
+  we lookup @ size quota
+  Just (list, flag) ->
+      (prog, sub) <- choices list
+      return prog and update sub
+  Nothing ->
+      -- (will reinumerate all programs)
+      prog <- compute `mplus` do
+        map (1...quota) complete
+      store prog, sub <---- important: add to the existing list (make sure it's not already there)
+      return prog
+
+Int -> Int
+we start: Int (quota 2)
+arg0
+
+T (quota 3)
+
+    sfsdfsfe
+    
+we're done
+(3, T) ==> complete!
+(2, T) ==> complete!
+(1, T) ==> complete!
+
+-}
+
+
+
+
 memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
+memoizeProgram = undefined
+
+memoizeProgramOld :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
 -- memoizeProgram _ _ _ _ compute = compute
-memoizeProgram mode quota args goalType compute = do
-  st <- get
+memoizeProgramOld mode quota args goalType compute = do
+  st <- get -- TODO do this, but with 'use' and 'assign'
   memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
   memoizeProgram' st memoMap
   where
     memoizeProgram' :: CheckerState -> MemoMap -> TopDownSolver IO RProgram
     memoizeProgram' st memoMap = case Map.lookup key memoMap of
       Just progs -> retrieve progs -- retrieve stored value
-      Nothing    -> evaluate       -- compute and store value
+      Nothing    -> do
+
+        evaluate                                      -- compute and store value
+        -- then retrieve returns that as a stream
+        retrieve $ fromJust $ Map.lookup key memoMap  -- retrieve stored value
       
       where
         sub = st ^. typeAssignment
-        key = (mode, goalType, quota, args, sub)
+        key = MemoKey mode goalType quota args sub
         
+        -- after getting a stream of (program, sub) from the memo map,
+        -- consume each value of the stream
+        -- by adding the stored sub to the environment and then returning the program
         retrieve :: Logic (RProgram, Map Id SType) -> TopDownSolver IO RProgram
         retrieve progs = do
           (prog, savedSub) <- choices progs
+          -- append the saved sub to our current and now updated sub
           let sub'' = Map.map (stypeSubstitute savedSub) sub <> savedSub
+          -- update the current state's sub
           assign typeAssignment sub''
           return prog
         
         -- we can only add to memo map after we're completely done with compute
         -- so we run and return compute as normal, and then store the result when it runs out
         evaluate :: TopDownSolver IO RProgram
-        evaluate = compute `mplus` do
-            -- get compute into a type we'll store into the memomap
+        evaluate = do
+          -- compute `mplus` 
+            -- get `compute` into a type we'll store into the memo map, i.e. Logic (RProgram, Map Id SType)
             let resultToStored (prog, checkerState) = (prog, checkerState ^. typeAssignment)
             st' <- get
             goalTrace <- lift get
+            -- unwrap `compute` until it's a stream of StateT MemoMap IO [(RProgram, Map Id SType)]
             let x = fmap resultToStored $ (`evalStateT` goalTrace) $ (`runStateT` st) compute :: LogicT (StateT MemoMap IO) (RProgram, Map Id SType)
-            xs <- lift $ lift $ lift $ observeAllT x :: TopDownSolver IO [(RProgram, Map Id SType)]
-            let stored = choices xs
-            lift $ lift $ lift $ modify (Map.insert key stored)
-            mzero
+            -- lift until we get to the StateT MemoMap monad
+            lift $ lift $ lift $ do
+              -- consume the stream and store all the results into the memo map
+              xs <- observeAllT x :: StateT MemoMap IO [(RProgram, Map Id SType)]
+              let stored = choices xs
+              modify (Map.insert key stored)
+              mzero
+            
 -- 
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
@@ -406,7 +536,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       let t2 = shape goalType :: SType
 
       assign isChecked True
-      solveTypeConstraint env t1 t2 :: TopDownSolver IO ()
+      topDownSolveTypeConstraint env t1 t2 :: TopDownSolver IO ()
       
       sub <- use typeAssignment
 

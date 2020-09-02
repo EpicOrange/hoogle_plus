@@ -1,5 +1,39 @@
 {-
 
+1. it's not correct - some correct programs will never be synthesized because of this
+2. if we fix it to include subSize - it will never use past iterations of memoization
+   because
+3. the reason we're changing type calculations is to make it so memoize can be correct AND use past iterations of memoization
+   so it's fine if our new type calculations are super slow without memoize
+
+subQuota = 6
+memo { (size 2), query : T } ==> fromJust arg0   { prog 4 }
+
+
+memo { (size 1000), query T} ==> fromJust arg0 , fromJust fromJust arg0
+
+
+
+
+size 4
+fromJust fromJust fromJust (?? :: whatever)
+ subSize 12
+
+size 5
+fromJust fromJust fromJust arg0
+ subSize 15
+
+
+dfs on size 1  (sub quota is 3)
+
+memo { (size 1, sub size 3) ==> program! }
+
+dfs on size 1  (sub quota is 3)
+
+
+
+
+
 
 > synGuard "Maybe (a->b) -> a -> b" ["fromJust", "fst"]
 
