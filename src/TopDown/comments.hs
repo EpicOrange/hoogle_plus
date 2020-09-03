@@ -1,5 +1,208 @@
 {-
 
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [b])
+((?? :: (alpha0 -> [b])) (?? :: alpha0))
+((GHC.List.++) [] (?? :: alpha0))
+((GHC.List.++) [] ((?? :: (alpha1 -> [b])) (?? :: alpha1)))
+-----------------
+current memo map: {
+                * ([b] @ size 2) ==> [
+                        [], fromList []
+                ] COMPLETE
+                * ([b] @ size 4) ==> [
+                        Data.Maybe.maybeToList (Data.Maybe.listToMaybe []), fromList [("alpha1",Maybe (b))]
+                ] COMPLETE
+                * (Maybe (b) @ size 2) ==> [
+                        Data.Maybe.Nothing, fromList []
+                ] COMPLETE
+                * (Maybe (b) @ size 3) ==> [
+                        Data.Maybe.listToMaybe [], fromList [("alpha1",[b])]
+                ] COMPLETE
+                * (b @ size 4) ==> [
+                        Data.Maybe.fromJust (Data.Maybe.listToMaybe []), fromList [("alpha1",Maybe (b))]
+                ] COMPLETE
+                * ([b] @ size 2) ==> [
+                        [], fromList [("tau0",b)]
+                ] COMPLETE
+                * ([b] @ size 4) ==> [
+                        Data.Maybe.maybeToList (Data.Maybe.listToMaybe []), fromList [("alpha0",Maybe (b)),("alpha1",[b]),("tau0",b)]
+                ] COMPLETE
+                * ([b] @ size 5) ==> [
+                        GHC.List.cycle (Data.Maybe.maybeToList (Data.Maybe.listToMaybe [])), fromList [("alpha0",[b]),("alpha1",Maybe (b)),("tau0",b)]
+                        GHC.List.init (Data.Maybe.maybeToList (Data.Maybe.listToMaybe [])), fromList [("alpha0",[b]),("alpha1",Maybe (b)),("tau0",b)]
+                        GHC.List.repeat (Data.Maybe.fromJust (Data.Maybe.listToMaybe [])), fromList [("alpha0",b),("alpha1",Maybe (b)),("tau0",b)]
+                        GHC.List.reverse (Data.Maybe.maybeToList (Data.Maybe.listToMaybe [])), fromList [("alpha0",[b]),("alpha1",Maybe (b)),("tau0",b)]
+                        GHC.List.tail (Data.Maybe.maybeToList (Data.Maybe.listToMaybe [])), fromList [("alpha0",[b]),("alpha1",Maybe (b)),("tau0",b)]
+                ] not complete
+                * ((alpha0 -> [b]) @ size 2) ==> [
+                        GHC.List.tail, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.reverse, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.repeat, fromList [("alpha0",b),("tau0",b)]
+                        GHC.List.init, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.cycle, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.concat, fromList [("alpha0",[[b]]),("tau0",b)]
+                        Data.Maybe.maybeToList, fromList [("alpha0",Maybe (b)),("tau0",b)]
+                        Data.Maybe.catMaybes, fromList [("alpha0",[Maybe (b)]),("tau0",b)]
+                        Data.Either.rights, fromList [("alpha0",[Either (tau1) (b)]),("tau0",b)]
+                        Data.Either.lefts, fromList [("alpha0",[Either (b) (tau0)]),("tau1",b)]
+                ] COMPLETE
+                * ((alpha0 -> [b]) @ size 3) ==> [
+                        (GHC.List.++) [], fromList [("alpha0",[b]),("alpha1",[b]),("tau0",b)]
+                        snd, fromList [("alpha0",(tau1 , [b])),("tau0",[b])]
+                        fst, fromList [("alpha0",([b] , tau0)),("tau1",[b])]
+                        GHC.List.last, fromList [("alpha0",[[b]]),("tau0",[b])]
+                        GHC.List.head, fromList [("alpha0",[[b]]),("tau0",[b])]
+                        Data.Tuple.snd, fromList [("alpha0",(tau1 , [b])),("tau0",[b])]
+                        Data.Tuple.fst, fromList [("alpha0",([b] , tau0)),("tau1",[b])]
+                        Data.Maybe.fromJust, fromList [("alpha0",Maybe ([b])),("tau0",[b])]
+                ] COMPLETE
+                * ((alpha1 -> [b]) @ size 2) ==> [
+                        GHC.List.tail, fromList [("alpha1",[b])]
+                        GHC.List.reverse, fromList [("alpha1",[b])]
+                        GHC.List.repeat, fromList [("alpha1",b)]
+                        GHC.List.init, fromList [("alpha1",[b])]
+                        GHC.List.cycle, fromList [("alpha1",[b])]
+                        GHC.List.concat, fromList [("alpha1",[[b]])]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe (b))]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (b)])]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau1) (b)])]
+                ] COMPLETE
+                * ((alpha1 -> [b]) @ size 3) ==> [
+                        (GHC.List.++) [], fromList [("alpha1",[b]),("alpha2",[b])]
+                        Data.Either.lefts, fromList [("alpha1",[Either (b) (b)]),("tau1",b)]
+                ] COMPLETE
+                * ((alpha1 -> Maybe (b)) @ size 2) ==> [
+                        Data.Maybe.listToMaybe, fromList [("alpha1",[b])]
+                        Data.Maybe.Just, fromList [("alpha1",b)]
+                ] COMPLETE
+                * ((alpha1 -> b) @ size 2) ==> [
+                        snd, fromList [("alpha1",(tau1 , b))]
+                        GHC.List.last, fromList [("alpha1",[b])]
+                        GHC.List.head, fromList [("alpha1",[b])]
+                        Data.Tuple.snd, fromList [("alpha1",(tau1 , b))]
+                        Data.Maybe.fromJust, fromList [("alpha1",Maybe (b))]
+                ] COMPLETE
+                * ((alpha1 -> b) @ size 3) ==> [
+                        fst, fromList [("alpha1",(b , b)),("tau1",b)]
+                        Data.Tuple.fst, fromList [("alpha1",(b , b)),("tau1",b)]
+                ] COMPLETE
+                * ((alpha1 -> (alpha0 -> [b])) @ size 2) ==> [
+                        GHC.List.takeWhile, fromList [("alpha0",[b]),("alpha1",b -> Bool),("tau0",b)]
+                        GHC.List.take, fromList [("alpha0",[b]),("alpha1",Int),("tau0",b)]
+                        GHC.List.scanr1, fromList [("alpha0",[b]),("alpha1",b -> b -> b),("tau0",b)]
+                        GHC.List.scanl1, fromList [("alpha0",[b]),("alpha1",b -> b -> b),("tau0",b)]
+                        GHC.List.replicate, fromList [("alpha0",b),("alpha1",Int),("tau0",b)]
+                        GHC.List.map, fromList [("alpha0",[tau1]),("alpha1",tau1 -> b),("tau0",b)]
+                        GHC.List.iterate', fromList [("alpha0",b),("alpha1",b -> b),("tau0",b)]
+                        GHC.List.iterate, fromList [("alpha0",b),("alpha1",b -> b),("tau0",b)]
+                        GHC.List.filter, fromList [("alpha0",[b]),("alpha1",b -> Bool),("tau0",b)]
+                        GHC.List.dropWhile, fromList [("alpha0",[b]),("alpha1",b -> Bool),("tau0",b)]
+                        GHC.List.drop, fromList [("alpha0",[b]),("alpha1",Int),("tau0",b)]
+                        GHC.List.concatMap, fromList [("alpha0",[tau1]),("alpha1",tau1 -> [b]),("tau0",b)]
+                        Data.Maybe.mapMaybe, fromList [("alpha0",[tau1]),("alpha1",tau1 -> Maybe (b)),("tau0",b)]
+                        (:), fromList [("alpha0",[b]),("alpha1",b),("tau0",b)]
+                        (GHC.List.++), fromList [("alpha0",[b]),("alpha1",[b]),("tau0",b)]
+                ] COMPLETE
+                * ((alpha2 -> [b]) @ size 2) ==> [
+                        GHC.List.tail, fromList [("alpha2",[b])]
+                        GHC.List.reverse, fromList [("alpha2",[b])]
+                        GHC.List.repeat, fromList [("alpha2",b)]
+                        GHC.List.init, fromList [("alpha2",[b])]
+                        GHC.List.cycle, fromList [("alpha2",[b])]
+                        GHC.List.concat, fromList [("alpha2",[[b]])]
+                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe (b))]
+                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (b)])]
+                        Data.Either.rights, fromList [("alpha2",[Either (tau1) (b)])]
+                ] COMPLETE
+                * ((alpha2 -> b) @ size 2) ==> [
+                        snd, fromList [("alpha2",(tau1 , b))]
+                        GHC.List.last, fromList [("alpha2",[b])]
+                        GHC.List.head, fromList [("alpha2",[b])]
+                        Data.Tuple.snd, fromList [("alpha2",(tau1 , b))]
+                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (b))]
+                ] COMPLETE
+                * ((alpha2 -> (alpha1 -> [[b]])) @ size 2) ==> [
+                        Data.List.group, fromList [("alpha1",[b]),("alpha2",@@hplusTC@@Eq (b))]
+                ] COMPLETE
+                * ((alpha2 -> (alpha1 -> [b])) @ size 2) ==> [
+                        GHC.List.takeWhile, fromList [("alpha1",[b]),("alpha2",b -> Bool)]
+                        GHC.List.take, fromList [("alpha1",[b]),("alpha2",Int)]
+                        GHC.List.scanr1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)]
+                        GHC.List.scanl1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)]
+                        GHC.List.replicate, fromList [("alpha1",b),("alpha2",Int)]
+                        GHC.List.map, fromList [("alpha1",[tau1]),("alpha2",tau1 -> b)]
+                        GHC.List.iterate', fromList [("alpha1",b),("alpha2",b -> b)]
+                        GHC.List.iterate, fromList [("alpha1",b),("alpha2",b -> b)]
+                        GHC.List.filter, fromList [("alpha1",[b]),("alpha2",b -> Bool)]
+                        GHC.List.dropWhile, fromList [("alpha1",[b]),("alpha2",b -> Bool)]
+                        GHC.List.drop, fromList [("alpha1",[b]),("alpha2",Int)]
+                        GHC.List.concatMap, fromList [("alpha1",[tau1]),("alpha2",tau1 -> [b])]
+                        Data.Maybe.mapMaybe, fromList [("alpha1",[tau1]),("alpha2",tau1 -> Maybe (b))]
+                        (:), fromList [("alpha1",[b]),("alpha2",b)]
+                        (GHC.List.++), fromList [("alpha1",[b]),("alpha2",[b])]
+                ] COMPLETE
+                * ((alpha2 -> (alpha1 -> b)) @ size 2) ==> [
+                        GHC.List.sum, fromList [("alpha1",[b]),("alpha2",@@hplusTC@@Num (b))]
+                        GHC.List.product, fromList [("alpha1",[b]),("alpha2",@@hplusTC@@Num (b))]
+                        GHC.List.minimum, fromList [("alpha1",[b]),("alpha2",@@hplusTC@@Ord (b))]
+                        GHC.List.maximum, fromList [("alpha1",[b]),("alpha2",@@hplusTC@@Ord (b))]
+                        GHC.List.foldr1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)]
+                        GHC.List.foldl1', fromList [("alpha1",[b]),("alpha2",b -> b -> b)]
+                        GHC.List.foldl1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)]
+                        Data.Tuple.uncurry, fromList [("alpha1",(tau2 , tau1)),("alpha2",tau2 -> tau1 -> b)]
+                        Data.Maybe.fromMaybe, fromList [("alpha1",Maybe (b)),("alpha2",b)]
+                        Data.Either.fromRight, fromList [("alpha1",Either (tau1) (b)),("alpha2",b)]
+                        (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[b])]
+                ] COMPLETE
+        }
+
+*** Exception: oops... (alpha1 -> [b]) @ size 2 says complete but isn't there: GHC.List.cycle with sub: []
+CallStack (from HasCallStack):
+  error, called at /home/hoogle_plus/src/TopDown/Synthesize.hs:365:15 in main:TopDown.Synthesize
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 1. it's not correct - some correct programs will never be synthesized because of this
 2. if we fix it to include subSize - it will never use past iterations of memoization
    because
@@ -29,676 +232,6 @@ dfs on size 1  (sub quota is 3)
 memo { (size 1, sub size 3) ==> program! }
 
 dfs on size 1  (sub quota is 3)
-
-
-
-
-
-
-> synGuard "Maybe (a->b) -> a -> b" ["fromJust", "fst"]
-
-==================
-Starting!
-Arguments: fromList [("arg0",Maybe (((a -> b)))),("arg1",a)]
-Goal: b
-==================
-
-running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 2
-args to dfs: (EMode,fromList [],2,b)
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
------------------
-
-running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 4
-args to dfs: (EMode,fromList [],4,b)
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
------------------
-args to dfs: (EMode,fromList [],2,(alpha0 -> b))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
------------------
-args to dfs: (IMode,fromList [],3,Maybe (b))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],1,(alpha1 -> Maybe (b)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],3,(b , tau0))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],1,(alpha1 -> (b , tau0)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],3,(b , tau0))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],1,(alpha1 -> (b , tau0)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
------------------
-
-running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 6
-args to dfs: (EMode,fromList [],6,b)
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
------------------
-args to dfs: (EMode,fromList [],4,(alpha0 -> b))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
------------------
-args to dfs: (IMode,fromList [],5,Maybe (b))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],3,(alpha1 -> Maybe (b)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],1,(alpha2 -> (alpha1 -> Maybe (b))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (((?? :: (alpha2 -> (alpha1 -> Maybe (b)))) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],5,(b , tau0))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],3,(alpha1 -> (b , tau0)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],1,(alpha2 -> (alpha1 -> (b , tau0))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],5,(b , tau0))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],3,(alpha1 -> (b , tau0)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],1,(alpha2 -> (alpha1 -> (b , tau0))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],2,(alpha1 -> (alpha0 -> b)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
------------------
-
-running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 8
-args to dfs: (EMode,fromList [],8,b)
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
------------------
-args to dfs: (EMode,fromList [],6,(alpha0 -> b))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
------------------
-args to dfs: (IMode,fromList [],7,Maybe (b))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],5,(alpha1 -> Maybe (b)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],6,Maybe ((Maybe (b))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Maybe.fromJust (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> Maybe ((Maybe (b)))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Maybe.fromJust (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe ((Maybe (b))))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> Maybe ((Maybe (b))))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Maybe.fromJust (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe ((Maybe (b))))) (?? :: alpha2))))
-(Data.Maybe.fromJust (Data.Maybe.fromJust (((?? :: (alpha3 -> (alpha2 -> Maybe ((Maybe (b)))))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (IMode,fromList [],6,(Maybe (b) , tau1))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Tuple.fst (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> (Maybe (b) , tau1)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Tuple.fst (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Tuple.fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> (Maybe (b) , tau1))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Tuple.fst (?? :: alpha1)))
-(Data.Maybe.fromJust (Data.Tuple.fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
-(Data.Maybe.fromJust (Data.Tuple.fst (((?? :: (alpha3 -> (alpha2 -> (Maybe (b) , tau1)))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (IMode,fromList [],6,(Maybe (b) , tau1))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (fst (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> (Maybe (b) , tau1)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (fst (?? :: alpha1)))
-(Data.Maybe.fromJust (fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> (Maybe (b) , tau1))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (fst (?? :: alpha1)))
-(Data.Maybe.fromJust (fst ((?? :: (alpha2 -> (Maybe (b) , tau1))) (?? :: alpha2))))
-(Data.Maybe.fromJust (fst (((?? :: (alpha3 -> (alpha2 -> (Maybe (b) , tau1)))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],3,(alpha2 -> (alpha1 -> Maybe (b))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (((?? :: (alpha2 -> (alpha1 -> Maybe (b)))) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],1,(alpha3 -> (alpha2 -> (alpha1 -> Maybe (b)))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Maybe.fromJust (?? :: alpha0))
-(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
-(Data.Maybe.fromJust (((?? :: (alpha2 -> (alpha1 -> Maybe (b)))) (?? :: alpha2)) (?? :: alpha1)))
-(Data.Maybe.fromJust ((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> Maybe (b))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],7,(b , tau0))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],5,(alpha1 -> (b , tau0)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],6,Maybe (((b , tau0))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (Data.Maybe.fromJust (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> Maybe (((b , tau0)))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (Data.Maybe.fromJust (?? :: alpha1)))
-(Data.Tuple.fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> Maybe (((b , tau0))))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (Data.Maybe.fromJust (?? :: alpha1)))
-(Data.Tuple.fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
-(Data.Tuple.fst (Data.Maybe.fromJust (((?? :: (alpha3 -> (alpha2 -> Maybe (((b , tau0)))))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (Data.Tuple.fst (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (Data.Tuple.fst (?? :: alpha1)))
-(Data.Tuple.fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (Data.Tuple.fst (?? :: alpha1)))
-(Data.Tuple.fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
-(Data.Tuple.fst (Data.Tuple.fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (fst (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (fst (?? :: alpha1)))
-(Data.Tuple.fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (fst (?? :: alpha1)))
-(Data.Tuple.fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
-(Data.Tuple.fst (fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],3,(alpha2 -> (alpha1 -> (b , tau0))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],1,(alpha3 -> (alpha2 -> (alpha1 -> (b , tau0)))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(Data.Tuple.fst (?? :: alpha0))
-(Data.Tuple.fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(Data.Tuple.fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
-(Data.Tuple.fst ((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (b , tau0))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],7,(b , tau0))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
------------------
-args to dfs: (EMode,fromList [],5,(alpha1 -> (b , tau0)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
------------------
-args to dfs: (IMode,fromList [],6,Maybe (((b , tau0))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (Data.Maybe.fromJust (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> Maybe (((b , tau0)))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (Data.Maybe.fromJust (?? :: alpha1)))
-(fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> Maybe (((b , tau0))))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (Data.Maybe.fromJust (?? :: alpha1)))
-(fst (Data.Maybe.fromJust ((?? :: (alpha2 -> Maybe (((b , tau0))))) (?? :: alpha2))))
-(fst (Data.Maybe.fromJust (((?? :: (alpha3 -> (alpha2 -> Maybe (((b , tau0)))))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (Data.Tuple.fst (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (Data.Tuple.fst (?? :: alpha1)))
-(fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (Data.Tuple.fst (?? :: alpha1)))
-(fst (Data.Tuple.fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
-(fst (Data.Tuple.fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (IMode,fromList [],6,((b , tau0) , tau2))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (fst (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha2 -> ((b , tau0) , tau2)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (fst (?? :: alpha1)))
-(fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],2,(alpha3 -> (alpha2 -> ((b , tau0) , tau2))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (fst (?? :: alpha1)))
-(fst (fst ((?? :: (alpha2 -> ((b , tau0) , tau2))) (?? :: alpha2))))
-(fst (fst (((?? :: (alpha3 -> (alpha2 -> ((b , tau0) , tau2)))) (?? :: alpha3)) (?? :: alpha2))))
------------------
-args to dfs: (EMode,fromList [],3,(alpha2 -> (alpha1 -> (b , tau0))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],1,(alpha3 -> (alpha2 -> (alpha1 -> (b , tau0)))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(fst (?? :: alpha0))
-(fst ((?? :: (alpha1 -> (b , tau0))) (?? :: alpha1)))
-(fst (((?? :: (alpha2 -> (alpha1 -> (b , tau0)))) (?? :: alpha2)) (?? :: alpha1)))
-(fst ((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (b , tau0))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)))
------------------
-args to dfs: (EMode,fromList [],4,(alpha1 -> (alpha0 -> b)))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
------------------
-args to dfs: (IMode,fromList [],5,Maybe (((alpha0 -> b))))
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
-((Data.Maybe.fromJust (?? :: alpha1)) (?? :: alpha0))
------------------
-args to dfs: (IMode,fromList [],6,a)
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
-((Data.Maybe.fromJust (?? :: alpha1)) (?? :: alpha0))
-(Data.Maybe.fromJust arg0 (?? :: alpha0))
------------------
-RESULTS:{"outCandidates":[{"outExamples":[],"solution":"\\arg0 arg1 -> Data.Maybe.fromJust arg0 arg1"}],"outDocs":[{"functionSig":"HasCallStack => Maybe a -> a","functionName":"fromJust","functionDesc":"The fromJust function extracts the element out of a Just\nand throws an error if its argument is Nothing.\n\nExamples\n\nBasic usage:\n\n\n>>> fromJust (Just 1)\n1\n\n\n\n>>> 2 * (fromJust (Just 10))\n20\n\n\n\n>>> 2 * (fromJust Nothing)\n*** Exception: Maybe.fromJust: Nothing\n\n"},{"functionSig":"Maybe (((a -> b)))","functionName":"arg0","functionDesc":""},{"functionSig":"a","functionName":"arg1","functionDesc":""}],"outError":""}
-
-
------------------
---- BACKTRACE ---
------------------
-(?? :: b)
-((?? :: (alpha0 -> b)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
-((Data.Maybe.fromJust (?? :: alpha1)) (?? :: alpha0))
-(Data.Maybe.fromJust arg0 (?? :: alpha0))
-Data.Maybe.fromJust arg0 arg1
------------------
-
-(Quota 8) Done with <b> . <a> . (Maybe (((a -> b))) -> (a -> b))!
-size +  subSize solution
-3       2       Data.Maybe.fromJust arg0 arg1
-
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> Maybe (a -> b) (size 3)
-        tau0 ==> a -> b (size 2)
-      } (size 2)
-
-(2.24 secs, 235,030,712 bytes)
-> 
 
 
 

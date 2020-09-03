@@ -131,11 +131,12 @@ data MemoKey = MemoKey {
     _mode :: SynMode,
     _goalType :: RType,
     _progSize :: Int,
-    _args :: Map Id RType,
-    _sub :: Map Id SType
-  } deriving (Eq, Ord)
--- MemoMap:        MemoKey ==> (List (program, sub)          , completed)
-type MemoMap = Map MemoKey     ([(RProgram   , Map Id SType)], Bool)
+    _args :: Map Id RType
+    -- _sub :: Map Id SType
+  } deriving (Eq, Ord, Show)
+
+type MemoValue = ([(RProgram, Map Id SType)], Bool)
+type MemoMap = Map MemoKey MemoValue
 -- type MemoMap = Map MemoKey     (Logic    (RProgram, Map Id SType))
 type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT MemoMap m)))
 
@@ -202,6 +203,9 @@ choices = msum . fmap return
         mark T1 at quota 2 as complete here
           (2, T1) ==> [f a, f b] (complete)
           <-------
+    -- g' (?? :: T1 at quota 2)
+    -- h ( fanfdsffsdf) ==> size 3 :: T1
+    --   (3, T1) ==> [ad]
     mzero
       mark T1 at quota 3 as complete here
         (2, T1) ==> [f a, f b, g (f a), g (f b)] (complete)
@@ -250,83 +254,143 @@ we're done
 (2, T) ==> complete!
 (1, T) ==> complete!
 
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(GHC.List.last (?? :: alpha0))
+-----------------
+
+current memo map: {
+        ((alpha0 -> b) @ size 2) ==> ([(GHC.List.head,       fromList [("alpha0",[b]),("tau0",b)])]      ,False)
+        ((alpha0 -> b) @ size 2) ==> ([(Data.Maybe.fromJust, fromList [("alpha0",Maybe (b)),("tau0",b)])],True)
+        ((alpha0 -> b) @ size 2) ==> ([(Data.Tuple.fst,      fromList [("alpha0",(b , tau0)),("tau1",b)])],True)
+        ((alpha0 -> b) @ size 2) ==> ([(Data.Tuple.snd,      fromList [("alpha0",(tau1 , b)),("tau0",b)])],True)
+      }
+
+*** Exception: oops... says complete but isn't there: GHC.List.last with sub: [("alpha0",[b]),("tau0",b)]
 -}
 
 
 
-
 memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
-memoizeProgram mode quota args goalType compute = msum $ map lookupProg [1..quota]
+memoizeProgram mode quota args goalType compute = do
+  memoMap <- lift $ lift $ get
+  -- liftIO $ printMap memoMap
+  msum $ map lookupProg [1..quota]
   where
+
+    printMap :: MemoMap -> IO ()
+    printMap memoMap = do
+      printf "current memo map: {\n"
+      mapM_ printListItem (Map.toList memoMap)
+      printf "\t}\n\n"
+      where
+        printListItem :: (MemoKey, MemoValue) -> IO ()
+        printListItem (key, (list, flag)) = do
+          printf "\t\t* (%s @ size %s) ==> [\n" (show $ _goalType key) (show $ _progSize key)
+          mapM_ (\(prog, sub) -> printf "\t\t\t%s, %s\n" (show prog) (show sub)) list
+          printf "\t\t] %s\n" (if flag then "COMPLETE" else "not complete")
+
     lookupProg :: Int -> TopDownSolver IO RProgram
     lookupProg num = do
       sub <- use typeAssignment
-      let key = MemoKey mode goalType num args sub
+      let subbedGoal = addTrue $ stypeSubstitute sub (shape goalType)
+      let key = MemoKey mode subbedGoal num args
       memoMap <- lift $ lift $ get
       case Map.lookup key memoMap of
-        
         -- found some stored programs, so return them
-        Just (list, isComplete)     -> do
-          liftIO $ when (not isComplete) $ error "oh no! isComplete is false... this shouldn't ever happen\n"
-          (prog, savedSub) <- choices list
-          -- append the saved sub to our current and now updated sub
-          let sub' = Map.map (stypeSubstitute savedSub) sub <> savedSub
-          -- update the current state's sub
-          assign typeAssignment sub'
-          return prog
-        
+        Just stored           -> retrieve stored
         -- found no stored programs, but it's at a smaller quota so we keep checking
         Nothing | num < quota -> mzero
-        
         -- found no stored programs, so we need to run compute @ quota to generate them
-        Nothing               -> do
-          -- (will reinumerate all programs and possibly change memoMap)
-          prog <- compute `mplus` setComplete
-            
-          -- we want to add this prog to the existing memo map if possible
-          progSize <- sizeOfProg prog
-          sub <- use typeAssignment
-          memoMap' <- lift $ lift $ get
-          let key = MemoKey mode goalType progSize args sub
+        Nothing               -> evaluate key
 
-          let add :: RProgram -> MemoMap
-              add prog = do
-                let f Nothing                   = Just ([(prog, sub)], False)
-                    f (Just (list, isComplete)) = Just ((prog, sub):list, isComplete)
-                Map.alter f key memoMap'
+    retrieve :: MemoValue -> TopDownSolver IO RProgram
+    retrieve (list, isComplete) = do
+      sub <- use typeAssignment
+      -- liftIO $ when (not isComplete) error "oh no! isComplete is false... this shouldn't ever happen" 
+      guard isComplete
+      -- liftIO $ printf "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! we are using it yay! with goal: %s, got: %s\n" (show goalType) (show list)
+      (prog, savedSub) <- choices list
+      -- append the saved sub to our current and now updated sub
+      let sub' = Map.map (stypeSubstitute savedSub) sub <> savedSub
+      -- update the current state's sub
+      assign typeAssignment sub'
+      return prog
+    
+     
+    -- runs compute, storing every program as it goes,
+    -- and at the end, sets isComplete to true
+    evaluate :: MemoKey -> TopDownSolver IO RProgram
+    evaluate key = do
+        -- (will reinumerate all programs and possibly change memoMap)
+        beforeSub <- use typeAssignment
+        prog <- compute `mplus` setComplete key
+        afterSub <- use typeAssignment
+
+        -- take the difference between the subs
+        let subDiff = afterSub `Map.difference` beforeSub
+        
+        -- we want to add this prog to the existing memo map if possible
+        -- there's 3 situations
+        --   1. key is not in the map
+        --      -> we want to add and return prog
+        --   2. (key ==> list) is in the map, and prog is already in the list
+        --      -> we want to not return prog (do nothing) --- guard
+        --   3. (key ==> list) is in the map, and prog is not in the list
+        --      -> we want to append and return prog
+
+        progSize <- sizeOfProg prog
+        memoMap' <- lift $ lift $ get
+        -- sub <- use typeAssignment
+        
+        let subbedGoal = addTrue $ stypeSubstitute afterSub (shape goalType)
+        let key' = MemoKey mode goalType progSize args
+        let storedValue = (prog, subDiff)
+        
+        let add :: RProgram -> MemoMap
+            add prog = do
+              let f Nothing                   = Just ([storedValue], False)
+                  f (Just (list, isComplete)) = Just (storedValue:list, isComplete)
+              Map.alter f key' memoMap'
+        
+        case Map.lookup key' memoMap' of
+          Just (list, isComplete) -> do
+            let isInList = elem storedValue list :: Bool
+            when (not isInList && isComplete) $ do
+              memoMap <- lift $ lift $ get
+              liftIO $ printMap memoMap
+              liftIO $ printf "beforeSub: %s\n" (show beforeSub)
+              liftIO $ printf "afterSub: %s\n" (show afterSub)
+              error $ printf "oops... %s @ size %s says complete but isn't there: %s with sub: %s" 
+                (show goalType) (show quota) (show prog) (show $ Map.toList subDiff)
+            guard (not isInList) -- assert we're not already in the list
+            lift $ lift $ lift $ put $ add prog
+            return prog
+          Nothing           -> do
+            lift $ lift $ lift $ put $ add prog
+            return prog
           
-          -- there's 3 situations
-          --   1. key is not in the map
-          --      -> we want to add and return prog
-          --   2. (key ==> list) is in the map, and prog is already in the list
-          --      -> we want to not return prog (do nothing) --- guard
-          --   3. (key ==> list) is in the map, and prog is not in the list
-          --      -> we want to append and return prog
-
-          case Map.lookup key memoMap' of
-            -- 
-            Just (list, isComplete) -> do
-              let isInList = elem (prog, sub) list :: Bool
-              when (not isInList && isComplete) $ error "oops... says complete but isn't there"
-              guard (not isInList) -- assert we're not already in the list
-              lift $ lift $ lift $ put $ add prog
-              return prog
-            Nothing           -> do
-              lift $ lift $ lift $ put $ add prog
-              return prog
-          -- store prog, sub <---- important: add to the existing list (make sure it's 
-          --               not already there)
-          
-
     -- | set the complete flag and return mzero, called when we're done with compute
-    setComplete :: TopDownSolver IO RProgram
-    setComplete = do
-      let markComplete (MemoKey _ _ size _ _) (list, isComplete)
-            | size <= quota = (list, True)
+    setComplete :: MemoKey -> TopDownSolver IO RProgram
+    setComplete ogKey = do
+      let ogSize = _progSize ogKey
+      let markComplete key (list, isComplete)
+            | key {_progSize = ogSize} == ogKey && _progSize key <= quota = (list, True)
             | otherwise     = (list, isComplete)
       -- map [every value with size=(1...quota)] complete
+      -- liftIO $ printf "we're marking key %s @ size <= %d as complete\n" (show ogKey) quota
       lift $ lift $ lift $ modify $ Map.mapWithKey markComplete
       mzero
+
+
+
+
+
+
+
 
 -- memoizeProgramOld :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
 -- -- memoizeProgram _ _ _ _ compute = compute
