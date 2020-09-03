@@ -48,7 +48,7 @@ syn inStr = syn' inStr []
   
 -- default search params when calling syn
 searchP :: SearchParams
-searchP = defaultSearchParams {_topDownEnableDebug = False, _topDownUseMemoize = False}
+searchP = defaultSearchParams {_topDownEnableDebug = False, _topDownUseMemoize = True}
 
 
 synGuard :: String -> [String] -> IO ()
@@ -130,12 +130,13 @@ data SynMode = IMode | EMode deriving (Eq, Ord, Show)
 data MemoKey = MemoKey {
     _mode :: SynMode,
     _goalType :: RType,
-    _quota :: Int,
+    _progSize :: Int,
     _args :: Map Id RType,
     _sub :: Map Id SType
   } deriving (Eq, Ord)
--- MemoMap:        MemoKey ==> stream of (program,  sub)
-type MemoMap = Map MemoKey     (Logic    (RProgram, Map Id SType))
+-- MemoMap:        MemoKey ==> (List (program, sub)          , completed)
+type MemoMap = Map MemoKey     ([(RProgram   , Map Id SType)], Bool)
+-- type MemoMap = Map MemoKey     (Logic    (RProgram, Map Id SType))
 type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT MemoMap m)))
 
 evalTopDownSolver :: Monad m => RType -> Chan Message -> [TopDownSolver m a] -> m a
@@ -216,7 +217,7 @@ choices = msum . fmap return
 Map Key ([(RProgram, Sub)], Bool)
 key = 
     change quota to be actual size of program
-we have a goal and quota! lookup the key with size (1..quota-1)
+we have a goal and quota! lookup the key with size map f (1..quota-1)
   we get 
     Just list -> do
         (prog, sub) <- choices list
@@ -232,7 +233,8 @@ if we reach here, then we know that nothing of size 1..quota-1 was any good.
       -- (will reinumerate all programs)
       prog <- compute `mplus` do
         map (1...quota) complete
-      store prog, sub <---- important: add to the existing list (make sure it's not already there)
+      store prog, sub <---- important: add to the existing list (make sure it's 
+                            not already there)
       return prog
 
 Int -> Int
@@ -254,64 +256,134 @@ we're done
 
 
 memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
-memoizeProgram = undefined
-
-memoizeProgramOld :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
--- memoizeProgram _ _ _ _ compute = compute
-memoizeProgramOld mode quota args goalType compute = do
-  st <- get -- TODO do this, but with 'use' and 'assign'
-  memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
-  memoizeProgram' st memoMap
+memoizeProgram mode quota args goalType compute = msum $ map lookupProg [1..quota]
   where
-    memoizeProgram' :: CheckerState -> MemoMap -> TopDownSolver IO RProgram
-    memoizeProgram' st memoMap = case Map.lookup key memoMap of
-      Just progs -> retrieve progs -- retrieve stored value
-      Nothing    -> do
-
-        evaluate                                      -- compute and store value
-        -- then retrieve returns that as a stream
-        retrieve $ fromJust $ Map.lookup key memoMap  -- retrieve stored value
-      
-      where
-        sub = st ^. typeAssignment
-        key = MemoKey mode goalType quota args sub
+    lookupProg :: Int -> TopDownSolver IO RProgram
+    lookupProg num = do
+      sub <- use typeAssignment
+      let key = MemoKey mode goalType num args sub
+      memoMap <- lift $ lift $ get
+      case Map.lookup key memoMap of
         
-        -- after getting a stream of (program, sub) from the memo map,
-        -- consume each value of the stream
-        -- by adding the stored sub to the environment and then returning the program
-        retrieve :: Logic (RProgram, Map Id SType) -> TopDownSolver IO RProgram
-        retrieve progs = do
-          (prog, savedSub) <- choices progs
+        -- found some stored programs, so return them
+        Just (list, isComplete)     -> do
+          liftIO $ when (not isComplete) $ error "oh no! isComplete is false... this shouldn't ever happen\n"
+          (prog, savedSub) <- choices list
           -- append the saved sub to our current and now updated sub
-          let sub'' = Map.map (stypeSubstitute savedSub) sub <> savedSub
+          let sub' = Map.map (stypeSubstitute savedSub) sub <> savedSub
           -- update the current state's sub
-          assign typeAssignment sub''
+          assign typeAssignment sub'
           return prog
         
-        -- we can only add to memo map after we're completely done with compute
-        -- so we run and return compute as normal, and then store the result when it runs out
-        evaluate :: TopDownSolver IO RProgram
-        evaluate = do
-          -- compute `mplus` 
-            -- get `compute` into a type we'll store into the memo map, i.e. Logic (RProgram, Map Id SType)
-            let resultToStored (prog, checkerState) = (prog, checkerState ^. typeAssignment)
-            st' <- get
-            goalTrace <- lift get
-            -- unwrap `compute` until it's a stream of StateT MemoMap IO [(RProgram, Map Id SType)]
-            let x = fmap resultToStored $ (`evalStateT` goalTrace) $ (`runStateT` st) compute :: LogicT (StateT MemoMap IO) (RProgram, Map Id SType)
-            -- lift until we get to the StateT MemoMap monad
-            lift $ lift $ lift $ do
-              -- consume the stream and store all the results into the memo map
-              xs <- observeAllT x :: StateT MemoMap IO [(RProgram, Map Id SType)]
-              let stored = choices xs
-              modify (Map.insert key stored)
-              mzero
+        -- found no stored programs, but it's at a smaller quota so we keep checking
+        Nothing | num < quota -> mzero
+        
+        -- found no stored programs, so we need to run compute @ quota to generate them
+        Nothing               -> do
+          -- (will reinumerate all programs and possibly change memoMap)
+          prog <- compute `mplus` setComplete
+            
+          -- we want to add this prog to the existing memo map if possible
+          progSize <- sizeOfProg prog
+          sub <- use typeAssignment
+          memoMap' <- lift $ lift $ get
+          let key = MemoKey mode goalType progSize args sub
+
+          let add :: RProgram -> MemoMap
+              add prog = do
+                let f Nothing                   = Just ([(prog, sub)], False)
+                    f (Just (list, isComplete)) = Just ((prog, sub):list, isComplete)
+                Map.alter f key memoMap'
+          
+          -- there's 3 situations
+          --   1. key is not in the map
+          --      -> we want to add and return prog
+          --   2. (key ==> list) is in the map, and prog is already in the list
+          --      -> we want to not return prog (do nothing) --- guard
+          --   3. (key ==> list) is in the map, and prog is not in the list
+          --      -> we want to append and return prog
+
+          case Map.lookup key memoMap' of
+            -- 
+            Just (list, isComplete) -> do
+              let isInList = elem (prog, sub) list :: Bool
+              when (not isInList && isComplete) $ error "oops... says complete but isn't there"
+              guard (not isInList) -- assert we're not already in the list
+              lift $ lift $ lift $ put $ add prog
+              return prog
+            Nothing           -> do
+              lift $ lift $ lift $ put $ add prog
+              return prog
+          -- store prog, sub <---- important: add to the existing list (make sure it's 
+          --               not already there)
+          
+
+    -- | set the complete flag and return mzero, called when we're done with compute
+    setComplete :: TopDownSolver IO RProgram
+    setComplete = do
+      let markComplete (MemoKey _ _ size _ _) (list, isComplete)
+            | size <= quota = (list, True)
+            | otherwise     = (list, isComplete)
+      -- map [every value with size=(1...quota)] complete
+      lift $ lift $ lift $ modify $ Map.mapWithKey markComplete
+      mzero
+
+-- memoizeProgramOld :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
+-- -- memoizeProgram _ _ _ _ compute = compute
+-- memoizeProgramOld mode quota args goalType compute = do
+--   st <- get -- TODO do this, but with 'use' and 'assign'
+--   memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
+--   memoizeProgram' st memoMap
+--   where
+--     memoizeProgram' :: CheckerState -> MemoMap -> TopDownSolver IO RProgram
+--     memoizeProgram' st memoMap = case Map.lookup key memoMap of
+--       Just progs -> retrieve progs -- retrieve stored value
+--       Nothing    -> do
+
+--         evaluate                                      -- compute and store value
+--         -- then retrieve returns that as a stream
+--         retrieve $ fromJust $ Map.lookup key memoMap  -- retrieve stored value
+      
+--       where
+--         sub = st ^. typeAssignment
+--         key = MemoKey mode goalType quota args sub
+        
+--         -- after getting a stream of (program, sub) from the memo map,
+--         -- consume each value of the stream
+--         -- by adding the stored sub to the environment and then returning the program
+--         retrieve :: Logic (RProgram, Map Id SType) -> TopDownSolver IO RProgram
+--         retrieve progs = do
+--           (prog, savedSub) <- choices progs
+--           -- append the saved sub to our current and now updated sub
+--           let sub'' = Map.map (stypeSubstitute savedSub) sub <> savedSub
+--           -- update the current state's sub
+--           assign typeAssignment sub''
+--           return prog
+        
+--         -- we can only add to memo map after we're completely done with compute
+--         -- so we run and return compute as normal, and then store the result when it runs out
+--         evaluate :: TopDownSolver IO RProgram
+--         evaluate = do
+--           -- compute `mplus` 
+--             -- get `compute` into a type we'll store into the memo map, i.e. Logic (RProgram, Map Id SType)
+--             let resultToStored (prog, checkerState) = (prog, checkerState ^. typeAssignment)
+--             st' <- get
+--             goalTrace <- lift get
+--             -- unwrap `compute` until it's a stream of StateT MemoMap IO [(RProgram, Map Id SType)]
+--             let x = fmap resultToStored $ (`evalStateT` goalTrace) $ (`runStateT` st) compute :: LogicT (StateT MemoMap IO) (RProgram, Map Id SType)
+--             -- lift until we get to the StateT MemoMap monad
+--             lift $ lift $ lift $ do
+--               -- consume the stream and store all the results into the memo map
+--               xs <- observeAllT x :: StateT MemoMap IO [(RProgram, Map Id SType)]
+--               let stored = choices xs
+--               modify (Map.insert key stored)
+--               mzero
             
 -- 
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
-iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [2,4..]) $ \quota -> do
+iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [1..]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
 
@@ -390,7 +462,7 @@ printSub = do
 dfs :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> Int {- -> Int-} -> RType -> TopDownSolver IO RProgram
 dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType 
   | sizeQuota <= 0 = mzero
-  | useMemoize     = error "broken, don't use memoize" -- memoizeProgram mode sizeQuota args goalType doDfs
+  | useMemoize     = memoizeProgram mode sizeQuota args goalType doDfs
   | otherwise      = doDfs
   where
 
@@ -463,7 +535,8 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- subtract 2; we may be setting the quota too low if alphaTProgram happens to be size 1,
       -- but that's rare, and we'll solve it in the next iteration anyways
       -- the time savings are worth it
-      alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 2) {-subQuota-} schema :: TopDownSolver IO RProgram
+      -- alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 2) {-subQuota-} schema :: TopDownSolver IO RProgram
+      alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 1) {-subQuota-} schema :: TopDownSolver IO RProgram
       -- debug $ printf "here!! %s\n" (show alphaTProgram)
       -- holedProgram <- head <$> lift get
       -- debug $ printf "-----\ntypeOf alphaTProgram (%s) = %s\n      %s\n" (show alphaTProgram) (show $ typeOf alphaTProgram) (show holedProgram)
