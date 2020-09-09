@@ -2,10 +2,11 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Synthesize(synthesize, envToGoal, syn, synGuard, syn', synGuard') where
+module TopDown.Synthesize(synthesize, envToGoal) where
 
 -- import HooglePlus.TypeChecker
 import TopDown.TypeChecker
+import TopDown.Types
 import TopDown.Size
 import TopDown.GoalTrace
 import HooglePlus.GHCChecker (check)
@@ -38,53 +39,6 @@ import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Text.Printf (printf)
-
--- a wrapper for synthesize that you can run from `stack ghci`
--- usage: syn "Int -> Int"
--- or:    program <- syn "Int -> Int"
-syn :: String -> IO ()
-syn inStr = syn' inStr []
--- What if we can pass the guardInclude list into here??? :D
-  
--- default search params when calling syn
-searchP :: SearchParams
-searchP = defaultSearchParams {_topDownEnableDebug = True, _topDownUseMemoize = True}
-
-
-synGuard :: String -> [String] -> IO ()
-synGuard inStr guards = do
-  env' <- readEnv $ envPath defaultSynquidParams
-  env <- readBuiltinData defaultSynquidParams env'
-  let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
-  goal <- envToGoal (env { _symbols = rawSyms}) inStr
-  solverChan <- newChan
-  synthesize searchP goal [] solverChan
-
--- usage:
--- :{
--- syn' "(a -> b) -> (a -> c) -> a -> (b, c)" $ [
---   [ (["\\x -> x + 1", "\\x -> x * 3", "3"], "(4, 9)")
---   , (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")
---   ]
--- :}
-syn' :: String -> [([String], String)] -> IO ()
-syn' inStr ex = do
-  env' <- readEnv $ envPath defaultSynquidParams
-  env <- readBuiltinData defaultSynquidParams env'
-  goal <- envToGoal env inStr
-  solverChan <- newChan
-  let examples = map (uncurry Example) ex
-  synthesize searchP goal examples solverChan
-
-synGuard' :: String -> [String] -> [([String], String)] -> IO ()
-synGuard' inStr guards ex = do
-  env' <- readEnv $ envPath defaultSynquidParams
-  env <- readBuiltinData defaultSynquidParams env'
-  let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
-  goal <- envToGoal (env { _symbols = rawSyms}) inStr
-  solverChan <- newChan
-  let examples = map (uncurry Example) ex
-  synthesize searchP goal examples solverChan
 
 synthesize :: SearchParams -> Goal -> [Example] -> Chan Message -> IO ()
 synthesize searchParams goal examples messageChan = do
@@ -126,80 +80,19 @@ synthesize searchParams goal examples messageChan = do
 
     writeChan messageChan (MesgClose CSNormal)
 
-data SynMode = IMode | EMode deriving (Eq, Ord, Show)
-data MemoKey = MemoKey {
-    _mode :: SynMode,
-    _goalType :: RType,
-    _progSize :: Int,
-    _args :: Map Id RType
-    -- _sub :: Map Id SType
-  } deriving (Eq, Ord, Show)
-
--- (result of query, is the result partial (False) or fully evaluated (True)?)
--- result is a tuple (prog, sub, nameCounter)
-type MemoValue = ([(RProgram, Map Id SType, Map Id Int)], Bool)
-type MemoMap = Map MemoKey MemoValue
-type SubSize = Int
--- type MemoMap = Map MemoKey     (Logic    (RProgram, Map Id SType))
-type TopDownSolver m = StateT CheckerState (StateT SubSize (StateT GoalTrace (LogicT (StateT MemoMap m))))
--- type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT SubSize (StateT MemoMap m))))
-
--- evalTopDownSolver :: forall m a. Monad m => RType -> Chan Message -> [TopDownSolver m a] -> m a
-evalTopDownSolver :: forall a. RType -> Chan Message -> [TopDownSolver IO a] -> IO a
-evalTopDownSolver goalType messageChan m =
-  (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ msum $ map (evalGoalTrace . evalSubSize . evalCheckerState) m
-  -- (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ evalSubSize $ msum $ map (evalGoalTrace . evalCheckerState) m
-  where
-    evalCheckerState = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
-    evalSubSize = (`evalStateT` 0)                                              -- for StateT SubSize
-    evalGoalTrace = (`evalStateT` [mkHole goalType])                            -- for StateT GoalTrace
-
-    -- temporary (tm)
-    printMemoMap' :: StateT MemoMap IO a -> StateT MemoMap IO a
-    printMemoMap' m = m >>= (\ret -> do
-      memoMap <- get
-      lift $ printMemoMap memoMap
-      return ret)
-
--- TODO put these into a separate file cuz DAMN this file is getting really long (!!)
-liftMemo :: Monad m => LogicT (StateT MemoMap m) a -> TopDownSolver m a
-liftMemo = lift . lift . lift
-
-liftGoalTrace :: Monad m => StateT GoalTrace (LogicT (StateT MemoMap m)) a -> TopDownSolver m a
-liftGoalTrace = lift . lift
-
-liftSubSize :: Monad m => StateT SubSize (StateT GoalTrace (LogicT (StateT MemoMap m))) a -> TopDownSolver m a
-liftSubSize = lift
-
--- | convert to Logic a
-choices :: (Traversable f, MonadPlus m) => f a -> m a
-choices = msum . fmap return
-
-printMemoMap :: MemoMap -> IO ()
-printMemoMap memoMap = do
-  printf "current memo map: {\n"
-  mapM_ printListItem (Map.toList memoMap)
-  printf "\t}\n\n"
-  where
-    printListItem :: (MemoKey, MemoValue) -> IO ()
-    printListItem (key, (list, isComplete)) = do
-      printf "\t\t* (%s @ size %s), mode: %s ==> [\n" (show $ _goalType key) (show $ _progSize key) (show $ _mode key)
-      mapM_ (\(prog, sub, storedNameCounter) -> printf "\t\t\t%s, %s, %s\n" (show prog) (show sub) (show storedNameCounter)) list 
-      printf "\t\t] %s\n" (if isComplete then "COMPLETE" else "not complete")
-
-memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
+memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO (RProgram, Int) -> TopDownSolver IO (RProgram, Int)
 memoizeProgram mode quota args goalType compute = do
   -- also catch ((alpha2 -> (alpha1 -> [(b , c)]))
-  when ("(alpha1 -> [(b , c)])" `isInfixOf` show goalType || "((alpha2 -> (alpha1 -> [(b , c)]))" `isInfixOf` show goalType) $ do
-      liftIO $ printf "-------------\ncalled dfs on %s, quota %d with sub: " (show goalType) quota
-      printSub
-      liftIO $ printf "\n-------------\n"
+  -- when ("(alpha1 -> [(b , c)])" `isInfixOf` show goalType || "((alpha2 -> (alpha1 -> [(b , c)]))" `isInfixOf` show goalType) $ do
+  --     liftIO $ printf "-------------\ncalled dfs on %s, quota %d with sub: " (show goalType) quota
+  --     printSub
+  --     liftIO $ printf "\n-------------\n"
 
   -- memoMap <- liftMemo $ get :: _ 
   -- liftIO $ printMemoMap memoMap
   msum $ map lookupProg [1..quota]
   where
-    lookupProg :: Int -> TopDownSolver IO RProgram
+    lookupProg :: Int -> TopDownSolver IO (RProgram, Int)
     lookupProg num = do
       sub <- use typeAssignment
       let subbedGoal = addTrue $ stypeSubstitute sub (shape goalType)
@@ -214,7 +107,7 @@ memoizeProgram mode quota args goalType compute = do
         -- found no stored programs, so we need to run compute @ quota to generate them
         Nothing               -> evaluate key
 
-    retrieve :: MemoValue -> TopDownSolver IO RProgram
+    retrieve :: MemoValue -> TopDownSolver IO (RProgram, Int)
     retrieve (list, isComplete) = do
       sub <- use typeAssignment
       -- liftIO $ when (not isComplete) error "oh no! isComplete is false... this shouldn't ever happen" 
@@ -222,7 +115,7 @@ memoizeProgram mode quota args goalType compute = do
       -- liftIO $ printf "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! we are using it yay! with goal: %s, got: %s\n" (show goalType) (show list)
       ourMap <- liftMemo get
       -- liftGoalTrace $ printGoalTrace
-      liftIO $ printf "!!!!!!!!!!!  (mapSize: %d)\twe are using it yay! with (goal, quota): (%s, %s)\n" (Map.size ourMap) (show goalType) (show quota) 
+      -- liftIO $ printf "!!!!!!!!!!!  (mapSize: %d)\twe are using it yay! with (goal, quota): (%s, %s)\n" (Map.size ourMap) (show goalType) (show quota) 
       -- update the current state's sub
 
 
@@ -231,29 +124,29 @@ memoizeProgram mode quota args goalType compute = do
 
 
 
-      (prog, savedSub, storedNameCounter) <- choices list
+      (prog, subSize, savedSub, storedNameCounter) <- choices list
       -- append the saved sub to our current and now updated sub
-      -- let sub' = Map.map (stypeSubstitute savedSub) sub <> savedSub
-      let sub' = savedSub <> sub
+      let sub' = savedSub <> Map.map (stypeSubstitute savedSub) sub
+      -- let sub' = savedSub <> sub
       
       -- debug for zip and []
-      when ((show goalType) == "(alpha2 -> (alpha1 -> [(b , c)]))" || (show goalType) == "[b]" ) $ do
-        liftIO $ printf "\t* sub: %s\n" (show sub)
-        liftIO $ printf "\t* savedSub: %s\n" (show savedSub)
-        liftIO $ printf "\t* sub' (should be the two above combined): %s\n" (show sub')
+      -- when ((show goalType) == "(alpha2 -> (alpha1 -> [(b , c)]))" || (show goalType) == "[b]" ) $ do
+      --   liftIO $ printf "\t* sub: %s\n" (show sub)
+      --   liftIO $ printf "\t* savedSub: %s\n" (show savedSub)
+      --   liftIO $ printf "\t* sub' (should be the two above combined): %s\n" (show sub')
       
       assign typeAssignment sub'
       assign nameCounter storedNameCounter
-      return prog
+      return (prog, subSize)
     
      
     -- runs compute, storing every program as it goes,
     -- and at the end, sets isComplete to true
-    evaluate :: MemoKey -> TopDownSolver IO RProgram
+    evaluate :: MemoKey -> TopDownSolver IO (RProgram, Int)
     evaluate key = do
         -- (will reenumerate all programs and possibly change memoMap)
         -- beforeSub <- use typeAssignment
-        prog <- compute `mplus` setComplete key
+        (prog, subSize) <- compute `mplus` setComplete key
         afterSub <- use typeAssignment
 
         -- take the difference between the subs
@@ -283,14 +176,14 @@ memoizeProgram mode quota args goalType compute = do
         --   3. (key ==> list) is in the map, and prog is not in the list
         --      -> we want to append and return prog
 
-        progSize <- sizeOfProg prog
+        progSize <- sizeOfProg prog subSize
         progNameCounter <- use nameCounter
         memoMap' <- liftMemo get :: TopDownSolver IO MemoMap
         -- sub <- use typeAssignment
         
         let subbedGoal = addTrue $ stypeSubstitute afterSub (shape goalType)
         let key' = MemoKey mode goalType progSize args
-        let storedValue = (prog, updatedSub, progNameCounter)
+        let storedValue = (prog, subSize, updatedSub, progNameCounter)
         
         let add :: RProgram -> MemoMap
             add prog = do
@@ -302,7 +195,7 @@ memoizeProgram mode quota args goalType compute = do
           Just (list, isComplete) -> do
             -- see if there's an existing (prog, sub) in the list (ignoring nameCounter)
             -- if so, update the nameCounter to be the maximum of itself and progNameCounter
-            case find (\(p,u,c) -> p == prog && u == updatedSub) list of
+            case find (\(p,s,u,c) -> (p,s,u) == (prog, subSize, updatedSub)) list of
               -- if it isn't in the completed list, that's wrong because isComplete means everything's in the list
               Nothing | isComplete -> do
                 memoMap <- liftMemo get
@@ -313,12 +206,12 @@ memoizeProgram mode quota args goalType compute = do
               Nothing      -> do
                 liftMemo $ put $ add prog
                 -- liftIO $ printf "\t### adding program %s to (size %d) goal %s\n" (show prog) (quota) (show goalType)
-                return prog
+                return (prog, subSize)
               -- if (prog, sub) is already in the list, update the nameCounter to be the maximum of itself and progNameCounter
-              Just (_,_,c) -> do
-                let list' = map (\(p,u,c) -> if p == prog && u == updatedSub then (p, u, Map.unionWith max c progNameCounter) else (p,u,c)) list
+              Just (_,_,_,c) -> do
+                let list' = map (\(p,s,u,c) -> if (p,s,u) == (prog, subSize, updatedSub) then (p, s, u, Map.unionWith max c progNameCounter) else (p,s,u,c)) list
                 liftMemo $ put $ Map.insert key' (list', isComplete) memoMap'
-                return prog
+                return (prog, subSize)
 
             -- let isInList =  :: Bool -- check if  is in list
             -- when (not isInList && isComplete) $ do
@@ -329,10 +222,10 @@ memoizeProgram mode quota args goalType compute = do
             -- add the program to our memo map!
             liftMemo $ put $ add prog
             -- liftIO $ printf "\t### adding program %s to (size %d) goal %s\n" (show prog) (quota) (show goalType)
-            return prog
+            return (prog, subSize)
           
     -- | set the complete flag and return mzero, called when we're done with compute
-    setComplete :: MemoKey -> TopDownSolver IO RProgram
+    setComplete :: MemoKey -> TopDownSolver IO (RProgram, Int)
     setComplete ogKey = do
       let ogSize = _progSize ogKey
       -- when (show (_goalType ogKey) == "(alpha1 -> [(b , c)])") $
@@ -357,7 +250,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
   -- plotted our tests, and solutions tend to have sub size = 3.7 * program size
   -- tests say (sub quota = 3 * program size quota) is best
-  solution <- dfs EMode env Map.empty messageChan searchParams quota {-(quota * 3)-} goalType :: TopDownSolver IO RProgram
+  (solution, subSize) <- dfs EMode env Map.empty messageChan searchParams quota {-(quota * 3)-} goalType :: TopDownSolver IO (RProgram, Int)
   liftGoalTrace $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
 
   -- check if the program has all the arguments that it should have (avoids calling check)  
@@ -367,7 +260,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   guard =<< liftIO (check' solution)
 
   -- subSize <- sizeOfSub
-  subSize <- liftSubSize get
+  -- subSize <- liftSubSize get
   -- when enableDebug $ liftGoalTrace printGoalTrace
   let progSize = sizeOfContent solution
   debug $ printf "\n(Quota %d) Done with %s!\nsize +\tsubSize\tsolution\n%d\t%d\t%s\n\n" quota (show goal) progSize subSize (show solution)
@@ -408,15 +301,6 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
     debug m = when enableDebug $ liftIO m
 
 
-printSub :: (MonadIO m) => StateT CheckerState (StateT SubSize m) ()
-printSub = do
-  liftIO $ printf "sub = {\n"
-  sub <- use typeAssignment
-  liftIO $ mapM_ (\(id, t) -> printf "\t%s ==> %s (size %d)\n" id (show t) (sizeOfType t)) (Map.toList sub) --- * tau ==> Int
-  -- subSize <- sizeOfSub
-  subSize <- lift $ get
-  liftIO $ printf "      } (size %d)\n\n" (subSize)
-  
 
 --
 -- does DFS in either E-mode or I-mode
@@ -428,15 +312,15 @@ printSub = do
 --    * if is a function type, add args to env, search for the return type, and return a lambda 
 --    * if not, search in e-mode
 --
-dfs :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> Int {- -> Int-} -> RType -> TopDownSolver IO RProgram
+dfs :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> Int {- -> Int-} -> RType -> TopDownSolver IO (RProgram, Int)
 dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
   | sizeQuota <= 0 = mzero
   | otherwise     = do
     -- make sure the sub isn't too big before proceeding 
     -- subSize <- sizeOfSub
-    subSize <- liftSubSize get
-    guard (subSize < sizeQuota)
-    
+    -- subSize <- liftSubSize get
+    -- guard (subSize < sizeQuota)
+    -- TODO since getting rid of subSize stuff, is that ok? 
     if useMemoize
       then memoizeProgram mode sizeQuota args goalType doDfs
       else doDfs
@@ -444,18 +328,19 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
   where
 
     -- | does DFS without memoization
-    doDfs :: TopDownSolver IO RProgram
+    doDfs :: TopDownSolver IO (RProgram, Int)
     doDfs = do
       -- debug $ printf "args to dfs: %s\n" (show $ (mode, args, sizeQuota, goalType))
       -- when enableDebug $ lift printGoalTrace
       -- holedProgram <- head <$> lift get
       -- debug $ printf "%s -> %s\n" (show goalType) (show holedProgram)
       memoMap <- liftMemo get :: TopDownSolver IO MemoMap
-      prog <- inEnv `mplus` doSplit mode
-      progSize <- sizeOfProg prog
-      guardCheck prog
+      (prog, subSize) <- inEnv `mplus` doSplit mode
+      progSize <- sizeOfProg prog subSize
+      guardCheck prog subSize
       when (show goalType == "(alpha1 -> [(b , c)])") $ debug $ printf "\t[this comment] prog: %s, size: %d\n" (show prog) (progSize)
-      return prog
+      
+      return (prog, subSize)
 
     -- search params
     useAltIMode = _topDownUseAltIMode searchParams
@@ -467,15 +352,15 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
     debug m = when enableDebug $ liftIO m
     
     -- | return components whose entire type unify with goal type
-    inEnv :: TopDownSolver IO RProgram
+    inEnv :: TopDownSolver IO (RProgram, Int)
     inEnv = do
       -- only check env if e mode, or if we're using the alt I mode
       guard (useAltIMode || mode == EMode)
-      (id, schema) <- getUnifiedComponent :: TopDownSolver IO (Id, SType)
-      return Program { content = PSymbol id, typeOf = addTrue schema }
+      (id, schema, subSize) <- getUnifiedComponent :: TopDownSolver IO (Id, SType, Int)
+      return (Program { content = PSymbol id, typeOf = addTrue schema }, subSize)
 
     -- | add args to env, and search for the return type
-    doSplit :: SynMode -> TopDownSolver IO RProgram
+    doSplit :: SynMode -> TopDownSolver IO (RProgram, Int)
     doSplit IMode = case goalType of
       ScalarT _ _            -> doSplit EMode
       FunctionT _ tArg tBody -> do
@@ -488,13 +373,13 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
         -- we're synthesizing the body for the lambda
         -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
         liftGoalTrace $ addLam argName (show tArg)
-        body <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) {-subQuota-} tBody
+        (body, subSize) <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) {-subQuota-} tBody
 
         let program = Program { content = PFun argName body, typeOf = goalType }
-        progSize <- sizeOfProg program
+        progSize <- sizeOfProg program subSize
         guard (progSize <= sizeQuota)
 
-        return program
+        return (program, subSize)
 
     -- we split (?? :: T) into (??::alpha -> T) (??::alpha)
     doSplit EMode = do
@@ -516,7 +401,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- but that's rare, and we'll solve it in the next iteration anyways
       -- the time savings are worth it
       -- alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 2) {-subQuota-} schema :: TopDownSolver IO RProgram
-      alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 1) {-subQuota-} schema :: TopDownSolver IO RProgram
+      (alphaTProgram, alphaTSubSize) <- dfs EMode env args messageChan searchParams (sizeQuota - 1) {-subQuota-} schema :: TopDownSolver IO (RProgram, Int)
       -- alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota) {-subQuota-} schema :: TopDownSolver IO RProgram
       -- debug $ printf "here!! %s\n" (show alphaTProgram)
       -- holedProgram <- head <$> lift get
@@ -528,13 +413,13 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       liftGoalTrace $ addAppFilled alphaTProgram (show alpha) holedProgram
 
       -- (sizeQuota == 6) here???????
-
-      let alphaQuota = (sizeQuota - sizeOfContent alphaTProgram)
+      alphaTSize <- sizeOfProg alphaTProgram alphaTSubSize
+      let alphaQuota = sizeQuota - alphaTSize
       when (show alphaTProgram == "GHC.List.zip") $ do
         debug $ printf "****************** sizeQuota: %d, alphaQuota: %d, sizeOfContent (%s) = %d\n" sizeQuota alphaQuota (show alphaTProgram) (sizeOfContent alphaTProgram)
         printSub
       
-      alphaProgram <- dfs IMode env args messageChan searchParams alphaQuota {-subQuota-} alphaSub :: TopDownSolver IO RProgram
+      (alphaProgram, alphaSubSize) <- dfs IMode env args messageChan searchParams alphaQuota {-subQuota-} alphaSub :: TopDownSolver IO (RProgram, Int)
       
       when (show alphaTProgram == "GHC.List.zip") $ do
         debug $ printf "****************** alphaProgram: %s, size: %d\n" (show alphaProgram) (sizeOfContent alphaProgram)
@@ -545,17 +430,16 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- debug $ printf "--------------------\n"
       -- holedProgram <- head <$> liftGoalTrace get
       -- debug $ printf "current trace (remaining quota: %d): %s\n" (sizeQuota) (show holedProgram) 
-
-      return Program {
+      return (Program {
           content = case content alphaTProgram of
                       PSymbol id -> PApp id [alphaProgram]
                       PApp id xs -> PApp id $ xs ++ [alphaProgram],
           typeOf = goalType
-        }
+        }, alphaTSubSize + alphaSubSize)
 
     -- | guards away programs that we don't want
-    guardCheck :: RProgram -> TopDownSolver IO ()
-    guardCheck prog = do
+    guardCheck :: RProgram -> Int -> TopDownSolver IO ()
+    guardCheck prog subSize = do
       -- remove erroring or redundant partial functions
       -- TODO later we'll do this in memoize
       let showProg = show prog
@@ -583,7 +467,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
                               ]
       guard $ all (not . (`isInfixOf` showProg)) uselessSubPrograms      
 
-      progSize <- sizeOfProg prog
+      progSize <- sizeOfProg prog subSize
       guard (progSize <= sizeQuota) 
       -- subSize <- sizeOfSub
       -- guard (subSize <= {-subQuota-})
@@ -591,7 +475,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
 
     -- | Using the components in env, like ("length", <a>. [a] -> Int)
     -- | tries to instantiate each, replacing type vars in order to unify with goalType
-    getUnifiedComponent :: TopDownSolver IO (Id, SType)
+    getUnifiedComponent :: TopDownSolver IO (Id, SType, Int)
     getUnifiedComponent = do
       (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
 
@@ -618,8 +502,8 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
         3. substitute all free variables in sub
         4. remove all taus from sub
       -}
-      subSize <- sizeOfSub
-      liftSubSize $ modify (+subSize)
+      -- subSize <- sizeOfSub
+      -- liftSubSize $ modify (+subSize)
       -- sizeSub <- liftSubSize get
       -- debug $ printf "-------------\n"
       -- printSub
@@ -627,15 +511,33 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       
       {- TODO problem: 
 
+            length :: a . [a]    -> Int
+                          alpha -> Int
             sub = {
                     alpha0 ==> [tau0] (size 2)
+                    tau0 ==> is missing!!!
                   } (size 0)
 
-            GHC.List.length unified with subSize: 0, for total size: 0
+            GHC.List.length arg0 unified with subSize: 0, for total size: 0
+
+
+(Quota 3) Done with <a> . ([a] -> Int)!
+size +  subSize solution
+2       1       GHC.List.length arg0
+
+sub = {
+        alpha0 ==> [a] (size 2)
+      } (size 1)
 
         ---------
 
         here, there is no tau0 in map because it's a free varialbe. do we still want the subsize to be 0? 
+
+        (alpha0 -> T) (alpha)
+          (arg0, 5)     (arg1, 4)
+
+          (arg0 arg1, 5 + 4 = 9)
+
       
         also, how do we isolate the size of the program? with just the things from the sub list that apply to the program at hand? 
         I think our method of just accumulating things is wrong... FUCK lol 
@@ -659,12 +561,14 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       --    * alpha0 ~ [[tau4]]
       --    * alpha1 ~ [tau4]
 
+
+      addedSubSize <- sizeOfSub
       let sub' = Map.map (stypeSubstitute sub) sub
       let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
       assign typeAssignment sub''
-
       
-      return (id, subbedType) 
+      return (id, subbedType, addedSubSize)
+      -- return (id, subbedType)
 
                               -- GHC.List.length, fromList [("alpha0",[tau0])], fromList [("alpha",1),("tau",1)]
 -- before: sub = {
