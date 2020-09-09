@@ -298,19 +298,31 @@ memoizeProgram mode quota args goalType compute = do
         
         case Map.lookup key' memoMap' of
           Just (list, isComplete) -> do
-            let isInList = elem storedValue list :: Bool -- check if (prog, sub) is in list
-            when (not isInList && isComplete) $ do
-              memoMap <- liftMemo get
-              liftIO $ printMemoMap memoMap
-              error $ printf "oops... (%s) %s @ size %s says complete but isn't there: %s with sub: %s" 
-                (show mode) (show goalType) (show progSize) (show prog) (show $ Map.toList updatedSub)
-              
+            -- see if there's an existing (prog, sub) in the list (ignoring nameCounter)
+            -- if so, update the nameCounter to be the maximum of itself and progNameCounter
+            case find (\(p,u,c) -> p == prog && u == updatedSub) list of
+              -- if it isn't in the completed list, that's wrong because isComplete means everything's in the list
+              Nothing | isComplete -> do
+                memoMap <- liftMemo get
+                liftIO $ printMemoMap memoMap
+                error $ printf "oops... (%s) %s @ size %s says complete but isn't there: \n\t%s \n\tsub: %s\n\tnameCounter: %s\n" 
+                  (show mode) (show goalType) (show progSize) (show prog) (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter)
+              -- if it isn't in the list but the list is incomplete, add it
+              Nothing      -> do
+                liftMemo $ put $ add prog
+                -- liftIO $ printf "\t### adding program %s to (size %d) goal %s\n" (show prog) (quota) (show goalType)
+                return prog
+              -- if (prog, sub) is already in the list, update the nameCounter to be the maximum of itself and progNameCounter
+              Just (_,_,c) -> do
+                let list' = map (\(p,u,c) -> if p == prog && u == updatedSub then (p, u, Map.unionWith max c progNameCounter) else (p,u,c)) list
+                liftMemo $ put $ Map.insert key' (list', isComplete) memoMap'
+                return prog
 
-            guard (not isInList) -- assert we're not already in the list
+            -- let isInList =  :: Bool -- check if  is in list
+            -- when (not isInList && isComplete) $ do
+
+            -- guard (not isInList) -- assert we're not already in the list
             -- add the program to our memo map!
-            liftMemo $ put $ add prog
-            -- liftIO $ printf "\t### adding program %s to (size %d) goal %s\n" (show prog) (quota) (show goalType)
-            return prog
           Nothing           -> do
             -- add the program to our memo map!
             liftMemo $ put $ add prog
@@ -334,7 +346,7 @@ memoizeProgram mode quota args goalType compute = do
       mzero
 
 -- 
--- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
+-- | try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> IO RProgram
 iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [1..]) $ \quota -> do
@@ -606,7 +618,31 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -}
       subSize <- sizeOfSub
       liftSubSize $ modify (+subSize)
+      sizeSub <- liftSubSize get
+      debug $ printf "-------------\n"
       printSub
+      
+      
+      {- TODO problem: 
+
+            sub = {
+                    alpha0 ==> [tau0] (size 2)
+                  } (size 0)
+
+            GHC.List.length unified with subSize: 0, for total size: 0
+
+        ---------
+
+        here, there is no tau0 in map because it's a free varialbe. do we still want the subsize to be 0? 
+      
+        also, it looks like things aren't getting saved? ?? 
+        omg it's because I think we have it on the wrong side of the reverting lol 
+      
+      -}
+
+
+      liftIO $ printf "%s unified with subSize: %s, for total size: %s\n" id (show subSize) (show sizeSub)
+      debug $ printf "-------------\n"
       -- subs into itself (makes sure everything that taus depend on are replaced with those values instead of taus)
       -- turns
       --    * alpha0 ~ [tau0]
@@ -685,22 +721,3 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
             a' <- freshId bounds id
             ourFreshType' (Map.insert a (vart a' ftrue) subst) (a':constraints) sch
         ourFreshType' subst constraints (Monotype t) = return (typeSubstitute subst t)
-
-
-
--- current memo map: {
---                 * ([tau0] @ size 1), mode: IMode ==> [
---                         arg0, fromList [], fromList [("alpha",1),("tau",1)]
---                 ] not complete
---                 * (Int @ size 2), mode: EMode ==> [
---                         GHC.List.length arg0, fromList [], fromList [("alpha",1),("tau",1)]
---                 ] not complete
---                 * ((alpha0 -> Int) @ size 1), mode: EMode ==> [
---                         GHC.List.length, fromList [("alpha0",[tau0])], fromList [("alpha",1),("tau",1)]
---                         GHC.List.last, fromList [("alpha0",[Int])], fromList [("alpha",1),("tau",1)]
---                         GHC.List.head, fromList [("alpha0",[Int])], fromList [("alpha",1),("tau",1)]
---                         Data.Tuple.snd, fromList [("alpha0",(tau1 , Int))], fromList [("alpha",1),("tau",2)]
---                         Data.Tuple.fst, fromList [("alpha0",(Int , tau0))], fromList [("alpha",1),("tau",2)]
---                         Data.Maybe.fromJust, fromList [("alpha0",Maybe (Int))], fromList [("alpha",1),("tau",1)]
---                 ] not complete
---         }

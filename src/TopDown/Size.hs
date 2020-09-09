@@ -21,9 +21,10 @@ import Data.List
 sizeOfProg' :: (Monad m) => RProgram -> StateT CheckerState m Int
 sizeOfProg' p = return $ sizeOfContent p
 
-sizeOfProg :: (Monad m) => RProgram -> StateT CheckerState m Int
+sizeOfProg :: (Monad m) => RProgram -> StateT CheckerState (StateT Int m) Int
 sizeOfProg p = do
-  subSize <- sizeOfSub
+  -- subSize <- sizeOfSub
+  subSize <- lift get
   return $ sizeOfContent p + subSize
 
 sizeOfContent :: RProgram -> Int
