@@ -236,6 +236,236 @@ CallStack (from HasCallStack):
 
 
 
+> syn "Maybe (a->b)->a->b"
+
+==================
+Starting!
+Arguments: fromList [("arg0",Maybe (((a -> b)))),("arg1",a)]
+Goal: b
+==================
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 1
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 2
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 3
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 4
+!!!!!!!!!!!  (mapSize: 1)       we are using it yay! with (goal, quota): ((alpha0 -> b), 3)
+!!!!!!!!!!!  (mapSize: 3)       we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b])]
+!!!!!!!!!!!  (mapSize: 3)       we are using it yay! with (goal, quota): ((alpha1 -> [b]), 2)
+!!!!!!!!!!!  (mapSize: 3)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 3)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 3)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 3)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 4)       we are using it yay! with (goal, quota): (Maybe (b), 3)
+!!!!!!!!!!!  (mapSize: 5)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",Maybe (b)),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",Maybe (b)),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): (Maybe (b), 3)
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): (Maybe (b), 3)
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b])]
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ((alpha1 -> [b]), 2)
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): (Maybe (b), 2)
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b])]
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b])]
+!!!!!!!!!!!  (mapSize: 9)       we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",Int),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",Int),("alpha1",[b])]
+
+running dfs on <b> . <a> . (Maybe (((a -> b))) -> (a -> b)) at size 5
+!!!!!!!!!!!  (mapSize: 9)       we are using it yay! with (goal, quota): (b, 5)
+!!!!!!!!!!!  (mapSize: 9)       we are using it yay! with (goal, quota): ((alpha0 -> b), 4)
+!!!!!!!!!!!  (mapSize: 11)      we are using it yay! with (goal, quota): ([b], 4)
+        * sub: fromList [("alpha0",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b])]
+!!!!!!!!!!!  (mapSize: 11)      we are using it yay! with (goal, quota): ([b], 4)
+        * sub: fromList [("alpha0",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b])]
+!!!!!!!!!!!  (mapSize: 11)      we are using it yay! with (goal, quota): ((alpha1 -> [b]), 3)
+!!!!!!!!!!!  (mapSize: 11)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 11)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 11)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 11)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 12)      we are using it yay! with (goal, quota): (Maybe (b), 2)
+!!!!!!!!!!!  (mapSize: 12)      we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",b),("alpha2",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",b),("alpha2",[b])]
+!!!!!!!!!!!  (mapSize: 12)      we are using it yay! with (goal, quota): ([b], 2)
+        * sub: fromList [("alpha0",[b]),("alpha1",b),("alpha2",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",b),("alpha2",[b])]
+!!!!!!!!!!!  (mapSize: 12)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 12)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 12)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 12)      we are using it yay! with (goal, quota): ([b], 3)
+        * sub: fromList [("alpha0",[b]),("alpha1",[b])]
+        * savedSub: fromList []
+        * sub' (should be the two above combined): fromList [("alpha0",[b]),("alpha1",[b])]
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): (Maybe (b), 3)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): (Maybe (b), 3)
+current memo map: {
+                * ([[b]] @ size 3), mode: IMode ==> [
+                        [], fromList [], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * ([b] @ size 2), mode: IMode ==> [
+                        [], fromList [], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ([b] @ size 3), mode: IMode ==> [
+                        [], fromList [], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * (Maybe (b) @ size 2), mode: IMode ==> [
+                        Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * (Maybe (b) @ size 3), mode: IMode ==> [
+                        Data.Maybe.listToMaybe [], fromList [], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * (b @ size 4), mode: EMode ==> [
+                        Data.Maybe.fromJust (Data.Maybe.listToMaybe []), fromList [], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ((alpha0 -> b) @ size 2), mode: EMode ==> [
+                        snd, fromList [("alpha0",(tau1 , b))], fromList [("alpha",1),("tau",2)]
+                        fst, fromList [("alpha0",(b , tau0))], fromList [("alpha",1),("tau",2)]
+                        GHC.List.last, fromList [("alpha0",[b])], fromList [("alpha",1),("tau",1)]
+                        GHC.List.head, fromList [("alpha0",[b])], fromList [("alpha",1),("tau",1)]
+                        Data.Tuple.snd, fromList [("alpha0",(tau1 , b))], fromList [("alpha",1),("tau",2)]
+                        Data.Tuple.fst, fromList [("alpha0",(b , tau0))], fromList [("alpha",1),("tau",2)]
+                        Data.Maybe.fromJust, fromList [("alpha0",Maybe (b))], fromList [("alpha",1),("tau",1)]
+                ] COMPLETE
+                * ((alpha1 -> [b]) @ size 2), mode: EMode ==> [
+                        GHC.List.tail, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
+                        GHC.List.reverse, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
+                        GHC.List.repeat, fromList [("alpha1",b)], fromList [("alpha",2),("tau",2)]
+                        GHC.List.init, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
+                        GHC.List.cycle, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
+                        GHC.List.concat, fromList [("alpha1",[[b]])], fromList [("alpha",2),("tau",2)]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe (b))], fromList [("alpha",2),("tau",2)]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (b)])], fromList [("alpha",2),("tau",2)]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau2) (b)])], fromList [("alpha",2),("tau",3)]
+                        Data.Either.lefts, fromList [("alpha1",[Either (b) (tau1)])], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * ((alpha1 -> Maybe (b)) @ size 2), mode: EMode ==> [
+                        Data.Maybe.listToMaybe, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
+                        Data.Maybe.Just, fromList [("alpha1",b)], fromList [("alpha",2),("tau",2)]
+                ] COMPLETE
+                * ((alpha1 -> (b , tau0)) @ size 3), mode: EMode ==> [
+                        Data.Tuple.swap, fromList [("alpha1",(tau0 , b))], fromList [("alpha",2),("tau",4)]
+                ] COMPLETE
+                * ((alpha1 -> (tau1 , b)) @ size 3), mode: EMode ==> [
+                        Data.Tuple.swap, fromList [("alpha1",(b , tau1))], fromList [("alpha",2),("tau",4)]
+                ] COMPLETE
+                * ((alpha1 -> (alpha0 -> b)) @ size 2), mode: EMode ==> [
+                        GHC.List.sum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Num (b))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.product, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Num (b))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.minimum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Ord (b))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.maximum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Ord (b))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldr1, fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1', fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1, fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
+                        Data.Tuple.uncurry, fromList [("alpha0",(tau2 , tau1)),("alpha1",tau2 -> tau1 -> b)], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.fromMaybe, fromList [("alpha0",Maybe (b)),("alpha1",b)], fromList [("alpha",2),("tau",1)]
+                        Data.Either.fromRight, fromList [("alpha0",Either (tau1) (b)),("alpha1",b)], fromList [("alpha",2),("tau",2)]
+                        Data.Either.fromLeft, fromList [("alpha0",Either (b) (tau0)),("alpha1",b)], fromList [("alpha",2),("tau",2)]
+                        (GHC.List.!!), fromList [("alpha0",Int),("alpha1",[b])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+                * ((alpha2 -> b) @ size 2), mode: EMode ==> [
+                        snd, fromList [("alpha2",(tau3 , b))], fromList [("alpha",3),("tau",4)]
+                        fst, fromList [("alpha2",(b , tau2))], fromList [("alpha",3),("tau",4)]
+                        GHC.List.last, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
+                        GHC.List.head, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
+                        Data.Tuple.snd, fromList [("alpha2",(tau3 , b))], fromList [("alpha",3),("tau",4)]
+                        Data.Tuple.fst, fromList [("alpha2",(b , tau2))], fromList [("alpha",3),("tau",4)]
+                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
+                ] COMPLETE
+        }
+
+*** Exception: oops... (IMode) [b] @ size 3 says complete but isn't there: 
+        Data.Maybe.maybeToList (Data.Maybe.listToMaybe []) 
+        sub: []
+        nameCounter: [("alpha",1),("tau",2)]
+
+CallStack (from HasCallStack):
+  error, called at /home/hoogle_plus/src/TopDown/Synthesize.hs:310:17 in main:TopDown.Synthesize
+> 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -142,11 +142,13 @@ type MemoMap = Map MemoKey MemoValue
 type SubSize = Int
 -- type MemoMap = Map MemoKey     (Logic    (RProgram, Map Id SType))
 type TopDownSolver m = StateT CheckerState (StateT SubSize (StateT GoalTrace (LogicT (StateT MemoMap m))))
+-- type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT SubSize (StateT MemoMap m))))
 
 -- evalTopDownSolver :: forall m a. Monad m => RType -> Chan Message -> [TopDownSolver m a] -> m a
 evalTopDownSolver :: forall a. RType -> Chan Message -> [TopDownSolver IO a] -> IO a
 evalTopDownSolver goalType messageChan m =
   (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ msum $ map (evalGoalTrace . evalSubSize . evalCheckerState) m
+  -- (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ evalSubSize $ msum $ map (evalGoalTrace . evalCheckerState) m
   where
     evalCheckerState = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
     evalSubSize = (`evalStateT` 0)                                              -- for StateT SubSize
@@ -618,9 +620,9 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -}
       subSize <- sizeOfSub
       liftSubSize $ modify (+subSize)
-      sizeSub <- liftSubSize get
-      debug $ printf "-------------\n"
-      printSub
+      -- sizeSub <- liftSubSize get
+      -- debug $ printf "-------------\n"
+      -- printSub
       
       
       {- TODO problem: 
@@ -635,14 +637,19 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
 
         here, there is no tau0 in map because it's a free varialbe. do we still want the subsize to be 0? 
       
-        also, it looks like things aren't getting saved? ?? 
-        omg it's because I think we have it on the wrong side of the reverting lol 
+        also, how do we isolate the size of the program? with just the things from the sub list that apply to the program at hand? 
+        I think our method of just accumulating things is wrong... FUCK lol 
+        I think we have to return the program size as a tuple from getUnifiedComponent and use that as the size to that program... 
+        and always return (RProgram, Int) everywhere
+        and when we're building up programs, combine their 2 sizes together
+        and get that size from getUnifiedComponent
       
       -}
 
 
-      liftIO $ printf "%s unified with subSize: %s, for total size: %s\n" id (show subSize) (show sizeSub)
-      debug $ printf "-------------\n"
+      -- debug $ printf "%s unified with subSize: %s, for total size: %s\n" id (show subSize) (show sizeSub)
+      -- debug $ when (subSize /= sizeSub) $ printf "DIFFERENT!!!!! \n\n\n\n*******************\n\n\n\n\n\n\n\n"
+      -- debug $ printf "-------------\n"
       -- subs into itself (makes sure everything that taus depend on are replaced with those values instead of taus)
       -- turns
       --    * alpha0 ~ [tau0]
@@ -651,6 +658,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- into:
       --    * alpha0 ~ [[tau4]]
       --    * alpha1 ~ [tau4]
+
       let sub' = Map.map (stypeSubstitute sub) sub
       let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
       assign typeAssignment sub''
