@@ -1,5 +1,1357 @@
 {-
 
+> syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
+
+==================
+Starting!
+Arguments: fromList [("arg0",(a -> Either (b) (c))),("arg1",[a])]
+Goal: ([b] , [c])
+==================
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 1
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 2
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 3
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 4
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 5
+!!!!!!!!!!!  (mapSize: 1)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 4)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+
+------
+HERE IN SPLIT
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 6
+!!!!!!!!!!!  (mapSize: 1)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 5)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 4 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 7
+!!!!!!!!!!!  (mapSize: 2)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 6)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 5 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 4 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+-------------
+called dfs on (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)]))), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 5)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 6)
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 8
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): (([b] , [c]), 8)
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 7)
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): ([(b , c)], 7)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 6 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+        [this comment] prog: Data.Either.lefts, size: 6
+        [this comment] prog: Data.Either.rights, size: 6
+        [this comment] prog: Data.Maybe.catMaybes, size: 6
+        [this comment] prog: Data.Maybe.maybeToList, size: 6
+        [this comment] prog: GHC.List.concat, size: 6
+        [this comment] prog: GHC.List.cycle, size: 6
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+        [this comment] prog: GHC.List.init, size: 6
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+        [this comment] prog: GHC.List.repeat, size: 6
+        [this comment] prog: GHC.List.reverse, size: 6
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+        [this comment] prog: GHC.List.tail, size: 6
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 5 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+****************** sizeQuota: 6, alphaQuota: 5, sizeOfContent (GHC.List.zip) = 1
+sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        alpha1 ==> [c] (size 2)
+        alpha2 ==> [b] (size 2)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+        tau2 ==> c (size 1)
+        tau3 ==> b (size 1)
+      } (size 4)
+
+-------------
+called dfs on (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)]))), quota 4 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+-------------
+called dfs on (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)])))), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 9)       we are using it yay! with (goal, quota): ([Either (b) (c)], 7)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 7)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 7)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ((alpha1 -> (alpha0 -> ([b] , [c]))), 6)
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 9
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): (([b] , [c]), 9)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 8)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 8)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 7 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ((alpha1 -> [(b , c)]), 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+        [this comment] prog: Data.Either.lefts, size: 6
+        [this comment] prog: Data.Either.rights, size: 6
+        [this comment] prog: Data.Maybe.catMaybes, size: 6
+        [this comment] prog: Data.Maybe.fromJust, size: 7
+        [this comment] prog: Data.Maybe.maybeToList, size: 6
+        [this comment] prog: Data.Tuple.fst, size: 7
+        [this comment] prog: Data.Tuple.snd, size: 7
+        [this comment] prog: GHC.List.concat, size: 6
+        [this comment] prog: GHC.List.cycle, size: 6
+        [this comment] prog: GHC.List.head, size: 7
+        [this comment] prog: GHC.List.init, size: 6
+        [this comment] prog: GHC.List.last, size: 7
+        [this comment] prog: GHC.List.repeat, size: 6
+        [this comment] prog: GHC.List.reverse, size: 6
+        [this comment] prog: GHC.List.tail, size: 6
+        [this comment] prog: fst, size: 7
+        [this comment] prog: snd, size: 7
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 6 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 14)      we are using it yay! with (goal, quota): ((alpha2 -> (alpha1 -> [(b , c)])), 6)
+        * sub: fromList [("alpha0",[(b , c)]),("tau0",c),("tau1",b)]
+        * savedSub: fromList [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)]
+        * sub': fromList [("alpha0",[(b , c)]),("alpha1",[c]),("alpha2",[b]),("tau0",c),("tau1",b),("tau2",c),("tau3",b)]
+****************** sizeQuota: 7, alphaQuota: 6, sizeOfContent (GHC.List.zip) = 1
+sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        alpha1 ==> [c] (size 2)
+        alpha2 ==> [b] (size 2)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+        tau2 ==> c (size 1)
+        tau3 ==> b (size 1)
+      } (size 4)
+
+
+forall tau2. [tau2]
+tau2 ==> b
+!!!!!!!!!!!  (mapSize: 14)      we are using it yay! with (goal, quota): ([b], 6)
+        * sub: fromList [("alpha0",[(b , c)]),("alpha1",[c]),("alpha2",[b]),("tau0",c),("tau1",b),("tau2",c),("tau3",b)]
+        * savedSub: fromList [("tau2a",b)]
+
+        idea: don't need to store the taus! just generalize all the variables in sub into foralls when storing, since
+           you don't care about anything in sub that isn't used by the program
+
+        [] :: b              {tau2 ==> b}
+        [] :: forall b. b
+
+        idea: the idea is we don't care about the tau part of tau2 ==> b
+          what if we just store the values, i.e. [b,c,b,Maybe c]  ==> size 5
+          we can also store 5 on its own. idk if that would be ok
+
+            remove all taus from step to step? and just increase an int? 
+
+            remove taus from sub list after get unified
+            set counter back to 0 for tau
+        
+        questions:
+            * for sub, when we go from step 1 to step 2, we only care about alphas, right? not anything else? 
+                  => if we only care about alphas, do we still have to make sure we're updating sub based on new alphas that appear? 
+                        (aka are there going to be times where there is another alpha in the sub when we do things)
+
+                        if we have goal: alpha0 -> a
+                        at the point where we so the sub' stuff, is there every going to be another alpha in that list? 
+                        -- daniel's hunch is yes this might happen
+                        -- darya: me too (alpha0 -> a)
+                                < save the [alpha0] here
+                                    you might do (alpha1 -> alpha0 -> a) (alpha1), which fullfills outer goal of  (alpha0 -> a)
+                                        and you need to know what alpha1 maps to in order to move on to next step
+                                        WHAT DOES THIS MEAN? we need to update sub list in regards to the alphas 
+                                > keep only the [alpha0] names you saved
+                                  then looking for (alpha0), you might do (alpha1 -> alpha0) (alpha1)
+        
+                          WE ONLY CARE ABOUT:
+                              how the alphas in the query changed
+
+
+                          two parts of the code: 
+                              1. we're computing and storing things
+                              2. we're retreiving from the map
+
+
+                          1. we're computing and storing things
+                          query: alpha5 -> b
+                          sub
+                            alpha0
+                            alpha1
+                            alpha2
+                            alpha3
+                            alpha4
+
+                          compute
+                          sub'
+                            alpha0
+                            alpha1
+                            alpha2
+                            alpha3
+                            alpha4
+                            alpha5    << what we really care about (because it's in the query)
+                            alpha6 << we don't want to keep this!! it's useless
+                                
+                              1. go through everything in sub'
+                                    check if they're in the query
+                                      only keep things that are in the query (like a filter)
+                              2. store updatedSub in the map
+                                 store nameCounter in the map
+
+                          2. we're retreiving from the map
+                          query: alpha5 -> b
+                          sub
+                            alpha0
+                            alpha1
+                            alpha2
+                            alpha3
+                            alpha4
+                            
+                          storedSub <- we get this sub' from the memo map:
+                            alpha5 ==> something we want to keep
+
+                          1. add together sub and storedSub (we already have code for this)
+                                don't do any substitutions. just add them together #simple
+
+                      
+
+        * sub': fromList [("alpha0",[(b , c)]),("alpha1",[c]),("alpha2",[b]),("tau0",c),("tau1",b),("tau2",c),("tau3",b)]
+****************** alphaProgram: [], size: 1
+sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        alpha1 ==> [c] (size 2)
+        alpha2 ==> [b] (size 2)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+        tau2 ==> c (size 1)
+        tau3 ==> b (size 1)
+      } (size 4)
+
+        [this comment] prog: GHC.List.zip [], size: 6
+current memo map: {
+                * ([Either (b) (c)] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",Either (b) (c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ([(b , c)] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",(b , c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ([b] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",b)], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * (([b] , [c]) @ size 7), mode: EMode ==> [
+                        Data.Either.partitionEithers [], fromList [("alpha0",[Either (b) (c)]),("tau0",c),("tau1",b),("tau2",Either (b) (c))], fromList [("alpha",1),("tau",3)]
+                        GHC.List.unzip [], fromList [("alpha0",[(b , c)]),("tau0",c),("tau1",b),("tau2",(b , c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 3), mode: EMode ==> [
+                        GHC.List.unzip, fromList [("alpha0",[(b , c)]),("tau0",c),("tau1",b)], fromList [("alpha",1),("tau",2)]
+                        Data.Either.partitionEithers, fromList [("alpha0",[Either (b) (c)]),("tau0",c),("tau1",b)], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 5), mode: EMode ==> [
+                        Data.Tuple.swap, fromList [("alpha0",([c] , [b])),("tau0",[b]),("tau1",[c])], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 6), mode: EMode ==> [
+                        snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        GHC.List.last, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        GHC.List.head, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        Data.Tuple.snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Tuple.fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Maybe.fromJust, fromList [("alpha0",Maybe (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 7), mode: EMode ==> [
+                        (,) [], fromList [("alpha0",[c]),("alpha1",[b]),("tau0",[c]),("tau1",[b]),("tau2",b)], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * ((alpha1 -> [Either (b) (c)]) @ size 6), mode: EMode ==> [
+                        GHC.List.tail, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.reverse, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.repeat, fromList [("alpha1",Either (b) (c)),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.init, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.cycle, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.concat, fromList [("alpha1",[[Either (b) (c)]]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe (Either (b) (c))),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (Either (b) (c))]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau3) (Either (b) (c))]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",4)]
+                        Data.Either.lefts, fromList [("alpha1",[Either (Either (b) (c)) (tau2)]),("tau3",Either (b) (c))], fromList [("alpha",2),("tau",4)]
+                ] COMPLETE
+                * ((alpha1 -> [(b , c)]) @ size 6), mode: EMode ==> [
+                        GHC.List.tail, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.reverse, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.repeat, fromList [("alpha1",(b , c)),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.init, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.cycle, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.concat, fromList [("alpha1",[[(b , c)]]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe ((b , c))),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe ((b , c))]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau3) ((b , c))]),("tau2",(b , c))], fromList [("alpha",2),("tau",4)]
+                        Data.Either.lefts, fromList [("alpha1",[Either ((b , c)) (tau2)]),("tau3",(b , c))], fromList [("alpha",2),("tau",4)]
+                ] COMPLETE
+                * ((alpha1 -> [(b , c)]) @ size 7), mode: EMode ==> [
+                        snd, fromList [("alpha1",(tau3 , [(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        fst, fromList [("alpha1",([(b , c)] , tau2)),("tau3",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        GHC.List.last, fromList [("alpha1",[[(b , c)]]),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                        GHC.List.head, fromList [("alpha1",[[(b , c)]]),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                        Data.Tuple.snd, fromList [("alpha1",(tau3 , [(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        Data.Tuple.fst, fromList [("alpha1",([(b , c)] , tau2)),("tau3",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        Data.Maybe.fromJust, fromList [("alpha1",Maybe ([(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                ] not complete
+                * ((alpha1 -> (alpha0 -> ([b] , [c]))) @ size 5), mode: EMode ==> [
+                        (,), fromList [("alpha0",[c]),("alpha1",[b]),("tau0",[c]),("tau1",[b])], fromList [("alpha",2),("tau",2)]
+                ] COMPLETE
+                * ((alpha1 -> (alpha0 -> ([b] , [c]))) @ size 6), mode: EMode ==> [
+                        GHC.List.sum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Num (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.product, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Num (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.minimum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Ord (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.maximum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Ord (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldr1, fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1', fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1, fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        Data.Tuple.uncurry, fromList [("alpha0",(tau2 , tau1)),("alpha1",tau2 -> tau1 -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.fromMaybe, fromList [("alpha0",Maybe (([b] , [c]))),("alpha1",([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        Data.Either.fromRight, fromList [("alpha0",Either (tau1) (([b] , [c]))),("alpha1",([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",2)]
+                        Data.Either.fromLeft, fromList [("alpha0",Either (([b] , [c])) (tau0)),("alpha1",([b] , [c])),("tau1",([b] , [c]))], fromList [("alpha",2),("tau",2)]
+                        (GHC.List.!!), fromList [("alpha0",Int),("alpha1",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+                * ((alpha2 -> (alpha1 -> [(b , c)])) @ size 5), mode: EMode ==> [
+                        GHC.List.zip, fromList [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)], fromList [("alpha",3),("tau",4)]
+                ] COMPLETE
+        }
+
+*** Exception: oops... (EMode) (alpha1 -> [(b , c)]) @ size 6 says complete but isn't there: GHC.List.zip [] with sub: [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)]
+CallStack (from HasCallStack):
+  error, called at /home/hoogle_plus/src/TopDown/Synthesize.hs:276:15 in main:TopDown.Synthesize
+> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### we're marking key ([b] , [c]) @ size <= 1 as complete
+### we're marking key (alpha0 -> ([b] , [c])) @ size <= 1 as complete
+### we're marking key ([b] , [c]) @ size <= 2 as complete
+### we're marking key (alpha1 -> (alpha0 -> ([b] , [c]))) @ size <= 1 as complete
+### we're marking key (alpha0 -> ([b] , [c])) @ size <= 2 as complete
+### we're marking key ([b] , [c]) @ size <= 3 as complete
+### adding program Data.Either.partitionEithers to (size 3) goal (alpha0 -> ([b] , [c]))
+### we're marking key [Either (b) (c)] @ size <= 3 as complete
+### adding program GHC.List.unzip to (size 3) goal (alpha0 -> ([b] , [c]))
+### we're marking key [(b , c)] @ size <= 3 as complete
+### we're marking key (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))) @ size <= 1 as complete
+### we're marking key (alpha1 -> (alpha0 -> ([b] , [c]))) @ size <= 2 as complete
+### we're marking key (alpha0 -> ([b] , [c])) @ size <= 3 as complete
+### we're marking key ([b] , [c]) @ size <= 4 as complete
+### we're marking key (alpha1 -> [(b , c)]) @ size <= 3 as complete
+### we're marking key [(b , c)] @ size <= 4 as complete
+### we're marking key (alpha1 -> [Either (b) (c)]) @ size <= 3 as complete
+### we're marking key [Either (b) (c)] @ size <= 4 as complete
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c]))))) @ size <= 1 as complete
+### we're marking key (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))) @ size <= 2 as complete
+### we're marking key (alpha1 -> (alpha0 -> ([b] , [c]))) @ size <= 3 as complete
+### we're marking key (alpha0 -> ([b] , [c])) @ size <= 4 as complete
+### we're marking key ([b] , [c]) @ size <= 5 as complete
+### we're marking key (alpha2 -> (alpha1 -> [(b , c)])) @ size <= 3 as complete
+### we're marking key (alpha1 -> [(b , c)]) @ size <= 4 as complete
+### we're marking key [(b , c)] @ size <= 5 as complete
+### we're marking key (alpha2 -> (alpha1 -> [Either (b) (c)])) @ size <= 3 as complete
+### we're marking key (alpha1 -> [Either (b) (c)]) @ size <= 4 as complete
+### we're marking key [Either (b) (c)] @ size <= 5 as complete
+### adding program Data.Tuple.swap to (size 5) goal (alpha0 -> ([b] , [c]))
+### we're marking key ([c] , [b]) @ size <= 5 as complete
+### we're marking key (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))))) @ size <= 1 as complete
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c]))))) @ size <= 2 as complete
+### we're marking key (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))) @ size <= 3 as complete
+### we're marking key (alpha1 -> (alpha0 -> ([b] , [c]))) @ size <= 4 as complete
+### we're marking key (alpha0 -> ([b] , [c])) @ size <= 5 as complete
+### we're marking key ([b] , [c]) @ size <= 6 as complete
+### adding program [] to (size 6) goal [(b , c)]
+### adding program GHC.List.unzip [] to (size 7) goal ([b] , [c])
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)]))) @ size <= 3 as complete
+### we're marking key (alpha2 -> (alpha1 -> [(b , c)])) @ size <= 4 as complete
+### we're marking key (alpha1 -> [(b , c)]) @ size <= 5 as complete
+### we're marking key [(b , c)] @ size <= 6 as complete
+### adding program [] to (size 6) goal [Either (b) (c)]
+### adding program Data.Either.partitionEithers [] to (size 7) goal ([b] , [c])
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> [Either (b) (c)]))) @ size <= 3 as complete
+### we're marking key (alpha2 -> (alpha1 -> [Either (b) (c)])) @ size <= 4 as complete
+### we're marking key (alpha1 -> [Either (b) (c)]) @ size <= 5 as complete
+### we're marking key [Either (b) (c)] @ size <= 6 as complete
+### we're marking key (alpha1 -> ([c] , [b])) @ size <= 5 as complete
+### we're marking key ([c] , [b]) @ size <= 6 as complete
+### adding program Data.Maybe.fromJust to (size 6) goal (alpha0 -> ([b] , [c]))
+### we're marking key Maybe ((([b] , [c]))) @ size <= 6 as complete
+### adding program Data.Tuple.fst to (size 6) goal (alpha0 -> ([b] , [c]))
+### we're marking key (([b] , [c]) , tau0) @ size <= 6 as complete
+### adding program Data.Tuple.snd to (size 6) goal (alpha0 -> ([b] , [c]))
+### we're marking key (tau1 , ([b] , [c])) @ size <= 6 as complete
+### adding program GHC.List.head to (size 6) goal (alpha0 -> ([b] , [c]))
+### we're marking key [([b] , [c])] @ size <= 6 as complete
+### adding program GHC.List.last to (size 6) goal (alpha0 -> ([b] , [c]))
+### we're marking key [([b] , [c])] @ size <= 6 as complete
+### adding program fst to (size 6) goal (alpha0 -> ([b] , [c]))
+### we're marking key (([b] , [c]) , tau0) @ size <= 6 as complete
+### adding program snd to (size 6) goal (alpha0 -> ([b] , [c]))
+### we're marking key (tau1 , ([b] , [c])) @ size <= 6 as complete
+### adding program (,) to (size 5) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key [b] @ size <= 5 as complete
+### we're marking key (alpha5 -> (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c]))))))) @ size <= 1 as complete
+### we're marking key (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))))) @ size <= 2 as complete
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c]))))) @ size <= 3 as complete
+### we're marking key (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))) @ size <= 4 as complete
+### we're marking key (alpha1 -> (alpha0 -> ([b] , [c]))) @ size <= 5 as complete
+
+### we're marking key (alpha0 -> ([b] , [c])) @ size <= 6 as complete
+
+### we're marking key ([b] , [c]) @ size <= 7 as complete
+### adding program Data.Either.lefts to (size 6) goal (alpha1 -> [(b , c)])
+### we're marking key [Either (((b , c))) (tau2)] @ size <= 6 as complete
+### adding program Data.Either.rights to (size 6) goal (alpha1 -> [(b , c)])
+### we're marking key [Either (tau3) (((b , c)))] @ size <= 6 as complete
+### adding program Data.Maybe.catMaybes to (size 6) goal (alpha1 -> [(b , c)])
+### we're marking key [Maybe (((b , c)))] @ size <= 6 as complete
+### adding program Data.Maybe.maybeToList to (size 6) goal (alpha1 -> [(b , c)])
+### we're marking key Maybe (((b , c))) @ size <= 6 as complete
+### adding program GHC.List.concat to (size 6) goal (alpha1 -> [(b , c)])
+### we're marking key [[(b , c)]] @ size <= 6 as complete
+### adding program GHC.List.cycle to (size 6) goal (alpha1 -> [(b , c)])
+### adding program GHC.List.init to (size 6) goal (alpha1 -> [(b , c)])
+### adding program GHC.List.repeat to (size 6) goal (alpha1 -> [(b , c)])
+### we're marking key (b , c) @ size <= 6 as complete
+### adding program GHC.List.reverse to (size 6) goal (alpha1 -> [(b , c)])
+### adding program GHC.List.tail to (size 6) goal (alpha1 -> [(b , c)])
+
+### adding program GHC.List.zip to (size 5) goal (alpha2 -> (alpha1 -> [(b , c)]))
+
+(?? :: alpha -> T) (?? :: alpha) size 6
+GHC.List.zip       (?? :: alpha) size 5 <- ???? what quota is alpha getting???????????????
+[tau1,tau2]GHC.List.zip       [tau3] Nil            size 6
+[tau1,tau2]GHC.List.zip       [tau2] Nil            size 6
+size 3                        size 1
+
+****************** sizeQuota: 6, alphaQuota: 5, sizeOfContent (GHC.List.zip) = 1
+^ here
+alpha = []
+
+****************** sizeQuota: 7, alphaQuota: 6, sizeOfContent (GHC.List.zip) = 1
+
+### we're marking key [b] @ size <= 5 as complete
+### we're marking key (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)])))) @ size <= 3 as complete
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)]))) @ size <= 4 as complete
+### we're marking key (alpha2 -> (alpha1 -> [(b , c)])) @ size <= 5 as complete
+
+### we're marking key (alpha1 -> [(b , c)]) @ size <= 6 as complete
+
+
+
+
+
+*** Exception: oops... (EMode) (alpha1 -> [(b , c)]) @ size 6 says complete but isn't there: GHC.List.zip [] with sub: [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)]
+
+### we're marking key [(b , c)] @ size <= 7 as complete
+### adding program Data.Either.lefts to (size 6) goal (alpha1 -> [Either (b) (c)])
+### we're marking key [Either ((Either (b) (c))) (tau2)] @ size <= 6 as complete
+### adding program Data.Either.rights to (size 6) goal (alpha1 -> [Either (b) (c)])
+### we're marking key [Either (tau3) ((Either (b) (c)))] @ size <= 6 as complete
+### adding program Data.Maybe.catMaybes to (size 6) goal (alpha1 -> [Either (b) (c)])
+### we're marking key [Maybe ((Either (b) (c)))] @ size <= 6 as complete
+### adding program Data.Maybe.maybeToList to (size 6) goal (alpha1 -> [Either (b) (c)])
+### we're marking key Maybe ((Either (b) (c))) @ size <= 6 as complete
+### adding program GHC.List.concat to (size 6) goal (alpha1 -> [Either (b) (c)])
+### we're marking key [[Either (b) (c)]] @ size <= 6 as complete
+### adding program GHC.List.cycle to (size 6) goal (alpha1 -> [Either (b) (c)])
+### adding program GHC.List.init to (size 6) goal (alpha1 -> [Either (b) (c)])
+### adding program GHC.List.repeat to (size 6) goal (alpha1 -> [Either (b) (c)])
+### we're marking key Either (b) (c) @ size <= 6 as complete
+### adding program GHC.List.reverse to (size 6) goal (alpha1 -> [Either (b) (c)])
+### adding program GHC.List.tail to (size 6) goal (alpha1 -> [Either (b) (c)])
+### we're marking key (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> [Either (b) (c)])))) @ size <= 3 as complete
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> [Either (b) (c)]))) @ size <= 4 as complete
+### we're marking key (alpha2 -> (alpha1 -> [Either (b) (c)])) @ size <= 5 as complete
+### we're marking key (alpha1 -> [Either (b) (c)]) @ size <= 6 as complete
+### we're marking key [Either (b) (c)] @ size <= 7 as complete
+### we're marking key (alpha2 -> (alpha1 -> ([c] , [b]))) @ size <= 5 as complete
+### we're marking key (alpha1 -> ([c] , [b])) @ size <= 6 as complete
+### we're marking key ([c] , [b]) @ size <= 7 as complete
+### we're marking key (alpha1 -> (tau1 , ([b] , [c]))) @ size <= 6 as complete
+### we're marking key (tau1 , ([b] , [c])) @ size <= 7 as complete
+### we're marking key (alpha1 -> (([b] , [c]) , tau0)) @ size <= 6 as complete
+### we're marking key (([b] , [c]) , tau0) @ size <= 7 as complete
+### we're marking key (alpha1 -> [([b] , [c])]) @ size <= 6 as complete
+### we're marking key [([b] , [c])] @ size <= 7 as complete
+### we're marking key (alpha1 -> [([b] , [c])]) @ size <= 6 as complete
+### we're marking key [([b] , [c])] @ size <= 7 as complete
+### we're marking key (alpha1 -> (tau1 , ([b] , [c]))) @ size <= 6 as complete
+### we're marking key (tau1 , ([b] , [c])) @ size <= 7 as complete
+### we're marking key (alpha1 -> (([b] , [c]) , tau0)) @ size <= 6 as complete
+### we're marking key (([b] , [c]) , tau0) @ size <= 7 as complete
+### we're marking key (alpha1 -> Maybe ((([b] , [c])))) @ size <= 6 as complete
+### we're marking key Maybe ((([b] , [c]))) @ size <= 7 as complete
+### adding program [] to (size 6) goal [b]
+### adding program (,) [] to (size 7) goal (alpha0 -> ([b] , [c]))
+### we're marking key [c] @ size <= 6 as complete
+### we're marking key (alpha2 -> [b]) @ size <= 5 as complete
+### we're marking key [b] @ size <= 6 as complete
+### adding program (GHC.List.!!) to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key [([b] , [c])] @ size <= 6 as complete
+### adding program Data.Either.fromLeft to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key ([b] , [c]) @ size <= 6 as complete
+### adding program Data.Either.fromRight to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key ([b] , [c]) @ size <= 6 as complete
+### adding program Data.Maybe.fromMaybe to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key ([b] , [c]) @ size <= 6 as complete
+### adding program Data.Tuple.uncurry to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key (tau2 -> (tau1 -> ([b] , [c]))) @ size <= 6 as complete
+### adding program GHC.List.foldl1 to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key (([b] , [c]) -> (([b] , [c]) -> ([b] , [c]))) @ size <= 6 as complete
+### adding program GHC.List.foldl1' to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key (([b] , [c]) -> (([b] , [c]) -> ([b] , [c]))) @ size <= 6 as complete
+### adding program GHC.List.foldr1 to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key (([b] , [c]) -> (([b] , [c]) -> ([b] , [c]))) @ size <= 6 as complete
+### adding program GHC.List.maximum to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key @@hplusTC@@Ord ((([b] , [c]))) @ size <= 6 as complete
+### adding program GHC.List.minimum to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key @@hplusTC@@Ord ((([b] , [c]))) @ size <= 6 as complete
+### adding program GHC.List.product to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key @@hplusTC@@Num ((([b] , [c]))) @ size <= 6 as complete
+### adding program GHC.List.sum to (size 6) goal (alpha1 -> (alpha0 -> ([b] , [c])))
+### we're marking key @@hplusTC@@Num ((([b] , [c]))) @ size <= 6 as complete
+### we're marking key (alpha6 -> (alpha5 -> (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))))))) @ size <= 1 as complete
+### we're marking key (alpha5 -> (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c]))))))) @ size <= 2 as complete
+### we're marking key (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))))) @ size <= 3 as complete
+### we're marking key (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c]))))) @ size <= 4 as complete
+### we're marking key (alpha2 -> (alpha1 -> (alpha0 -> ([b] , [c])))) @ size <= 5 as complete
+### we're marking key (alpha1 -> (alpha0 -> ([b] , [c]))) @ size <= 6 as complete
+### we're marking key (alpha0 -> ([b] , [c])) @ size <= 7 as complete
+### we're marking key ([b] , [c]) @ size <= 8 as complete
+### we're marking key (alpha2 -> [(b , c)]) @ size <= 6 as complete
+### we're marking key [(b , c)] @ size <= 7 as complete
+### we're marking key (alpha2 -> [(b , c)]) @ size <= 6 as complete
+### we're marking key [(b , c)] @ size <= 7 as complete
+### we're marking key (alpha2 -> (b , c)) @ size <= 6 as complete
+### we're marking key (b , c) @ size <= 7 as complete
+### we're marking key (alpha2 -> [(b , c)]) @ size <= 6 as complete
+### we're marking key [(b , c)] @ size <= 7 as complete
+### we're marking key (alpha2 -> [(b , c)]) @ size <= 6 as complete
+### we're marking key [(b , c)] @ size <= 7 as complete
+### we're marking key (alpha2 -> [[(b , c)]]) @ size <= 6 as complete
+### we're marking key [[(b , c)]] @ size <= 7 as complete
+### we're marking key (alpha2 -> Maybe (((b , c)))) @ size <= 6 as complete
+### we're marking key Maybe (((b , c))) @ size <= 7 as complete
+### we're marking key (alpha2 -> [Maybe (((b , c)))]) @ size <= 6 as complete
+### we're marking key [Maybe (((b , c)))] @ size <= 7 as complete
+### we're marking key (alpha2 -> [Either (tau3) (((b , c)))]) @ size <= 6 as complete
+### we're marking key [Either (tau3) (((b , c)))] @ size <= 7 as complete
+### we're marking key (alpha2 -> [Either (((b , c))) (tau2)]) @ size <= 6 as complete
+### we're marking key [Either (((b , c))) (tau2)] @ size <= 7 as complete
+### adding program Data.Maybe.fromJust to (size 7) goal (alpha1 -> [(b , c)])
+### we're marking key Maybe (([(b , c)])) @ size <= 7 as complete
+### adding program Data.Tuple.fst to (size 7) goal (alpha1 -> [(b , c)])
+### we're marking key ([(b , c)] , tau2) @ size <= 7 as complete
+### adding program Data.Tuple.snd to (size 7) goal (alpha1 -> [(b , c)])
+### we're marking key (tau3 , [(b , c)]) @ size <= 7 as complete
+### adding program GHC.List.head to (size 7) goal (alpha1 -> [(b , c)])
+### we're marking key [[(b , c)]] @ size <= 7 as complete
+### adding program GHC.List.last to (size 7) goal (alpha1 -> [(b , c)])
+### we're marking key [[(b , c)]] @ size <= 7 as complete
+### adding program fst to (size 7) goal (alpha1 -> [(b , c)])
+### we're marking key ([(b , c)] , tau2) @ size <= 7 as complete
+### adding program snd to (size 7) goal (alpha1 -> [(b , c)])
+### we're marking key (tau3 , [(b , c)]) @ size <= 7 as complete
+
+
+
+
+
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 5
+!!!!!!!!!!!  (mapSize: 1)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 4)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+        [this comment] prog: Data.Either.lefts, size: 6
+        [this comment] prog: Data.Either.rights, size: 6
+        [this comment] prog: Data.Maybe.catMaybes, size: 6
+        [this comment] prog: Data.Maybe.fromJust, size: 7
+        [this comment] prog: Data.Maybe.maybeToList, size: 6
+        [this comment] prog: Data.Tuple.fst, size: 7
+        [this comment] prog: Data.Tuple.snd, size: 7
+        [this comment] prog: GHC.List.concat, size: 6
+        [this comment] prog: GHC.List.cycle, size: 6
+        [this comment] prog: GHC.List.head, size: 7
+        [this comment] prog: GHC.List.init, size: 6
+        [this comment] prog: GHC.List.last, size: 7
+        [this comment] prog: GHC.List.repeat, size: 6
+        [this comment] prog: GHC.List.reverse, size: 6
+        [this comment] prog: GHC.List.tail, size: 6
+        [this comment] prog: fst, size: 7
+        [this comment] prog: snd, size: 7
+
+
+
+
+
+
+
+
+
+
+
+ 
+> syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
+
+==================
+Starting!
+Arguments: fromList [("arg0",(a -> Either (b) (c))),("arg1",[a])]
+Goal: ([b] , [c])
+==================
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 1
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 2
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 3
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 4
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 5
+!!!!!!!!!!!  (mapSize: 1)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 4)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+        [this comment] prog: Data.Either.lefts
+        [this comment] prog: Data.Either.rights
+        [this comment] prog: Data.Maybe.catMaybes
+        [this comment] prog: Data.Maybe.fromJust
+        [this comment] prog: Data.Maybe.maybeToList
+        [this comment] prog: Data.Tuple.fst
+        [this comment] prog: Data.Tuple.snd
+        [this comment] prog: GHC.List.concat
+        [this comment] prog: GHC.List.cycle
+        [this comment] prog: GHC.List.head
+        [this comment] prog: GHC.List.init
+        [this comment] prog: GHC.List.last
+        [this comment] prog: GHC.List.repeat
+        [this comment] prog: GHC.List.reverse
+        [this comment] prog: GHC.List.tail
+        [this comment] prog: fst
+        [this comment] prog: snd
+
+------
+HERE IN SPLIT
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 6
+!!!!!!!!!!!  (mapSize: 1)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 5)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 4 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+        [this comment] prog: Data.Either.lefts
+        [this comment] prog: Data.Either.rights
+        [this comment] prog: Data.Maybe.catMaybes
+        [this comment] prog: Data.Maybe.fromJust
+        [this comment] prog: Data.Maybe.maybeToList
+        [this comment] prog: Data.Tuple.fst
+        [this comment] prog: Data.Tuple.snd
+        [this comment] prog: GHC.List.concat
+        [this comment] prog: GHC.List.cycle
+        [this comment] prog: GHC.List.head
+        [this comment] prog: GHC.List.init
+        [this comment] prog: GHC.List.last
+        [this comment] prog: GHC.List.repeat
+        [this comment] prog: GHC.List.reverse
+        [this comment] prog: GHC.List.tail
+        [this comment] prog: fst
+        [this comment] prog: snd
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 7
+!!!!!!!!!!!  (mapSize: 2)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 6)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 5 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+        [this comment] prog: Data.Either.lefts
+        [this comment] prog: Data.Either.rights
+        [this comment] prog: Data.Maybe.catMaybes
+        [this comment] prog: Data.Maybe.fromJust
+        [this comment] prog: Data.Maybe.maybeToList
+        [this comment] prog: Data.Tuple.fst
+        [this comment] prog: Data.Tuple.snd
+        [this comment] prog: GHC.List.concat
+        [this comment] prog: GHC.List.cycle
+        [this comment] prog: GHC.List.head
+        [this comment] prog: GHC.List.init
+        [this comment] prog: GHC.List.last
+        [this comment] prog: GHC.List.repeat
+        [this comment] prog: GHC.List.reverse
+        [this comment] prog: GHC.List.tail
+        [this comment] prog: fst
+        [this comment] prog: snd
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 4 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+-------------
+called dfs on (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)]))), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 5)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 6)
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 8
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): (([b] , [c]), 8)
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 7)
+!!!!!!!!!!!  (mapSize: 7)       we are using it yay! with (goal, quota): ([(b , c)], 7)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 6 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+        [this comment] prog: Data.Either.lefts
+        [this comment] prog: Data.Either.rights
+        [this comment] prog: Data.Maybe.catMaybes
+        [this comment] prog: Data.Maybe.fromJust
+        [this comment] prog: Data.Maybe.maybeToList
+        [this comment] prog: Data.Tuple.fst
+        [this comment] prog: Data.Tuple.snd
+        [this comment] prog: GHC.List.concat
+        [this comment] prog: GHC.List.cycle
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+        [this comment] prog: GHC.List.head
+        [this comment] prog: GHC.List.init
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+        [this comment] prog: GHC.List.last
+        [this comment] prog: GHC.List.repeat
+        [this comment] prog: GHC.List.reverse
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+        [this comment] prog: GHC.List.tail
+!!!!!!!!!!!  (mapSize: 8)       we are using it yay! with (goal, quota): ([(b , c)], 6)
+        [this comment] prog: fst
+        [this comment] prog: snd
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 5 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+-------------
+called dfs on (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)]))), quota 4 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+-------------
+called dfs on (alpha4 -> (alpha3 -> (alpha2 -> (alpha1 -> [(b , c)])))), quota 3 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 9)       we are using it yay! with (goal, quota): ([Either (b) (c)], 7)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ([Either (b) (c)], 6)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 7)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 7)
+!!!!!!!!!!!  (mapSize: 10)      we are using it yay! with (goal, quota): ((alpha1 -> (alpha0 -> ([b] , [c]))), 6)
+
+running dfs on <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c]))) at size 9
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): (([b] , [c]), 9)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ((alpha0 -> ([b] , [c])), 8)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 8)
+-------------
+called dfs on (alpha1 -> [(b , c)]), quota 7 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ((alpha1 -> [(b , c)]), 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+!!!!!!!!!!!  (mapSize: 13)      we are using it yay! with (goal, quota): ([(b , c)], 7)
+        [this comment] prog: Data.Either.lefts
+        [this comment] prog: Data.Either.rights
+        [this comment] prog: Data.Maybe.catMaybes
+        [this comment] prog: Data.Maybe.fromJust
+        [this comment] prog: Data.Maybe.maybeToList
+        [this comment] prog: Data.Tuple.fst
+        [this comment] prog: Data.Tuple.snd
+        [this comment] prog: GHC.List.concat
+        [this comment] prog: GHC.List.cycle
+        [this comment] prog: GHC.List.head
+        [this comment] prog: GHC.List.init
+        [this comment] prog: GHC.List.last
+        [this comment] prog: GHC.List.repeat
+        [this comment] prog: GHC.List.reverse
+        [this comment] prog: GHC.List.tail
+        [this comment] prog: fst
+        [this comment] prog: snd
+
+------
+HERE IN SPLIT
+-------------
+called dfs on (alpha2 -> (alpha1 -> [(b , c)])), quota 6 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+-------------
+!!!!!!!!!!!  (mapSize: 14)      we are using it yay! with (goal, quota): ((alpha2 -> (alpha1 -> [(b , c)])), 6)
+!!!!!!!!!!!  (mapSize: 14)      we are using it yay! with (goal, quota): ([b], 6)
+        [this comment] prog: GHC.List.zip []
+current memo map: {
+                * ([Either (b) (c)] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",Either (b) (c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ([(b , c)] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",(b , c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ([b] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",b)], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * (([b] , [c]) @ size 7), mode: EMode ==> [
+                        Data.Either.partitionEithers [], fromList [("alpha0",[Either (b) (c)]),("tau0",c),("tau1",b),("tau2",Either (b) (c))], fromList [("alpha",1),("tau",3)]
+                        GHC.List.unzip [], fromList [("alpha0",[(b , c)]),("tau0",c),("tau1",b),("tau2",(b , c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 3), mode: EMode ==> [
+                        GHC.List.unzip, fromList [("alpha0",[(b , c)]),("tau0",c),("tau1",b)], fromList [("alpha",1),("tau",2)]
+                        Data.Either.partitionEithers, fromList [("alpha0",[Either (b) (c)]),("tau0",c),("tau1",b)], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 5), mode: EMode ==> [
+                        Data.Tuple.swap, fromList [("alpha0",([c] , [b])),("tau0",[b]),("tau1",[c])], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 6), mode: EMode ==> [
+                        snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        GHC.List.last, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        GHC.List.head, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        Data.Tuple.snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Tuple.fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Maybe.fromJust, fromList [("alpha0",Maybe (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 7), mode: EMode ==> [
+                        (,) [], fromList [("alpha0",[c]),("alpha1",[b]),("tau0",[c]),("tau1",[b]),("tau2",b)], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * ((alpha1 -> [Either (b) (c)]) @ size 6), mode: EMode ==> [
+                        GHC.List.tail, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.reverse, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.repeat, fromList [("alpha1",Either (b) (c)),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.init, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.cycle, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.concat, fromList [("alpha1",[[Either (b) (c)]]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe (Either (b) (c))),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (Either (b) (c))]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau3) (Either (b) (c))]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",4)]
+                        Data.Either.lefts, fromList [("alpha1",[Either (Either (b) (c)) (tau2)]),("tau3",Either (b) (c))], fromList [("alpha",2),("tau",4)]
+                ] COMPLETE
+                * ((alpha1 -> [(b , c)]) @ size 6), mode: EMode ==> [
+                        GHC.List.tail, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.reverse, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.repeat, fromList [("alpha1",(b , c)),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.init, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.cycle, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.concat, fromList [("alpha1",[[(b , c)]]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe ((b , c))),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe ((b , c))]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau3) ((b , c))]),("tau2",(b , c))], fromList [("alpha",2),("tau",4)]
+                        Data.Either.lefts, fromList [("alpha1",[Either ((b , c)) (tau2)]),("tau3",(b , c))], fromList [("alpha",2),("tau",4)]
+                ] COMPLETE
+                * ((alpha1 -> [(b , c)]) @ size 7), mode: EMode ==> [
+                        snd, fromList [("alpha1",(tau3 , [(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        fst, fromList [("alpha1",([(b , c)] , tau2)),("tau3",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        GHC.List.last, fromList [("alpha1",[[(b , c)]]),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                        GHC.List.head, fromList [("alpha1",[[(b , c)]]),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                        Data.Tuple.snd, fromList [("alpha1",(tau3 , [(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        Data.Tuple.fst, fromList [("alpha1",([(b , c)] , tau2)),("tau3",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        Data.Maybe.fromJust, fromList [("alpha1",Maybe ([(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                ] not complete
+                * ((alpha1 -> (alpha0 -> ([b] , [c]))) @ size 5), mode: EMode ==> [
+                        (,), fromList [("alpha0",[c]),("alpha1",[b]),("tau0",[c]),("tau1",[b])], fromList [("alpha",2),("tau",2)]
+                ] COMPLETE
+                * ((alpha1 -> (alpha0 -> ([b] , [c]))) @ size 6), mode: EMode ==> [
+                        GHC.List.sum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Num (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.product, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Num (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.minimum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Ord (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.maximum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Ord (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldr1, fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1', fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1, fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        Data.Tuple.uncurry, fromList [("alpha0",(tau2 , tau1)),("alpha1",tau2 -> tau1 -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.fromMaybe, fromList [("alpha0",Maybe (([b] , [c]))),("alpha1",([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        Data.Either.fromRight, fromList [("alpha0",Either (tau1) (([b] , [c]))),("alpha1",([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",2)]
+                        Data.Either.fromLeft, fromList [("alpha0",Either (([b] , [c])) (tau0)),("alpha1",([b] , [c])),("tau1",([b] , [c]))], fromList [("alpha",2),("tau",2)]
+                        (GHC.List.!!), fromList [("alpha0",Int),("alpha1",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+                * ((alpha2 -> (alpha1 -> [(b , c)])) @ size 5), mode: EMode ==> [
+                        GHC.List.zip, fromList [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)], fromList [("alpha",3),("tau",4)]
+                ] COMPLETE
+        }
+
+*** Exception: oops... (EMode) (alpha1 -> [(b , c)]) @ size 6 says complete but isn't there: GHC.List.zip [] with sub: [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)]
+CallStack (from HasCallStack):
+  error, called at /home/hoogle_plus/src/TopDown/Synthesize.hs:268:15 in main:TopDown.Synthesize
+> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: ([b] , [c]))
+((?? :: (alpha0 -> ([b] , [c]))) (?? :: alpha0))
+(GHC.List.unzip (?? :: alpha0))
+(GHC.List.unzip ((?? :: (alpha1 -> [(b , c)])) (?? :: alpha1)))
+(GHC.List.unzip (((?? :: (alpha2 -> (alpha1 -> [(b , c)]))) (?? :: alpha2)) (?? :: alpha1)))
+(GHC.List.unzip ((GHC.List.zip (?? :: alpha2)) (?? :: alpha1)))
+-----------------
+!!!!!!!!!!!  (mapSize: 14)      we are using it yay! with (goal, quota): ([b], 6)
+current memo map: {
+                * ([Either (b) (c)] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",Either (b) (c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ([(b , c)] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",(b , c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ([b] @ size 6), mode: IMode ==> [
+                        [], fromList [("tau2",b)], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * (([b] , [c]) @ size 7), mode: EMode ==> [
+                        Data.Either.partitionEithers [], fromList [("alpha0",[Either (b) (c)]),("tau0",c),("tau1",b),("tau2",Either (b) (c))], fromList [("alpha",1),("tau",3)]
+                        GHC.List.unzip [], fromList [("alpha0",[(b , c)]),("tau0",c),("tau1",b),("tau2",(b , c))], fromList [("alpha",1),("tau",3)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 3), mode: EMode ==> [
+                        GHC.List.unzip, fromList [("alpha0",[(b , c)]),("tau0",c),("tau1",b)], fromList [("alpha",1),("tau",2)]
+                        Data.Either.partitionEithers, fromList [("alpha0",[Either (b) (c)]),("tau0",c),("tau1",b)], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 5), mode: EMode ==> [
+                        Data.Tuple.swap, fromList [("alpha0",([c] , [b])),("tau0",[b]),("tau1",[c])], fromList [("alpha",1),("tau",2)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 6), mode: EMode ==> [
+                        snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        GHC.List.last, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        GHC.List.head, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        Data.Tuple.snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Tuple.fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Maybe.fromJust, fromList [("alpha0",Maybe (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                ] COMPLETE
+                * ((alpha0 -> ([b] , [c])) @ size 7), mode: EMode ==> [
+                        (,) [], fromList [("alpha0",[c]),("alpha1",[b]),("tau0",[c]),("tau1",[b]),("tau2",b)], fromList [("alpha",2),("tau",3)]
+                ] COMPLETE
+                * ((alpha1 -> [Either (b) (c)]) @ size 6), mode: EMode ==> [
+                        GHC.List.tail, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.reverse, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.repeat, fromList [("alpha1",Either (b) (c)),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.init, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.cycle, fromList [("alpha1",[Either (b) (c)]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.concat, fromList [("alpha1",[[Either (b) (c)]]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe (Either (b) (c))),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (Either (b) (c))]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",3)]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau3) (Either (b) (c))]),("tau2",Either (b) (c))], fromList [("alpha",2),("tau",4)]
+                        Data.Either.lefts, fromList [("alpha1",[Either (Either (b) (c)) (tau2)]),("tau3",Either (b) (c))], fromList [("alpha",2),("tau",4)]
+                ] COMPLETE
+                * ((alpha1 -> [(b , c)]) @ size 6), mode: EMode ==> [
+                        GHC.List.tail, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.reverse, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.repeat, fromList [("alpha1",(b , c)),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.init, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.cycle, fromList [("alpha1",[(b , c)]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        GHC.List.concat, fromList [("alpha1",[[(b , c)]]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe ((b , c))),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe ((b , c))]),("tau2",(b , c))], fromList [("alpha",2),("tau",3)]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau3) ((b , c))]),("tau2",(b , c))], fromList [("alpha",2),("tau",4)]
+                        Data.Either.lefts, fromList [("alpha1",[Either ((b , c)) (tau2)]),("tau3",(b , c))], fromList [("alpha",2),("tau",4)]
+                        ???????
+                ] COMPLETE
+                * ((alpha1 -> [(b , c)]) @ size 7), mode: EMode ==> [
+                        snd, fromList [("alpha1",(tau3 , [(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        fst, fromList [("alpha1",([(b , c)] , tau2)),("tau3",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        GHC.List.last, fromList [("alpha1",[[(b , c)]]),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                        GHC.List.head, fromList [("alpha1",[[(b , c)]]),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                        Data.Tuple.snd, fromList [("alpha1",(tau3 , [(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        Data.Tuple.fst, fromList [("alpha1",([(b , c)] , tau2)),("tau3",[(b , c)])], fromList [("alpha",2),("tau",4)]
+                        Data.Maybe.fromJust, fromList [("alpha1",Maybe ([(b , c)])),("tau2",[(b , c)])], fromList [("alpha",2),("tau",3)]
+                ] not complete
+                * ((alpha1 -> (alpha0 -> ([b] , [c]))) @ size 5), mode: EMode ==> [
+                        (,), fromList [("alpha0",[c]),("alpha1",[b]),("tau0",[c]),("tau1",[b])], fromList [("alpha",2),("tau",2)]
+                ] COMPLETE
+                * ((alpha1 -> (alpha0 -> ([b] , [c]))) @ size 6), mode: EMode ==> [
+                        GHC.List.sum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Num (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.product, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Num (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.minimum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Ord (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.maximum, fromList [("alpha0",[([b] , [c])]),("alpha1",@@hplusTC@@Ord (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldr1, fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1', fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        GHC.List.foldl1, fromList [("alpha0",[([b] , [c])]),("alpha1",([b] , [c]) -> ([b] , [c]) -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        Data.Tuple.uncurry, fromList [("alpha0",(tau2 , tau1)),("alpha1",tau2 -> tau1 -> ([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",3)]
+                        Data.Maybe.fromMaybe, fromList [("alpha0",Maybe (([b] , [c]))),("alpha1",([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                        Data.Either.fromRight, fromList [("alpha0",Either (tau1) (([b] , [c]))),("alpha1",([b] , [c])),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",2)]
+                        Data.Either.fromLeft, fromList [("alpha0",Either (([b] , [c])) (tau0)),("alpha1",([b] , [c])),("tau1",([b] , [c]))], fromList [("alpha",2),("tau",2)]
+                        (GHC.List.!!), fromList [("alpha0",Int),("alpha1",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+                * ((alpha2 -> (alpha1 -> [(b , c)])) @ size 5), mode: EMode ==> [
+                        GHC.List.zip, fromList [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)], fromList [("alpha",3),("tau",4)]
+                ] COMPLETE
+        }
+
+*** Exception: oops... (EMode) (alpha1 -> [(b , c)]) @ size 6 says complete but isn't there: GHC.List.zip [] with sub: [("alpha1",[c]),("alpha2",[b]),("tau2",c),("tau3",b)]
+CallStack (from HasCallStack):
+  error, called at /home/hoogle_plus/src/TopDown/Synthesize.hs:262:15 in main:TopDown.Synthesize
+> 
+
+
+
+
+
+
+                * ((alpha0 -> ([b] , [c])) @ size 6), mode: EMode ==> [
+                        snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        GHC.List.last, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        GHC.List.head, fromList [("alpha0",[([b] , [c])]),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                        Data.Tuple.snd, fromList [("alpha0",(tau1 , ([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Tuple.fst, fromList [("alpha0",(([b] , [c]) , tau0)),("tau1",([b] , [c]))], fromList [("alpha",1),("tau",2)]
+                        Data.Maybe.fromJust, fromList [("alpha0",Maybe (([b] , [c]))),("tau0",([b] , [c]))], fromList [("alpha",1),("tau",1)]
+                ] COMPLETE
+                * ((alpha2 -> (alpha1 -> [(b , c)])) @ size 5), mode: EMode ==> [
+                        GHC.List.zip, fromList [("alpha1",[c]),("alpha2",[b])], fromList [("alpha",3),("tau",4)]
+                ] COMPLETE
+
+ Bool @ size 5 says complete but isn't there: Data.Bool.otherwise && Data.Bool.otherwise with sub: [("alpha2",Bool),("alpha3",Bool)]
+CallStack (from HasCallStack):
+
+
+
+
+we're running this test:
+mapEither
+synGuard' "(a -> Either b c) -> [a] -> ([b], [c])" ["Data.Either.partitionEithers", "GHC.List.map"] [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
+syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
+solution: "\\f xs -> Data.Either.partitionEithers (Data.List.map f xs)"
+
+
+ mark   (alpha1 -> [(b , c)]) @ size 6  is complete
+ and then tries to synthesize ((alpha2 -> (alpha1 -> [(b , c)])) @ size 5)
+
+
+
+called dfs on (alpha1 -> [(b , c)]), quota 6 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+called dfs on (alpha1 -> [(b , c)]), quota 7 with sub: sub = {
+        alpha0 ==> [(b , c)] (size 4)
+        tau0 ==> c (size 1)
+        tau1 ==> b (size 1)
+      } (size 2)
+
+
+
+
+
+
+                * ((alpha0 -> [b]) @ size 2) ==> [
+                        GHC.List.tail, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.reverse, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.repeat, fromList [("alpha0",b),("tau0",b)]
+                        GHC.List.init, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.cycle, fromList [("alpha0",[b]),("tau0",b)]
+                        GHC.List.concat, fromList [("alpha0",[[b]]),("tau0",b)]
+                        Data.Maybe.maybeToList, fromList [("alpha0",Maybe (b)),("tau0",b)]
+                        Data.Maybe.catMaybes, fromList [("alpha0",[Maybe (b)]),("tau0",b)]
+                        Data.Either.rights, fromList [("alpha0",[Either (tau1) (b)]),("tau0",b)]
+                        Data.Either.lefts, fromList [("alpha0",[Either (b) (tau0)]),("tau1",b)]
+                ] COMPLETE
+                * ((alpha1 -> [b]) @ size 2) ==> [
+                        GHC.List.tail, fromList [("alpha1",[b])]
+                        GHC.List.reverse, fromList [("alpha1",[b])]
+                        GHC.List.repeat, fromList [("alpha1",b)]
+                        GHC.List.init, fromList [("alpha1",[b])]
+                        GHC.List.cycle, fromList [("alpha1",[b])]
+                        GHC.List.concat, fromList [("alpha1",[[b]])]
+                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe (b))]
+                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (b)])]
+                        Data.Either.rights, fromList [("alpha1",[Either (tau1) (b)])]
+                ] COMPLETE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [b])
+((?? :: (alpha0 -> [b])) (?? :: alpha0))
+(GHC.List.tail (?? :: alpha0))
+(GHC.List.tail ((?? :: (alpha1 -> [b])) (?? :: alpha1)))
+(GHC.List.tail (Data.Either.lefts (?? :: alpha1)))
+-----------------
+args to dfs: (EMode,fromList [],2,(alpha2 -> [Either (b) (b)]))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [b])
+((?? :: (alpha0 -> [b])) (?? :: alpha0))
+(GHC.List.tail (?? :: alpha0))
+(GHC.List.tail ((?? :: (alpha1 -> [b])) (?? :: alpha1)))
+(GHC.List.tail (Data.Either.lefts (?? :: alpha1)))
+(GHC.List.tail (Data.Either.lefts ((?? :: (alpha2 -> [Either (b) (b)])) (?? :: alpha2))))
+-----------------
+args to dfs: (EMode,fromList [],1,(alpha3 -> (alpha2 -> [Either (b) (b)])))
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [b])
+((?? :: (alpha0 -> [b])) (?? :: alpha0))
+(GHC.List.tail (?? :: alpha0))
+(GHC.List.tail ((?? :: (alpha1 -> [b])) (?? :: alpha1)))
+(GHC.List.tail (Data.Either.lefts (?? :: alpha1)))
+(GHC.List.tail (Data.Either.lefts ((?? :: (alpha2 -> [Either (b) (b)])) (?? :: alpha2))))
+(GHC.List.tail (Data.Either.lefts (((?? :: (alpha3 -> (alpha2 -> [Either (b) (b)]))) (?? :: alpha3)) (?? :: alpha2))))
+-----------------
+
 
 -----------------
 --- BACKTRACE ---
@@ -49,16 +1401,6 @@ current memo map: {
                         Data.Maybe.catMaybes, fromList [("alpha0",[Maybe (b)]),("tau0",b)]
                         Data.Either.rights, fromList [("alpha0",[Either (tau1) (b)]),("tau0",b)]
                         Data.Either.lefts, fromList [("alpha0",[Either (b) (tau0)]),("tau1",b)]
-                ] COMPLETE
-                * ((alpha0 -> [b]) @ size 3) ==> [
-                        (GHC.List.++) [], fromList [("alpha0",[b]),("alpha1",[b]),("tau0",b)]
-                        snd, fromList [("alpha0",(tau1 , [b])),("tau0",[b])]
-                        fst, fromList [("alpha0",([b] , tau0)),("tau1",[b])]
-                        GHC.List.last, fromList [("alpha0",[[b]]),("tau0",[b])]
-                        GHC.List.head, fromList [("alpha0",[[b]]),("tau0",[b])]
-                        Data.Tuple.snd, fromList [("alpha0",(tau1 , [b])),("tau0",[b])]
-                        Data.Tuple.fst, fromList [("alpha0",([b] , tau0)),("tau1",[b])]
-                        Data.Maybe.fromJust, fromList [("alpha0",Maybe ([b])),("tau0",[b])]
                 ] COMPLETE
                 * ((alpha1 -> [b]) @ size 2) ==> [
                         GHC.List.tail, fromList [("alpha1",[b])]
@@ -274,6 +1616,126 @@ monomorphic `sum :: [Int] -> Int`).
 Now if we rewrite the unnatural term like `head (head (head []))`  for goal
 type `Int` in this way, we get: 
 
+-- evaluate runs `compute` until completion so it can have all of the results
+-- evaluate adds one program at a time to the memo map ????
+-- problem with adding one at a time: while calculating a goal T, if you later
+--   encounter goal T again, then you will return a partial result
+-- problem with using a flag to mark incomplete memo map items:
+--   what do you do when the flag says incomplete??
+--   do you double add? do you recompute and ignore memoization?
+{-
+  -----
+  New way!!! store it at the actual size of the program instead of the quota
+  like the bank for bottom up
+  -----
+
+  (?? :: T1 at quota 3)
+    <- lookup (3, T1)   from the old map
+    f (?? :: T2 at quota 2)
+      a :: T2      quota 2
+        send (f a) through check
+          (1, T2) ==> [a] (incomplete)
+          (2, T1) ==> [f a] (incomplete)
+      b :: T2      quota 2
+        send (f b) through check
+          (1, T2) ==> [a, b] (incomplete)
+          (2, T1) ==> [f a, f b] (incomplete)    <- we don't want to redo this work!!
+      mzero
+        mark T2 at quota 2 complete here
+          (1, T2) ==> [a, b] (complete)
+          (2, T2) ==> [] (complete)
+    g (?? :: T1 at quota 2)
+      we see (1, T1), (2, T1), and we see
+      (2, T1) ==> [f a, f b] (incomplete)    <- we don't want to redo this work!!
+      -- just keep going, ignoring the memo map
+      f (?? :: T2 at quota 1)
+        (1, T2) ==> [a, b] (complete)
+        (2, T1) ==> [f a, f b] (incomplete)   <- overwrite existing
+          [f a, f b] <- return this, but it's incomplete
+            so we will re-evaluate everything and get:
+          f a <- don't return it (guard)
+          f b <- don't return it (guard)
+          g (f a) <- add and return it   (hypothetically, but doesn't happen in this example)
+        (2, T1) ==> [f a, f b] (incomplete)
+        mzero
+          mark T2 at quota 1 complete here
+            (this is redundant)
+      g (?? :: T1 at quota 1)
+        mzero
+          mark T1 at quota 1 as complete here
+            (1, T1) ==> [] (complete)
+      mzero
+        mark T1 at quota 2 as complete here
+          (2, T1) ==> [f a, f b] (complete)
+          <-------
+    -- g' (?? :: T1 at quota 2)
+    -- h ( fanfdsffsdf) ==> size 3 :: T1
+    --   (3, T1) ==> [ad]
+    mzero
+      mark T1 at quota 3 as complete here
+        (2, T1) ==> [f a, f b, g (f a), g (f b)] (complete)
+-}
+
+{-
+
+==============
+  PSEUDOCODE
+==============
+
+
+Map Key ([(RProgram, Sub)], Bool)
+key = 
+    change quota to be actual size of program
+we have a goal and quota! lookup the key with size map f (1..quota-1)
+  we get 
+    Just list -> do
+        (prog, sub) <- choices list
+        return prog and update sub
+    Nothing ->
+        keep going to the next size
+if we reach here, then we know that nothing of size 1..quota-1 was any good. 
+  we lookup @ size quota
+  Just (list, flag) ->
+      (prog, sub) <- choices list
+      return prog and update sub
+  Nothing ->
+      -- (will reinumerate all programs)
+      prog <- compute `mplus` do
+        map (1...quota) complete
+      store prog, sub <---- important: add to the existing list (make sure it's 
+                            not already there)
+      return prog
+
+Int -> Int
+we start: Int (quota 2)
+arg0
+
+T (quota 3)
+
+    sfsdfsfe
+    
+we're done
+(3, T) ==> complete!
+(2, T) ==> complete!
+(1, T) ==> complete!
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(GHC.List.last (?? :: alpha0))
+-----------------
+
+current memo map: {
+        ((alpha0 -> b) @ size 2) ==> ([(GHC.List.head,       fromList [("alpha0",[b]),("tau0",b)])]      ,False)
+        ((alpha0 -> b) @ size 2) ==> ([(Data.Maybe.fromJust, fromList [("alpha0",Maybe (b)),("tau0",b)])],True)
+        ((alpha0 -> b) @ size 2) ==> ([(Data.Tuple.fst,      fromList [("alpha0",(b , tau0)),("tau1",b)])],True)
+        ((alpha0 -> b) @ size 2) ==> ([(Data.Tuple.snd,      fromList [("alpha0",(tau1 , b)),("tau0",b)])],True)
+      }
+
+*** Exception: oops... says complete but isn't there: GHC.List.last with sub: [("alpha0",[b]),("tau0",b)]
+-}
     `head (head (head []))`   ==>
     `head Int (head [Int] (head [[Int]] ([] [[[Int]]])))`
 
