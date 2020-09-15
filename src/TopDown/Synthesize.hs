@@ -35,6 +35,7 @@ import Control.Monad.Logic
 import Control.Monad.State
 import Data.List
 import qualified Data.Map as Map
+import qualified Data.Map.Merge.Strict as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
@@ -82,14 +83,16 @@ synthesize searchParams goal examples messageChan = do
 
 memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO (RProgram, Int) -> TopDownSolver IO (RProgram, Int)
 memoizeProgram mode quota args goalType compute = do
-  -- also catch ((alpha2 -> (alpha1 -> [(b , c)]))
-  -- when ("(alpha1 -> [(b , c)])" `isInfixOf` show goalType || "((alpha2 -> (alpha1 -> [(b , c)]))" `isInfixOf` show goalType) $ do
-  --     liftIO $ printf "-------------\ncalled dfs on %s, quota %d with sub: " (show goalType) quota
-  --     printSub
-  --     liftIO $ printf "\n-------------\n"
 
-  -- memoMap <- liftMemo $ get :: _ 
-  -- liftIO $ printMemoMap memoMap
+  -- debug
+  when False $ do
+    memoMap <- liftMemo get
+    liftIO $ printf "========quota %d=========\n" quota
+    liftIO $ printMemoMap memoMap
+    liftGoalTrace $ printGoalTrace
+    printSub
+    liftIO $ printf "========================\n"
+
   msum $ map lookupProg [1..quota]
   where
     lookupProg :: Int -> TopDownSolver IO (RProgram, Int)
@@ -101,7 +104,7 @@ memoizeProgram mode quota args goalType compute = do
       memoMap <- liftMemo get
       case Map.lookup key memoMap of
         -- found some stored programs, so return them
-        Just stored           -> mzero -- retrieve stored
+        Just stored           -> retrieve stored
         -- found no stored programs, but it's at a smaller quota so we keep checking
         Nothing | num < quota -> mzero
         -- found no stored programs, so we need to run compute @ quota to generate them
@@ -123,8 +126,25 @@ memoizeProgram mode quota args goalType compute = do
 
       (prog, subSize, savedSub, storedNameCounter) <- choices list
       -- append the saved sub to our current and now updated sub
-      let sub' = savedSub <> Map.map (stypeSubstitute savedSub) sub
+      -- let sub' = savedSub <> Map.map (stypeSubstitute savedSub) sub
       -- let sub' = savedSub <> sub
+      
+      -- ok, actually we need to check conflicts.
+      -- example from synGuard "a->b" "maybe":
+      -- sub: {alpha0 => Maybe tau1}
+      -- savedSub: {alpha0 => b}
+      -- sub':   this should fail to unify
+      let s1 = sub
+      let s2 = savedSub
+      -- this is Map.unionWith, but takes in a monadic combining function
+      let unionWithM f = Map.mergeA Map.preserveMissing Map.preserveMissing (Map.zipWithMaybeAMatched f)
+
+      let combiner :: Id -> SType -> SType -> TopDownSolver IO (Maybe SType)
+          combiner k a b = do
+            unify undefined k b
+            guard =<< use isChecked
+            Map.lookup k <$> use typeAssignment
+      sub' <- unionWithM combiner s1 s2
       
       when ((show goalType) == "(alpha0 -> Either (a) (b))") $ do
         liftIO $ printf "==========\n"
@@ -155,6 +175,7 @@ memoizeProgram mode quota args goalType compute = do
         when (show goalType == "(alpha0 -> b)") $ do
           liftIO $ printf "\n==================== !!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
           liftGoalTrace $ printGoalTrace
+
  
         -- take the difference between the subs
         -- let subDiff = afterSub `Map.difference` beforeSub
@@ -165,6 +186,9 @@ memoizeProgram mode quota args goalType compute = do
         --    store nameCounter in the map
 
         -- only keeps the parts of the new sub that are relevant to the query
+        --   TODO this is problematic:
+        --   when we solve (?? :: b) with component (arg1 :: alpha0),
+        --   this erases the alpha0 ==> b in sub
         let updatedSub = Map.filterWithKey (\k v -> k `isInfixOf` (show goalType)) afterSub
         -- when ("alpha0" `elem` (Map.keys afterSub) && not ("alpha0" `elem` (Map.keys updatedSub))) $ do
         --   liftIO $ do
@@ -380,7 +404,6 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- only check env if e mode, or if we're using the alt I mode
       guard (useAltIMode || mode == EMode)
       (id, schema, subSize) <- getUnifiedComponent :: TopDownSolver IO (Id, SType, Int)
-
       return (Program { content = PSymbol id, typeOf = addTrue schema }, subSize)
 
     -- | add args to env, and search for the return type
@@ -593,8 +616,7 @@ sub = {
 
       addedSubSize <- sizeOfSub
       let sub' = Map.map (stypeSubstitute sub) sub
-      let sub'' = sub'
-      -- let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
+      let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
       
 
       assign typeAssignment sub''

@@ -1,4 +1,4 @@
-module TopDown.TypeChecker where
+module TopDown.TypeChecker (topDownSolveTypeConstraint, unify) where
 
 import Database.Convert
 import Database.Util
