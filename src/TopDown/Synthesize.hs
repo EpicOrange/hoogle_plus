@@ -129,23 +129,39 @@ memoizeProgram mode quota args goalType compute = do
       -- let sub' = savedSub <> Map.map (stypeSubstitute savedSub) sub
       -- let sub' = savedSub <> sub
       
-      -- ok, actually we need to check conflicts.
-      -- example from synGuard "a->b" "maybe":
-      -- sub: {alpha0 => Maybe tau1}
-      -- savedSub: {alpha0 => b}
-      -- sub':   this should fail to unify
       let s1 = sub
       let s2 = savedSub
+      -- the reason this exists (rather than say, let sub' = s1 <> s2)
+      -- is to make sure we don't load a component from memoize whose type conflicts with the current sub
+      -- example 1: goal is b, sub is empty
+      --   and we load (arg1 :: alpha0) with alpha0 ==> b  --- OK
+      -- example 2: goal is b, sub has alpha0 ==> Maybe tau1
+      --   and we load (arg1 :: alpha0) with alpha0 ==> b  --- NOT OK
+      
       -- this is Map.unionWith, but takes in a monadic combining function
       let unionWithM f = Map.mergeA Map.preserveMissing Map.preserveMissing (Map.zipWithMaybeAMatched f)
-
+      -- when the type variable k (e.g. alpha0) maps to both t1 and t2,
+      -- unify k with t2 (the typeAssignment already has k ==> t1)
+      -- guard isChecked
+      -- return new unified value of k (e.g. alpha0)
       let combiner :: Id -> SType -> SType -> TopDownSolver IO (Maybe SType)
-          combiner k a b = do
-            unify undefined k b
+          combiner k t1 t2 = do
+            unify undefined k t2
             guard =<< use isChecked
             Map.lookup k <$> use typeAssignment
       sub' <- unionWithM combiner s1 s2
       
+         
+         -- TODO this is where we are and why we're stuck
+         {-
+                - query: synGuard "a -> b" ["maybe"]
+                - problems: 
+                    * having issues with sub, not sure what to store and how to combine afterwards when we retrive 
+                    * the size calculations are wrong now (we are no longer removing all the subs and that's causing issues with cacluating size)
+         -}
+        
+
+
       when ((show goalType) == "(alpha0 -> Either (a) (b))") $ do
         liftIO $ printf "==========\n"
         progSize <- sizeOfProg prog subSize
@@ -155,9 +171,9 @@ memoizeProgram mode quota args goalType compute = do
         liftIO $ printf "\t* sub' (should be the two above combined): %s\n" (show sub')
         
       
-        -- * sub: fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> alpha0 -> Either (a) (b)),("alpha3",tau2 -> alpha0 -> Either (a) (b))]
-        -- * savedSub: fromList [("alpha0",Either (a) (b))]
-        -- * sub' (should be the two above combined): fromList [("alpha0",Either (a) (b)),("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> Either (a) (b) -> Either (a) (b)),("alpha3",tau2 -> Either (a) (b) -> Either (a) (b))]
+        --  * sub: fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> alpha0 -> Either (a) (b)),("alpha3",tau2 -> alpha0 -> Either (a) (b))]
+        --  * savedSub: fromList [("alpha0",Either (a) (b))]
+        --  * sub' (should be the two above combined): fromList [("alpha0",Either (a) (b)),("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> Either (a) (b) -> Either (a) (b)),("alpha3",tau2 -> Either (a) (b) -> Either (a) (b))]
 
       assign typeAssignment sub'
       assign nameCounter storedNameCounter
@@ -189,7 +205,8 @@ memoizeProgram mode quota args goalType compute = do
         --   TODO this is problematic:
         --   when we solve (?? :: b) with component (arg1 :: alpha0),
         --   this erases the alpha0 ==> b in sub
-        let updatedSub = Map.filterWithKey (\k v -> k `isInfixOf` (show goalType)) afterSub
+        let updatedSub = afterSub `Map.difference` beforeSub
+        -- let updatedSub = Map.filterWithKey (\k v -> k `isInfixOf` (show goalType)) afterSub
         -- when ("alpha0" `elem` (Map.keys afterSub) && not ("alpha0" `elem` (Map.keys updatedSub))) $ do
         --   liftIO $ do
         --     printf "\n====================\nFuck! We removed alpha0 from goalType %s\n" (show goalType)
