@@ -192,6 +192,7 @@ stack run -- hplus topdown --json='{"query": "(a->b)->[a]->[b]", "inExamples": [
 
 repl-funcs
 synGuard' "(a->b)->Int->[a->b]" ["GHC.List.replicate"] []
+syn "(a->b)->Int->[a->b]"
 solution: "\\f n -> Data.List.replicate n f"
 
 mbAppFirst
@@ -251,11 +252,14 @@ solution: "\\f xs -> Data.List.zip xs (Data.List.map f xs)"
 
 resolveEither
 synGuard' "Either a b -> (a->b) -> b" ["Data.Either.either"] [(["Left 3", "\\x -> x + 1"], "4"), (["Right 3", "\\x -> x * x"], "3")]
+syn' "Either a b -> (a->b) -> b" [(["Left 3", "\\x -> x + 1"], "4"), (["Right 3", "\\x -> x * x"], "3")]
 solution: "\\x f -> Data.Either.either f id x"
+our solution: Data.Either.either arg1 (\arg2 -> arg2) arg0
 
 applyNtimes
 synGuard' "(a->a) -> a -> Int -> a" ["GHC.List.foldr", "GHC.List.replicate"] [(["\\x -> x ++ x", "\"f-\"", "3"], "\"f-f-f-f-f-f-f-f-\"")]
-solution: "\\f x n -> Data.List.foldr ($) x (Data.List.replicate n f)"
+solution: "\\arg0 arg1 arg2 -> Data.List.foldr ($) arg1 (Data.List.replicate arg2 arg0)"
+\\arg0 arg1 arg2 -> arg0 (GHC.List.foldr1 (\\arg3 -> arg0) (GHC.List.replicate arg2 arg1))
 
 eitherTriple
 synGuard' "Either a b -> Either a b -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 1", "Left 2"], "Left 1"), (["Left 1", "Right 2"], "Left 1"), (["Right 2", "Right 3"], "Right 3")]
@@ -263,7 +267,9 @@ solution: "\\x y -> Data.Either.either Left (const (Data.Either.either Left Righ
 
 pipe
 synGuard' "[(a -> a)] -> (a -> a)" ["GHC.List.foldr"] [(["[\\x -> x + 1, \\x -> x * 2, \\x -> x * x]", "3"], "19")]
+syn' "[(a -> a)] -> (a -> a)" [(["[\\x -> x + 1, \\x -> x * 2, \\x -> x * x]", "3"], "19")]
 solution: "\\xs x -> Data.List.foldr ($) x xs"
+\\arg0 arg1 -> GHC.List.foldr (\\arg2 -> arg2) arg1 arg0
 
 lookup
 synGuard' "Eq a => [(a,b)] -> a -> b" ["Data.Maybe.fromJust", "GHC.List.lookup"] [(["[(1,2), (2,3), (4,6)]", "2"], "3")]

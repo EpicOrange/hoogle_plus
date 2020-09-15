@@ -141,42 +141,42 @@ evalTopDownSolver goalType messageChan m =
 choices :: (Traversable f, MonadPlus m) => f a -> m a
 choices = msum . fmap return
 
-memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
--- memoizeProgram _ _ _ _ compute = compute
-memoizeProgram mode quota args goalType compute = do
-  st <- get
-  memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
-  memoizeProgram' st memoMap
-  where
-    memoizeProgram' :: CheckerState -> MemoMap -> TopDownSolver IO RProgram
-    memoizeProgram' st memoMap = case Map.lookup key memoMap of
-      Just progs -> retrieve progs -- retrieve stored value
-      Nothing    -> evaluate       -- compute and store value
+-- memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO RProgram -> TopDownSolver IO RProgram
+-- -- memoizeProgram _ _ _ _ compute = compute
+-- memoizeProgram mode quota args goalType compute = do
+--   st <- get
+--   memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
+--   memoizeProgram' st memoMap
+--   where
+--     memoizeProgram' :: CheckerState -> MemoMap -> TopDownSolver IO RProgram
+--     memoizeProgram' st memoMap = case Map.lookup key memoMap of
+--       Just progs -> retrieve progs -- retrieve stored value
+--       Nothing    -> evaluate       -- compute and store value
       
-      where
-        sub = st ^. typeAssignment
-        key = (mode, goalType, quota, args, sub)
+--       where
+--         sub = st ^. typeAssignment
+--         key = (mode, goalType, quota, args, sub)
         
-        retrieve :: Logic (RProgram, Map Id SType) -> TopDownSolver IO RProgram
-        retrieve progs = do
-          (prog, savedSub) <- choices progs
-          let sub'' = Map.map (stypeSubstitute savedSub) sub <> savedSub
-          assign typeAssignment sub''
-          return prog
+--         retrieve :: Logic (RProgram, Map Id SType) -> TopDownSolver IO RProgram
+--         retrieve progs = do
+--           (prog, savedSub) <- choices progs
+--           let sub'' = Map.map (stypeSubstitute savedSub) sub <> savedSub
+--           assign typeAssignment sub''
+--           return prog
         
-        -- we can only add to memo map after we're completely done with compute
-        -- so we run and return compute as normal, and then store the result when it runs out
-        evaluate :: TopDownSolver IO RProgram
-        evaluate = compute `mplus` do
-            -- get compute into a type we'll store into the memomap
-            let resultToStored (prog, checkerState) = (prog, checkerState ^. typeAssignment)
-            st' <- get
-            goalTrace <- lift get
-            let x = fmap resultToStored $ (`evalStateT` goalTrace) $ (`runStateT` st) compute :: LogicT (StateT MemoMap IO) (RProgram, Map Id SType)
-            xs <- lift $ lift $ lift $ observeAllT x :: TopDownSolver IO [(RProgram, Map Id SType)]
-            let stored = choices xs
-            lift $ lift $ lift $ modify (Map.insert key stored)
-            mzero
+--         -- we can only add to memo map after we're completely done with compute
+--         -- so we run and return compute as normal, and then store the result when it runs out
+--         evaluate :: TopDownSolver IO RProgram
+--         evaluate = compute `mplus` do
+--             -- get compute into a type we'll store into the memomap
+--             let resultToStored (prog, checkerState) = (prog, checkerState ^. typeAssignment)
+--             st' <- get
+--             goalTrace <- lift get
+--             let x = fmap resultToStored $ (`evalStateT` goalTrace) $ (`runStateT` st) compute :: LogicT (StateT MemoMap IO) (RProgram, Map Id SType)
+--             xs <- lift $ lift $ lift $ observeAllT x :: TopDownSolver IO [(RProgram, Map Id SType)]
+--             let stored = choices xs
+--             lift $ lift $ lift $ modify (Map.insert key stored)
+--             mzero
 -- 
 -- try to get solutions by calling dfs on depth 0, 1, 2, 3, ... until we get an answer
 --
@@ -193,6 +193,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   -- check if the program has all the arguments that it should have (avoids calling check)  
   guard (filterParams solution)
   
+  liftIO $ printf "checking program:       %s\n" (show solution)
   -- call check on the program
   guard =<< liftIO (check' solution)
 
@@ -333,7 +334,9 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- subtract 2; we may be setting the quota too low if alphaTProgram happens to be size 1,
       -- but that's rare, and we'll solve it in the next iteration anyways
       -- the time savings are worth it
-      alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 2) {-subQuota-} schema :: TopDownSolver IO RProgram
+      alphaTProgram <- if nadia_way 
+        then dfs EMode env args messageChan searchParams (sizeQuota - 2) {-subQuota-} schema :: TopDownSolver IO RProgram
+        else dfs EMode env args messageChan searchParams (sizeQuota - 1) {-subQuota-} schema :: TopDownSolver IO RProgram
       -- debug $ printf "here!! %s\n" (show alphaTProgram)
       -- holedProgram <- head <$> lift get
       -- debug $ printf "-----\ntypeOf alphaTProgram (%s) = %s\n      %s\n" (show alphaTProgram) (show $ typeOf alphaTProgram) (show holedProgram)

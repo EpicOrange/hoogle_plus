@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Size(sizeOfProg, sizeOfContent, sizeOfType, sizeOfSub) where
+module TopDown.Size(sizeOfProg, sizeOfContent, sizeOfType, sizeOfSub, nadia_way) where
 
 import Control.Lens
 import Control.Monad.State
@@ -24,7 +24,9 @@ sizeOfProg' p = return $ sizeOfContent p
 sizeOfProg :: (Monad m) => RProgram -> StateT CheckerState m Int
 sizeOfProg p = do
   subSize <- sizeOfSub
-  return $ sizeOfContent p + subSize
+  if nadia_way 
+    then return $ sizeOfContent p + subSize
+    else return $ sizeOfContent p
 
 sizeOfContent :: RProgram -> Int
 sizeOfContent p = case content p of
@@ -82,7 +84,12 @@ sizeOfSub = do
   st <- get
   let sub = st ^. typeAssignment :: Map Id SType
   let sub' = Map.filterWithKey (\id _ -> "tau" `isPrefixOf` id) sub
-  return $ Map.foldr f 0 sub'
-  where
-    f :: SType -> Int -> Int
-    f t acc = sizeOfType t + acc
+  return $ sum $ Map.map sizeOfType sub'
+  -- return $ Map.foldr f 0 sub'
+  -- where
+  --   f :: SType -> Int -> Int
+  --   f t acc = sizeOfType t + acc
+
+nadia_way = False
+
+-- "fst arg0 arg1, snd arg0 arg1"
