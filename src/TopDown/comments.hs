@@ -2,1494 +2,102 @@
 
 
 
-*** Exception: oops... (EMode) (alpha2 -> Int) @ size 2 says complete but isn't there: 
-        GHC.List.length 
-        sub: [("alpha2",[a])]
-        nameCounter: [("alpha",3),("tau",2)]
 
-* ((alpha2 -> Int) @ size 2), mode: EMode ==> [
-        (subSize 1) snd, fromList [("alpha2",(tau2 , Int))], fromList [("alpha",3),("tau",3)]
-        (subSize 1) fst, fromList [("alpha2",(Int , tau1))], fromList [("alpha",3),("tau",3)]
-        (subSize 1) GHC.List.last, fromList [("alpha2",[Int])], fromList [("alpha",3),("tau",2)]
-        (subSize 1) GHC.List.head, fromList [("alpha2",[Int])], fromList [("alpha",3),("tau",2)]
-        (subSize 1) Data.Tuple.snd, fromList [("alpha2",(tau2 , Int))], fromList [("alpha",3),("tau",3)]
-        (subSize 1) Data.Tuple.fst, fromList [("alpha2",(Int , tau1))], fromList [("alpha",3),("tau",3)]
-        (subSize 1) Data.Maybe.fromJust, fromList [("alpha2",Maybe (Int))], fromList [("alpha",3),("tau",2)]
-] COMPLETE
 
+we're having problems with:
+synGuard' "Either a (Either a b) -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
+
+
+
+also try:  synGuard "a->b" ["maybe"]
+
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> b)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> b))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+((((Data.Maybe.maybe (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+  alpha3 ==> alpha0 -> b
+  alpha2 ==> tau1 -> (alpha0 -> b)
+  alpha1 ==> Maybe (tau1)
+((((Data.Maybe.maybe (\arg1 -> (?? :: b))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+  alpha3 ==> alpha0 -> b
+  alpha2 ==> tau1 -> (alpha0 -> b)
+  alpha1 ==> Maybe (tau1)
 
 current memo map: {
-                * (@@hplusTC@@Num (Int) @ size 1), mode: IMode ==> [
-                        (subSize 0) @@hplusTCInstance@@0NumInt, fromList [], fromList [("alpha",4),("tau",2)]
+                * (b @ size 1), mode: IMode, args: fromList [("arg1",alpha0)] ==> [
+                        (subSize 0) arg1, fromList [], fromList [("alpha",4),("arg",2),("tau",2)]
                 ] COMPLETE
-                * (@@hplusTC@@Ord (Int) @ size 1), mode: IMode ==> [
-                        (subSize 0) @@hplusTCInstance@@0OrdInt, fromList [], fromList [("alpha",4),("tau",2)]
+                * ((alpha0 -> b) @ size 2), mode: IMode, args: fromList [] ==> [
+                        (subSize 0) \arg1 -> arg1, fromList [("alpha0",b)], fromList [("alpha",4),("arg",2),("tau",2)]
                 ] COMPLETE
-                * (Bool @ size 1), mode: IMode ==> [
-                        (subSize 0) Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (Bool @ size 1), mode: IMode ==> [
-                        (subSize 0) Data.Bool.otherwise, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 0) Data.Bool.True, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 0) Data.Bool.False, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                ] COMPLETE
-                * (Bool @ size 1), mode: IMode ==> [
-                        (subSize 0) Data.Bool.otherwise, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 0) Data.Bool.True, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 0) Data.Bool.False, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * (Bool @ size 2), mode: IMode ==> [
-                        (subSize 0) Data.Bool.not Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.not Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.not Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (Bool @ size 3), mode: IMode ==> [
-                        (subSize 0) Data.Bool.False || Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.False || Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.False || Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.True || Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.True || Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.True || Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.otherwise || Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.otherwise || Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.otherwise || Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.False && Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.False && Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.False && Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.True && Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.True && Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.True && Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.otherwise && Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.otherwise && Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.otherwise && Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.or [], fromList [], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.null [], fromList [], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) GHC.List.null arg2, fromList [], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.and [], fromList [], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Maybe.isNothing Data.Maybe.Nothing, fromList [], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Maybe.isJust Data.Maybe.Nothing, fromList [], fromList [("alpha",4),("tau",4)]
-                        (subSize 0) Data.Bool.not (Data.Bool.not Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.not (Data.Bool.not Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Bool.not (Data.Bool.not Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (Either (b) (tau0) @ size 4), mode: IMode ==> [
-                        (subSize 2) Data.Either.Left arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (Either (tau1) (b) @ size 4), mode: IMode ==> [
-                        (subSize 2) Data.Either.Right arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (Int @ size 3), mode: IMode ==> [
-                        (subSize 1) GHC.List.length [], fromList [], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) GHC.List.length arg2, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ([Bool] @ size 2), mode: IMode ==> [
-                        (subSize 1) [], fromList [], fromList [("alpha",4),("tau",3)]
-                ] COMPLETE
-                * ([Int] @ size 2), mode: IMode ==> [
-                        (subSize 1) [], fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ([[a]] @ size 3), mode: IMode ==> [
-                        (subSize 2) [], fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ([[b]] @ size 3), mode: IMode ==> [
-                        (subSize 2) [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([Maybe (a)] @ size 3), mode: IMode ==> [
-                        (subSize 2) [], fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ([Maybe (b)] @ size 3), mode: IMode ==> [
-                        (subSize 2) [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([a] @ size 1), mode: IMode ==> [
-                        (subSize 0) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ([a] @ size 1), mode: IMode ==> [
-                        (subSize 0) arg2, fromList [], fromList [("alpha",4),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ([a] @ size 2), mode: IMode ==> [
-                        (subSize 1) [], fromList [], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * ([a] @ size 3), mode: IMode ==> [
-                        (subSize 1) GHC.List.tail arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.reverse arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.init arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.cycle arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ([a] @ size 4), mode: IMode ==> [
-                        (subSize 1) arg2 ++ arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ([a] @ size 5), mode: IMode ==> [
-                        (subSize 2) [] ++ arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.False) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.True) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.otherwise) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.False) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.True) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.otherwise) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.otherwise) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.True) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.False) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg2 ++ [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) Data.Maybe.maybeToList (Data.Maybe.listToMaybe arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.cycle (GHC.List.cycle arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.cycle (GHC.List.init arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.cycle (GHC.List.reverse arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.cycle (GHC.List.tail arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.init (GHC.List.cycle arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.init (GHC.List.init arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.init (GHC.List.reverse arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.init (GHC.List.tail arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.repeat (GHC.List.head arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.repeat (GHC.List.last arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.reverse (GHC.List.cycle arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.reverse (GHC.List.init arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.reverse (GHC.List.reverse arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.reverse (GHC.List.tail arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.tail (GHC.List.cycle arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.tail (GHC.List.init arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.tail (GHC.List.reverse arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.tail (GHC.List.tail arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ([b] @ size 2), mode: IMode ==> [
-                        (subSize 1) [], fromList [], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * ([b] @ size 3), mode: IMode ==> [
-                        (subSize 1) GHC.List.repeat arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ([b] @ size 5), mode: IMode ==> [
-                        (subSize 1) GHC.List.iterate (\arg3 -> arg0) arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.iterate (\arg3 -> arg3) arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.iterate' (\arg3 -> arg3) arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.iterate' (\arg3 -> arg0) arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.map arg1 arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg0 : [], fromList [], fromList [("alpha",1),("tau",2)]
-                        (subSize 2) Data.Maybe.maybeToList (Data.Maybe.Just arg0), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.cycle (GHC.List.repeat arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.init (GHC.List.repeat arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.reverse (GHC.List.repeat arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.tail (GHC.List.repeat arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ([tau1] @ size 2), mode: IMode ==> [
-                        (subSize 1) [], fromList [], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) arg2, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ([tau2] @ size 2), mode: IMode ==> [
-                        (subSize 1) [], fromList [], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) arg2, fromList [], fromList [("alpha",4),("tau",3)]
-                ] COMPLETE
-                * ([(alpha0 -> b)] @ size 3), mode: IMode ==> [
-                        (subSize 2) [], fromList [], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * (Maybe (Int) @ size 2), mode: IMode ==> [
-                        (subSize 1) Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * (Maybe (a) @ size 2), mode: IMode ==> [
-                        (subSize 1) Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * (Maybe (a) @ size 3), mode: IMode ==> [
-                        (subSize 1) Data.Maybe.listToMaybe arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (Maybe (a) @ size 4), mode: IMode ==> [
-                        (subSize 2) Data.Maybe.listToMaybe [], fromList [], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * (Maybe (a) @ size 5), mode: IMode ==> [
-                        (subSize 2) Data.Maybe.Just (GHC.List.head arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.Just (GHC.List.last arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.listToMaybe (GHC.List.cycle arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.listToMaybe (GHC.List.init arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.listToMaybe (GHC.List.reverse arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.listToMaybe (GHC.List.tail arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (Maybe (b) @ size 2), mode: IMode ==> [
-                        (subSize 1) Data.Maybe.Nothing, fromList [], fromList [("alpha",1),("tau",2)]
-                ] COMPLETE
-                * (Maybe (b) @ size 3), mode: IMode ==> [
-                        (subSize 1) Data.Maybe.Just arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (Maybe (b) @ size 4), mode: IMode ==> [
-                        (subSize 2) Data.Maybe.listToMaybe [], fromList [], fromList [("alpha",1),("tau",2)]
-                ] COMPLETE
-                * (Maybe (b) @ size 5), mode: IMode ==> [
-                        (subSize 2) Data.Maybe.listToMaybe (GHC.List.repeat arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (Maybe (tau1) @ size 2), mode: IMode ==> [
-                        (subSize 1) Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * (Maybe (tau2) @ size 2), mode: IMode ==> [
-                        (subSize 1) Data.Maybe.Nothing, fromList [], fromList [("alpha",4),("tau",4)]
-                ] COMPLETE
-                * (Maybe (((alpha0 -> b))) @ size 3), mode: IMode ==> [
-                        (subSize 2) Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * (a @ size 1), mode: IMode ==> [
-                        (subSize 0) arg3, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                ] COMPLETE
-                * (a @ size 1), mode: IMode ==> [
-                        (subSize 0) arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 0) arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",1)]
-                ] COMPLETE
-                * (a @ size 2), mode: IMode ==> [
-                        (subSize 1) arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",3)]
-                        (subSize 1) arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",3)]
-                ] COMPLETE
-                * (a @ size 3), mode: IMode ==> [
-                        (subSize 1) GHC.List.last arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.head arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (a @ size 5), mode: IMode ==> [
-                        (subSize 2) Data.Maybe.fromJust (Data.Maybe.listToMaybe arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.cycle arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.init arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.reverse arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.tail arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.tail arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.reverse arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.init arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.cycle arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (a @ size 6), mode: IMode ==> [
-                        (subSize 1) GHC.List.foldl1 (\arg3 -> \arg4 -> arg3) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldl1 (\arg3 -> \arg4 -> arg4) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldl1' (\arg3 -> \arg4 -> arg3) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldl1' (\arg3 -> \arg4 -> arg4) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldr1 (\arg3 -> \arg4 -> arg4) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldr1 (\arg3 -> \arg4 -> arg3) arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg2 !! (GHC.List.length []), fromList [], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) arg2 !! (GHC.List.length arg2), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.listToMaybe []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.head (arg2 ++ arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (arg2 ++ arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (a @ size 7), mode: IMode ==> [
-                        (subSize 2) GHC.List.foldr1 (\arg3 -> \arg4 -> arg3) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldr1 (\arg3 -> \arg4 -> arg4) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1' (\arg3 -> \arg4 -> arg4) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1' (\arg3 -> \arg4 -> arg3) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1 (\arg3 -> \arg4 -> arg4) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1 (\arg3 -> \arg4 -> arg3) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) Data.Maybe.fromMaybe (GHC.List.last arg2) Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) Data.Maybe.fromMaybe (GHC.List.head arg2) Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.Just (GHC.List.head arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.Just (GHC.List.last arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.tail (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.tail (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.tail (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.tail (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.reverse (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.reverse (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.reverse (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.reverse (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.repeat (GHC.List.last arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.repeat (GHC.List.head arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.init (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.init (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.init (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.init (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.cycle (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.cycle (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.cycle (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (GHC.List.cycle (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (Data.Maybe.maybeToList (Data.Maybe.listToMaybe arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head (arg2 ++ []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.head (GHC.List.takeWhile (\arg3 -> Data.Bool.False) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.takeWhile (\arg3 -> Data.Bool.True) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.takeWhile (\arg3 -> Data.Bool.otherwise) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.filter (\arg3 -> Data.Bool.otherwise) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.filter (\arg3 -> Data.Bool.True) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.filter (\arg3 -> Data.Bool.False) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.dropWhile (\arg3 -> Data.Bool.otherwise) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.dropWhile (\arg3 -> Data.Bool.True) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.dropWhile (\arg3 -> Data.Bool.False) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.head ([] ++ arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last ([] ++ arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.dropWhile (\arg3 -> Data.Bool.False) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.dropWhile (\arg3 -> Data.Bool.True) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.dropWhile (\arg3 -> Data.Bool.otherwise) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.filter (\arg3 -> Data.Bool.False) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.filter (\arg3 -> Data.Bool.True) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.filter (\arg3 -> Data.Bool.otherwise) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.takeWhile (\arg3 -> Data.Bool.otherwise) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.takeWhile (\arg3 -> Data.Bool.True) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.last (GHC.List.takeWhile (\arg3 -> Data.Bool.False) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (arg2 ++ []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) GHC.List.last (Data.Maybe.maybeToList (Data.Maybe.listToMaybe arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.cycle (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.cycle (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.cycle (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.cycle (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.init (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.init (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.init (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.init (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.repeat (GHC.List.head arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.repeat (GHC.List.last arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.reverse (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.reverse (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.reverse (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.reverse (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.tail (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.tail (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.tail (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (GHC.List.tail (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                ] not complete
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg0, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 0) arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",1)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 0) arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg4, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 0) arg3, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 0) arg0, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 0) arg0, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 0) arg0, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",3)]
-                ] COMPLETE
-                * (b @ size 1), mode: IMode ==> [
-                        (subSize 0) arg0, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                ] COMPLETE
-                * (b @ size 2), mode: IMode ==> [
-                        (subSize 1) arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * (b @ size 2), mode: IMode ==> [
-                        (subSize 1) arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",3)]
-                ] COMPLETE
-                * (b @ size 2), mode: IMode ==> [
-                        (subSize 1) arg4, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 1) arg3, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                ] COMPLETE
-                * (b @ size 4), mode: IMode ==> [
-                        (subSize 1) arg1 (GHC.List.head arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) arg1 (GHC.List.last arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ((a -> Bool) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> Data.Bool.otherwise, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 0) \arg3 -> Data.Bool.True, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 0) \arg3 -> Data.Bool.False, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((a -> a) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> arg3, fromList [], fromList [("alpha",4),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((a -> (a -> a)) @ size 3), mode: IMode ==> [
-                        (subSize 0) \arg3 -> \arg4 -> arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 0) \arg3 -> \arg4 -> arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",1)]
-                ] COMPLETE
-                * ((b -> Bool) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> Data.Bool.otherwise, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 0) \arg3 -> Data.Bool.True, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 0) \arg3 -> Data.Bool.False, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((b -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 0) \arg3 -> arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((b -> (b -> b)) @ size 3), mode: IMode ==> [
-                        (subSize 0) \arg3 -> \arg4 -> arg4, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 0) \arg3 -> \arg4 -> arg3, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 0) \arg3 -> \arg4 -> arg0, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                ] COMPLETE
-                * ((tau2 -> [a]) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> arg2, fromList [], fromList [("alpha",4),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((tau2 -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",3)]
-                        (subSize 1) arg1, fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((tau2 -> (tau1 -> a)) @ size 4), mode: IMode ==> [
-                        (subSize 1) \arg3 -> \arg4 -> arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",3)]
-                        (subSize 1) \arg3 -> \arg4 -> arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",3)]
-                        (subSize 2) \arg3 -> arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((tau2 -> (tau1 -> b)) @ size 3), mode: IMode ==> [
-                        (subSize 0) \arg3 -> \arg4 -> arg0, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 1) \arg3 -> arg1, fromList [], fromList [("alpha",2),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((tau2 -> (tau1 -> b)) @ size 4), mode: IMode ==> [
-                        (subSize 1) \arg3 -> \arg4 -> arg4, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 1) \arg3 -> \arg4 -> arg3, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 2) \arg3 -> arg3, fromList [], fromList [("alpha",2),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((a -> a) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg4 -> arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 0) \arg4 -> arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",1)]
-                ] COMPLETE
-                * ((b -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg4 -> arg4, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 0) \arg4 -> arg3, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 0) \arg4 -> arg0, fromList [], fromList [("alpha",2),("arg",5),("tau",1)]
-                ] COMPLETE
-                * ((b -> (tau1 -> b)) @ size 3), mode: IMode ==> [
-                        (subSize 0) \arg3 -> \arg4 -> arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 0) \arg3 -> \arg4 -> arg0, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 1) \arg3 -> arg1, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((tau1 -> a) @ size 3), mode: IMode ==> [
-                        (subSize 1) \arg4 -> arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",3)]
-                        (subSize 1) \arg4 -> arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",3)]
-                        (subSize 2) arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((tau1 -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) arg1, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((tau1 -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg4 -> arg0, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 1) arg1, fromList [], fromList [("alpha",2),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((tau1 -> b) @ size 3), mode: IMode ==> [
-                        (subSize 1) \arg3 -> arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((tau1 -> b) @ size 3), mode: IMode ==> [
-                        (subSize 1) \arg4 -> arg4, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 1) \arg4 -> arg3, fromList [], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 2) arg3, fromList [], fromList [("alpha",2),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((tau1 -> (b -> b)) @ size 3), mode: IMode ==> [
-                        (subSize 0) \arg3 -> \arg4 -> arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 0) \arg3 -> \arg4 -> arg0, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                ] COMPLETE
-                * ((b -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg4 -> arg4, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 0) \arg4 -> arg0, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                ] COMPLETE
-                * ((tau1 -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg4 -> arg3, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 0) \arg4 -> arg0, fromList [], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 1) arg1, fromList [], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((tau2 -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",3)]
-                        (subSize 1) arg1, fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((tau2 -> b) @ size 3), mode: IMode ==> [
-                        (subSize 1) \arg3 -> arg3, fromList [], fromList [("alpha",3),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((a -> b) @ size 1), mode: IMode ==> [
-                        (subSize 0) arg1, fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 1), mode: IMode ==> [
-                        (subSize 0) arg1, fromList [("alpha0",a)], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 2), mode: IMode ==> [
-                        (subSize 0) \arg3 -> arg3, fromList [("alpha0",b)], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 0) \arg3 -> arg0, fromList [], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 1) snd, fromList [("alpha0",(tau2 , b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) fst, fromList [("alpha0",(b , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) GHC.List.last, fromList [("alpha0",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.head, fromList [("alpha0",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha0",(tau2 , b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha0",(b , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha0",Maybe (b))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (b @ size 1), mode: EMode ==> [
-                        (subSize 0) arg0, fromList [], fromList []
-                ] COMPLETE
-                * (b @ size 4), mode: EMode ==> [
-                        (subSize 1) arg1 (GHC.List.last arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) arg1 (GHC.List.head arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (b @ size 5), mode: EMode ==> [
-                        (subSize 1) Data.Bool.bool arg0 arg0 Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 Data.Bool.True, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 Data.Bool.False, fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Maybe.fromMaybe arg0 Data.Maybe.Nothing, fromList [], fromList [("alpha",1),("tau",2)]
-                        (subSize 2) Data.Maybe.fromJust (Data.Maybe.Just arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head (GHC.List.repeat arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.last (GHC.List.repeat arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * (b @ size 6), mode: EMode ==> [
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.not Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.not Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.not Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Maybe.fromMaybe arg0 (Data.Maybe.Just arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.listToMaybe []), fromList [], fromList [("alpha",1),("tau",2)]
-                        (subSize 2) arg1 (Data.Maybe.fromJust (Data.Maybe.listToMaybe arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.tail arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.reverse arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.init arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.cycle arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (b @ size 7), mode: EMode ==> [
-                        (subSize 2) GHC.List.foldl' (\arg3 -> arg1) arg0 arg2, fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.foldr1 (\arg3 -> \arg4 -> arg0) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldr1 (\arg3 -> \arg4 -> arg3) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldr1 (\arg3 -> \arg4 -> arg4) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1' (\arg3 -> \arg4 -> arg4) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1' (\arg3 -> \arg4 -> arg3) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1' (\arg3 -> \arg4 -> arg0) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1 (\arg3 -> \arg4 -> arg4) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1 (\arg3 -> \arg4 -> arg3) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.foldl1 (\arg3 -> \arg4 -> arg0) [], fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) Data.Maybe.maybe arg0 (\arg3 -> arg0) Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",3)]
-                        (subSize 3) Data.Maybe.maybe arg0 arg1 Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",3)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.False || Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.False || Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.False || Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.True || Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.True || Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.True || Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.otherwise || Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.otherwise || Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.otherwise || Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.False && Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.False && Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.False && Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.True && Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.True && Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.True && Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.otherwise && Data.Bool.False), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.otherwise && Data.Bool.True), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.otherwise && Data.Bool.otherwise), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Bool.bool arg0 arg0 (GHC.List.or []), fromList [], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Bool.bool arg0 arg0 (GHC.List.null []), fromList [], fromList [("alpha",4),("tau",4)]
-                        (subSize 2) Data.Bool.bool arg0 arg0 (GHC.List.null arg2), fromList [], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Bool.bool arg0 arg0 (GHC.List.and []), fromList [], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Bool.bool arg0 arg0 (Data.Maybe.isNothing Data.Maybe.Nothing), fromList [], fromList [("alpha",4),("tau",4)]
-                        (subSize 2) Data.Bool.bool arg0 arg0 (Data.Maybe.isJust Data.Maybe.Nothing), fromList [], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.not (Data.Bool.not Data.Bool.otherwise)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.not (Data.Bool.not Data.Bool.True)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0 arg0 (Data.Bool.not (Data.Bool.not Data.Bool.False)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromLeft arg0 (Data.Either.Left arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromRight arg0 (Data.Either.Right arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Maybe.fromMaybe arg0 (Data.Maybe.listToMaybe []), fromList [], fromList [("alpha",1),("tau",2)]
-                        (subSize 3) Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.head (GHC.List.tail (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.head (GHC.List.reverse (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.head (GHC.List.init (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.head (GHC.List.cycle (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.head (Data.Maybe.maybeToList (Data.Maybe.Just arg0)), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) GHC.List.head (arg0 : []), fromList [], fromList [("alpha",1),("tau",2)]
-                        (subSize 3) GHC.List.head (GHC.List.map arg1 arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head (GHC.List.iterate' (\arg3 -> arg0) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head (GHC.List.iterate' (\arg3 -> arg3) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head (GHC.List.iterate (\arg3 -> arg3) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head (GHC.List.iterate (\arg3 -> arg0) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.last (GHC.List.iterate (\arg3 -> arg0) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.last (GHC.List.iterate (\arg3 -> arg3) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.last (GHC.List.iterate' (\arg3 -> arg3) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.last (GHC.List.iterate' (\arg3 -> arg0) arg0), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.last (GHC.List.map arg1 arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) GHC.List.last (arg0 : []), fromList [], fromList [("alpha",1),("tau",2)]
-                        (subSize 3) GHC.List.last (Data.Maybe.maybeToList (Data.Maybe.Just arg0)), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) GHC.List.last (GHC.List.cycle (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.last (GHC.List.init (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.last (GHC.List.reverse (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.last (GHC.List.tail (GHC.List.repeat arg0)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) arg1 (GHC.List.foldl1 (\arg3 -> \arg4 -> arg3) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) arg1 (GHC.List.foldl1 (\arg3 -> \arg4 -> arg4) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) arg1 (GHC.List.foldl1' (\arg3 -> \arg4 -> arg3) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) arg1 (GHC.List.foldl1' (\arg3 -> \arg4 -> arg4) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) arg1 (GHC.List.foldr1 (\arg3 -> \arg4 -> arg4) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) arg1 (GHC.List.foldr1 (\arg3 -> \arg4 -> arg3) arg2), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (arg2 !! (GHC.List.length [])), fromList [], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) arg1 (arg2 !! (GHC.List.length arg2)), fromList [], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) arg1 (Data.Maybe.fromJust (Data.Maybe.listToMaybe [])), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) arg1 (GHC.List.head (arg2 ++ arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (arg2 ++ arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * (b @ size 8), mode: EMode ==> [
-                        (subSize 2) arg1 (GHC.List.foldr1 (\arg3 -> \arg4 -> arg3) []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) arg1 (GHC.List.foldr1 (\arg3 -> \arg4 -> arg4) []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) arg1 (GHC.List.foldl1' (\arg3 -> \arg4 -> arg4) []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) arg1 (GHC.List.foldl1' (\arg3 -> \arg4 -> arg3) []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) arg1 (GHC.List.foldl1 (\arg3 -> \arg4 -> arg4) []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) arg1 (GHC.List.foldl1 (\arg3 -> \arg4 -> arg3) []), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) arg1 (Data.Maybe.fromMaybe (GHC.List.last arg2) Data.Maybe.Nothing), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) arg1 (Data.Maybe.fromMaybe (GHC.List.head arg2) Data.Maybe.Nothing), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) arg1 (Data.Maybe.fromJust (Data.Maybe.Just (GHC.List.head arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (Data.Maybe.fromJust (Data.Maybe.Just (GHC.List.last arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.tail (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.tail (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.tail (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.tail (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.reverse (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.reverse (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.reverse (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.reverse (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.repeat (GHC.List.last arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.repeat (GHC.List.head arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.init (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.init (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.init (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.init (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.cycle (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.cycle (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.cycle (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (GHC.List.cycle (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (Data.Maybe.maybeToList (Data.Maybe.listToMaybe arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head (arg2 ++ [])), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.takeWhile (\arg3 -> Data.Bool.False) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.takeWhile (\arg3 -> Data.Bool.True) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.takeWhile (\arg3 -> Data.Bool.otherwise) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.filter (\arg3 -> Data.Bool.otherwise) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.filter (\arg3 -> Data.Bool.True) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.filter (\arg3 -> Data.Bool.False) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.dropWhile (\arg3 -> Data.Bool.otherwise) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.dropWhile (\arg3 -> Data.Bool.True) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.head (GHC.List.dropWhile (\arg3 -> Data.Bool.False) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.head ([] ++ arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last ([] ++ arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.dropWhile (\arg3 -> Data.Bool.False) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.dropWhile (\arg3 -> Data.Bool.True) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.dropWhile (\arg3 -> Data.Bool.otherwise) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.filter (\arg3 -> Data.Bool.False) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.filter (\arg3 -> Data.Bool.True) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.filter (\arg3 -> Data.Bool.otherwise) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.takeWhile (\arg3 -> Data.Bool.otherwise) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.takeWhile (\arg3 -> Data.Bool.True) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) arg1 (GHC.List.last (GHC.List.takeWhile (\arg3 -> Data.Bool.False) arg2)), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (arg2 ++ [])), fromList [], fromList [("alpha",2),("tau",2)]
-                        (subSize 3) arg1 (GHC.List.last (Data.Maybe.maybeToList (Data.Maybe.listToMaybe arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.cycle (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.cycle (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.cycle (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.cycle (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.init (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.init (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.init (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.init (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.repeat (GHC.List.head arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.repeat (GHC.List.last arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.reverse (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.reverse (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.reverse (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.reverse (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.tail (GHC.List.cycle arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.tail (GHC.List.init arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.tail (GHC.List.reverse arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                        (subSize 3) arg1 (GHC.List.last (GHC.List.tail (GHC.List.tail arg2))), fromList [], fromList [("alpha",2),("tau",1)]
-                ] not complete
-                * ((alpha0 -> b) @ size 1), mode: EMode ==> [
-                        (subSize 0) arg1, fromList [("alpha0",a)], fromList [("alpha",1)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 2), mode: EMode ==> [
-                        (subSize 1) snd, fromList [("alpha0",(tau1 , b))], fromList [("alpha",1),("tau",2)]
-                        (subSize 1) fst, fromList [("alpha0",(b , tau0))], fromList [("alpha",1),("tau",2)]
-                        (subSize 1) GHC.List.last, fromList [("alpha0",[b])], fromList [("alpha",1),("tau",1)]
-                        (subSize 1) GHC.List.head, fromList [("alpha0",[b])], fromList [("alpha",1),("tau",1)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha0",(tau1 , b))], fromList [("alpha",1),("tau",2)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha0",(b , tau0))], fromList [("alpha",1),("tau",2)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha0",Maybe (b))], fromList [("alpha",1),("tau",1)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 3), mode: EMode ==> [
-                        (subSize 1) Data.Maybe.fromMaybe arg0, fromList [("alpha0",Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.fromRight arg0, fromList [("alpha0",Either (tau1) (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.fromLeft arg0, fromList [("alpha0",Either (b) (tau0))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 4), mode: EMode ==> [
-                        (subSize 1) Data.Bool.bool arg0 arg0, fromList [("alpha0",Bool)], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 5), mode: EMode ==> [
-                        (subSize 2) Data.Maybe.maybe arg0 arg1, fromList [("alpha0",Maybe (tau1))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> arg1), fromList [("alpha0",(tau2 , tau1))], fromList [("alpha",2),("arg",4),("tau",3)]
-                        (subSize 1) Data.Maybe.maybe arg0 (\arg3 -> arg0), fromList [("alpha0",Maybe (tau1))], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 2) Data.Maybe.maybe arg0 arg1, fromList [("alpha0",Maybe (a))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) (GHC.List.!!) (GHC.List.repeat arg0), fromList [("alpha0",Int)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Tuple.uncurry (\arg3 -> \arg4 -> arg0), fromList [("alpha0",(tau2 , tau1))], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> arg1), fromList [("alpha0",(tau2 , a))], fromList [("alpha",2),("arg",4),("tau",3)]
-                        (subSize 1) GHC.List.foldl1 (\arg3 -> \arg4 -> arg0), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1 (\arg3 -> \arg4 -> arg3), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1 (\arg3 -> \arg4 -> arg4), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1' (\arg3 -> \arg4 -> arg0), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1' (\arg3 -> \arg4 -> arg3), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1' (\arg3 -> \arg4 -> arg4), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldr1 (\arg3 -> \arg4 -> arg4), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldr1 (\arg3 -> \arg4 -> arg3), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldr1 (\arg3 -> \arg4 -> arg0), fromList [("alpha0",[b])], fromList [("alpha",2),("arg",5),("tau",1)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 6), mode: EMode ==> [
-                        (subSize 2) Data.Bool.bool arg1 arg1 Data.Bool.False, fromList [("alpha0",a)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Bool.bool arg1 arg1 Data.Bool.True, fromList [("alpha0",a)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Bool.bool arg1 arg1 Data.Bool.otherwise, fromList [("alpha0",a)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldl' (\arg3 -> arg1) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Maybe.maybe arg0 (\arg3 -> arg3), fromList [("alpha0",Maybe (tau1))], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 2) GHC.List.foldl (\arg3 -> arg1) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldl (\arg3 -> \arg4 -> arg0) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldl (\arg3 -> \arg4 -> arg3) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldl' (\arg3 -> \arg4 -> arg3) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldl' (\arg3 -> \arg4 -> arg0) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldl' (\arg3 -> arg1) arg0, fromList [("alpha0",[a])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldr (\arg3 -> \arg4 -> arg4) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldr (\arg3 -> \arg4 -> arg0) arg0, fromList [("alpha0",[tau1])], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Tuple.uncurry (\arg3 -> arg3), fromList [("alpha0",(tau2 , tau1))], fromList [("alpha",2),("arg",4),("tau",3)]
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> \arg4 -> arg3), fromList [("alpha0",(tau2 , tau1))], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> \arg4 -> arg4), fromList [("alpha0",(tau2 , tau1))], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 3) Data.Either.either arg1 arg1, fromList [("alpha0",Either (a) (tau1))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.either arg1 (\arg3 -> arg0), fromList [("alpha0",Either (a) (tau1))], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 2) Data.Either.either (\arg3 -> arg0) arg1, fromList [("alpha0",Either (tau2) (tau1))], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.either (\arg3 -> arg0) (\arg3 -> arg0), fromList [("alpha0",Either (tau2) (tau1))], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 3) Data.Either.either arg1 arg1, fromList [("alpha0",Either (tau2) (tau1))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.either arg1 (\arg3 -> arg0), fromList [("alpha0",Either (tau2) (tau1))], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 2) Data.Maybe.maybe arg0 (\arg3 -> arg3), fromList [("alpha0",Maybe (b))], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 2) Data.Either.fromLeft (arg1 (GHC.List.last arg2)), fromList [("alpha0",Either (b) (tau0))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromLeft (arg1 (GHC.List.head arg2)), fromList [("alpha0",Either (b) (tau0))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromRight (arg1 (GHC.List.last arg2)), fromList [("alpha0",Either (tau1) (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromRight (arg1 (GHC.List.head arg2)), fromList [("alpha0",Either (tau1) (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.fromMaybe (arg1 (GHC.List.head arg2)), fromList [("alpha0",Maybe (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.fromMaybe (arg1 (GHC.List.last arg2)), fromList [("alpha0",Maybe (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> \arg4 -> arg4), fromList [("alpha0",(tau2 , b))], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> \arg4 -> arg3), fromList [("alpha0",(b , tau1))], fromList [("alpha",2),("arg",5),("tau",3)]
-                        (subSize 3) Data.Tuple.uncurry (\arg3 -> arg3), fromList [("alpha0",(tau1 -> b , tau1))], fromList [("alpha",2),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> [b]) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.tail, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) GHC.List.reverse, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) GHC.List.repeat, fromList [("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) GHC.List.init, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) GHC.List.cycle, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) GHC.List.concat, fromList [("alpha1",[[b]])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) Data.Maybe.maybeToList, fromList [("alpha1",Maybe (b))], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (b)])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) Data.Either.rights, fromList [("alpha1",[Either (tau2) (b)])], fromList [("alpha",2),("tau",3)]
-                        (subSize 1) Data.Either.lefts, fromList [("alpha1",[Either (b) (tau1)])], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> [b]) @ size 3), mode: EMode ==> [
-                        (subSize 1) (:) arg0, fromList [("alpha1",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) snd, fromList [("alpha1",(tau2 , [b]))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha1",([b] , tau1))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha1",[[b]])], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha1",[[b]])], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha1",(tau2 , [b]))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha1",([b] , tau1))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha1",Maybe ([b]))], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * ((alpha1 -> [b]) @ size 4), mode: EMode ==> [
-                        (subSize 2) GHC.List.map arg1, fromList [("alpha1",[tau2])], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) (GHC.List.++) [], fromList [("alpha1",[b])], fromList [("alpha",1),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.False), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.True), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.otherwise), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.False), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.True), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.otherwise), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate (\arg3 -> arg0), fromList [("alpha1",b)], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate (\arg3 -> arg3), fromList [("alpha1",b)], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate' (\arg3 -> arg3), fromList [("alpha1",b)], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate' (\arg3 -> arg0), fromList [("alpha1",b)], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.map (\arg3 -> arg0), fromList [("alpha1",[tau2])], fromList [("alpha",3),("arg",4),("tau",3)]
-                        (subSize 2) GHC.List.map arg1, fromList [("alpha1",[a])], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.otherwise), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.True), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.False), fromList [("alpha1",[b])], fromList [("alpha",3),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha1 -> Maybe (b)) @ size 2), mode: EMode ==> [
-                        (subSize 1) Data.Maybe.listToMaybe, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) Data.Maybe.Just, fromList [("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * ((alpha1 -> Maybe (b)) @ size 3), mode: EMode ==> [
-                        (subSize 2) snd, fromList [("alpha1",(tau2 , Maybe (b)))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha1",(Maybe (b) , tau1))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha1",[Maybe (b)])], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha1",[Maybe (b)])], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha1",(tau2 , Maybe (b)))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha1",(Maybe (b) , tau1))], fromList [("alpha",2),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha1",Maybe (Maybe (b)))], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * ((alpha1 -> (b , tau0)) @ size 3), mode: EMode ==> [
-                        (subSize 2) Data.Tuple.swap, fromList [("alpha1",(tau0 , b))], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * ((alpha1 -> (b , tau0)) @ size 4), mode: EMode ==> [
-                        (subSize 2) (,) arg0, fromList [("alpha1",tau0)], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) snd, fromList [("alpha1",(tau3 , (b , tau0)))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) fst, fromList [("alpha1",((b , tau0) , tau2))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) GHC.List.last, fromList [("alpha1",[(b , tau0)])], fromList [("alpha",2),("tau",3)]
-                        (subSize 3) GHC.List.head, fromList [("alpha1",[(b , tau0)])], fromList [("alpha",2),("tau",3)]
-                        (subSize 3) Data.Tuple.snd, fromList [("alpha1",(tau3 , (b , tau0)))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) Data.Tuple.fst, fromList [("alpha1",((b , tau0) , tau2))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) Data.Maybe.fromJust, fromList [("alpha1",Maybe ((b , tau0)))], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> (tau1 , b)) @ size 3), mode: EMode ==> [
-                        (subSize 2) Data.Tuple.swap, fromList [("alpha1",(b , tau1))], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * ((alpha1 -> (tau1 , b)) @ size 4), mode: EMode ==> [
-                        (subSize 3) snd, fromList [("alpha1",(tau3 , (tau1 , b)))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) fst, fromList [("alpha1",((tau1 , b) , tau2))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) GHC.List.last, fromList [("alpha1",[(tau1 , b)])], fromList [("alpha",2),("tau",3)]
-                        (subSize 3) GHC.List.head, fromList [("alpha1",[(tau1 , b)])], fromList [("alpha",2),("tau",3)]
-                        (subSize 3) Data.Tuple.snd, fromList [("alpha1",(tau3 , (tau1 , b)))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) Data.Tuple.fst, fromList [("alpha1",((tau1 , b) , tau2))], fromList [("alpha",2),("tau",4)]
-                        (subSize 3) Data.Maybe.fromJust, fromList [("alpha1",Maybe ((tau1 , b)))], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> a) @ size 2), mode: EMode ==> [
-                        (subSize 1) snd, fromList [("alpha1",(tau1 , a))], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) fst, fromList [("alpha1",(a , tau0))], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) GHC.List.last, fromList [("alpha1",[a])], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.head, fromList [("alpha1",[a])], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha1",(tau1 , a))], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha1",(a , tau0))], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha1",Maybe (a))], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ((alpha1 -> a) @ size 3), mode: EMode ==> [
-                        (subSize 1) (GHC.List.!!) arg2, fromList [("alpha1",Int)], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ((alpha1 -> a) @ size 5), mode: EMode ==> [
-                        (subSize 2) (GHC.List.!!) (GHC.List.cycle arg2), fromList [("alpha1",Int)], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) (GHC.List.!!) (GHC.List.init arg2), fromList [("alpha1",Int)], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) (GHC.List.!!) (GHC.List.reverse arg2), fromList [("alpha1",Int)], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) (GHC.List.!!) (GHC.List.tail arg2), fromList [("alpha1",Int)], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromLeft (GHC.List.head arg2), fromList [("alpha1",Either (a) (tau0))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromLeft (GHC.List.last arg2), fromList [("alpha1",Either (a) (tau0))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromRight (GHC.List.head arg2), fromList [("alpha1",Either (tau1) (a))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromRight (GHC.List.last arg2), fromList [("alpha1",Either (tau1) (a))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.fromMaybe (GHC.List.head arg2), fromList [("alpha1",Maybe (a))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Maybe.fromMaybe (GHC.List.last arg2), fromList [("alpha1",Maybe (a))], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldl1 (\arg3 -> \arg4 -> arg3), fromList [("alpha1",[a])], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1 (\arg3 -> \arg4 -> arg4), fromList [("alpha1",[a])], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1' (\arg3 -> \arg4 -> arg3), fromList [("alpha1",[a])], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldl1' (\arg3 -> \arg4 -> arg4), fromList [("alpha1",[a])], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldr1 (\arg3 -> \arg4 -> arg4), fromList [("alpha1",[a])], fromList [("alpha",3),("arg",5),("tau",1)]
-                        (subSize 1) GHC.List.foldr1 (\arg3 -> \arg4 -> arg3), fromList [("alpha1",[a])], fromList [("alpha",3),("arg",5),("tau",1)]
-                ] COMPLETE
-                * ((alpha1 -> a) @ size 6), mode: EMode ==> [
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> \arg4 -> arg4), fromList [("alpha1",(tau2 , a))], fromList [("alpha",3),("arg",5),("tau",3)]
-                        (subSize 2) Data.Tuple.uncurry (\arg3 -> \arg4 -> arg3), fromList [("alpha1",(a , tau1))], fromList [("alpha",3),("arg",5),("tau",3)]
-                        (subSize 3) Data.Tuple.uncurry (\arg3 -> arg3), fromList [("alpha1",(tau1 -> a , tau1))], fromList [("alpha",3),("arg",4),("tau",3)]
-                ] not complete
-                * ((alpha1 -> (alpha0 -> b)) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.sum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Num (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.product, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Num (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.minimum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Ord (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.maximum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Ord (b))], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldr1, fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldl1', fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) GHC.List.foldl1, fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) Data.Tuple.uncurry, fromList [("alpha0",(tau2 , tau1)),("alpha1",tau2 -> tau1 -> b)], fromList [("alpha",2),("tau",3)]
-                        (subSize 1) Data.Maybe.fromMaybe, fromList [("alpha0",Maybe (b)),("alpha1",b)], fromList [("alpha",2),("tau",1)]
-                        (subSize 1) Data.Either.fromRight, fromList [("alpha0",Either (tau1) (b)),("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) Data.Either.fromLeft, fromList [("alpha0",Either (b) (tau0)),("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) (GHC.List.!!), fromList [("alpha0",Int),("alpha1",[b])], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ((alpha1 -> (alpha0 -> b)) @ size 3), mode: EMode ==> [
-                        (subSize 1) Data.Maybe.maybe arg0, fromList [("alpha0",Maybe (tau1)),("alpha1",tau1 -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Bool.bool arg0, fromList [("alpha0",Bool),("alpha1",b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) snd, fromList [("alpha1",(tau1 , alpha0 -> b))], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) fst, fromList [("alpha1",(alpha0 -> b , tau0))], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) GHC.List.last, fromList [("alpha1",[alpha0 -> b])], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) GHC.List.head, fromList [("alpha1",[alpha0 -> b])], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha1",(tau1 , alpha0 -> b))], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha1",(alpha0 -> b , tau0))], fromList [("alpha",2),("tau",2)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha1",Maybe (alpha0 -> b))], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ((alpha1 -> (alpha0 -> b)) @ size 4), mode: EMode ==> [
-                        (subSize 2) Data.Maybe.fromMaybe arg1, fromList [("alpha0",a),("alpha1",Maybe (a -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.fromRight arg1, fromList [("alpha0",a),("alpha1",Either (tau1) (a -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.fromLeft arg1, fromList [("alpha0",a),("alpha1",Either (a -> b) (tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.either arg1, fromList [("alpha0",Either (tau2) (tau1)),("alpha1",tau1 -> b)], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Either.either (\arg3 -> arg0), fromList [("alpha0",Either (tau2) (tau1)),("alpha1",tau1 -> b)], fromList [("alpha",3),("arg",4),("tau",3)]
-                        (subSize 2) Data.Either.either arg1, fromList [("alpha0",Either (a) (tau1)),("alpha1",tau1 -> b)], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> (alpha0 -> b)) @ size 5), mode: EMode ==> [
-                        (subSize 2) Data.Bool.bool arg1 arg1, fromList [("alpha0",a),("alpha1",Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldl' (\arg3 -> arg1), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 2) Data.Either.either (\arg3 -> arg3), fromList [("alpha0",Either (tau2) (tau1)),("alpha1",tau1 -> b)], fromList [("alpha",3),("arg",4),("tau",3)]
-                        (subSize 3) Data.Either.fromLeft Data.Maybe.fromJust, fromList [("alpha0",Maybe (b)),("alpha1",Either (Maybe (b) -> b) (tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromLeft Data.Tuple.fst, fromList [("alpha0",(b , tau1)),("alpha1",Either ((b , tau1) -> b) (tau0))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Either.fromLeft Data.Tuple.snd, fromList [("alpha0",(tau2 , b)),("alpha1",Either ((tau2 , b) -> b) (tau0))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Either.fromLeft GHC.List.head, fromList [("alpha0",[b]),("alpha1",Either ([b] -> b) (tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromLeft GHC.List.last, fromList [("alpha0",[b]),("alpha1",Either ([b] -> b) (tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromLeft fst, fromList [("alpha0",(b , tau1)),("alpha1",Either ((b , tau1) -> b) (tau0))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Either.fromLeft snd, fromList [("alpha0",(tau2 , b)),("alpha1",Either ((tau2 , b) -> b) (tau0))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Either.fromLeft (\arg3 -> arg0), fromList [("alpha1",Either (alpha0 -> b) (tau0))], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 2) Data.Either.fromLeft (\arg3 -> arg3), fromList [("alpha0",b),("alpha1",Either (b -> b) (tau0))], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 3) Data.Either.fromRight Data.Maybe.fromJust, fromList [("alpha0",Maybe (b)),("alpha1",Either (tau1) (Maybe (b) -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromRight Data.Tuple.fst, fromList [("alpha0",(b , tau1)),("alpha1",Either (tau1) ((b , tau1) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Either.fromRight Data.Tuple.snd, fromList [("alpha0",(tau2 , b)),("alpha1",Either (tau1) ((tau2 , b) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Either.fromRight GHC.List.head, fromList [("alpha0",[b]),("alpha1",Either (tau1) ([b] -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromRight GHC.List.last, fromList [("alpha0",[b]),("alpha1",Either (tau1) ([b] -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Either.fromRight fst, fromList [("alpha0",(b , tau1)),("alpha1",Either (tau1) ((b , tau1) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Either.fromRight snd, fromList [("alpha0",(tau2 , b)),("alpha1",Either (tau1) ((tau2 , b) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Either.fromRight (\arg3 -> arg0), fromList [("alpha1",Either (tau1) (alpha0 -> b))], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 2) Data.Either.fromRight (\arg3 -> arg3), fromList [("alpha0",b),("alpha1",Either (tau1) (b -> b))], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 2) Data.Maybe.fromMaybe (\arg3 -> arg3), fromList [("alpha0",b),("alpha1",Maybe (b -> b))], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 2) Data.Maybe.fromMaybe (\arg3 -> arg0), fromList [("alpha1",Maybe (alpha0 -> b))], fromList [("alpha",3),("arg",4),("tau",1)]
-                        (subSize 3) Data.Maybe.fromMaybe snd, fromList [("alpha0",(tau2 , b)),("alpha1",Maybe ((tau2 , b) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Maybe.fromMaybe fst, fromList [("alpha0",(b , tau1)),("alpha1",Maybe ((b , tau1) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Maybe.fromMaybe GHC.List.last, fromList [("alpha0",[b]),("alpha1",Maybe ([b] -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Maybe.fromMaybe GHC.List.head, fromList [("alpha0",[b]),("alpha1",Maybe ([b] -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Maybe.fromMaybe Data.Tuple.snd, fromList [("alpha0",(tau2 , b)),("alpha1",Maybe ((tau2 , b) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Maybe.fromMaybe Data.Tuple.fst, fromList [("alpha0",(b , tau1)),("alpha1",Maybe ((b , tau1) -> b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Maybe.fromMaybe Data.Maybe.fromJust, fromList [("alpha0",Maybe (b)),("alpha1",Maybe (Maybe (b) -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.either (\arg3 -> arg3), fromList [("alpha0",Either (b) (tau1)),("alpha1",tau1 -> b)], fromList [("alpha",3),("arg",4),("tau",3)]
-                        (subSize 2) GHC.List.foldl (\arg3 -> arg1), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.foldl (\arg3 -> \arg4 -> arg0), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 1) GHC.List.foldl (\arg3 -> \arg4 -> arg3), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 1) GHC.List.foldl' (\arg3 -> \arg4 -> arg3), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 1) GHC.List.foldl' (\arg3 -> \arg4 -> arg0), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 2) GHC.List.foldl' (\arg3 -> arg1), fromList [("alpha0",[a]),("alpha1",b)], fromList [("alpha",3),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.foldr (\arg3 -> \arg4 -> arg4), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",5),("tau",2)]
-                        (subSize 1) GHC.List.foldr (\arg3 -> \arg4 -> arg0), fromList [("alpha0",[tau1]),("alpha1",b)], fromList [("alpha",3),("arg",5),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> @@hplusTC@@Num (b)) @ size 3), mode: EMode ==> [
-                        (subSize 2) snd, fromList [("alpha2",(tau2 , @@hplusTC@@Num (b)))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha2",(@@hplusTC@@Num (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha2",[@@hplusTC@@Num (b)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha2",[@@hplusTC@@Num (b)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha2",(tau2 , @@hplusTC@@Num (b)))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha2",(@@hplusTC@@Num (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha2",Maybe (@@hplusTC@@Num (b)))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> @@hplusTC@@Ord (b)) @ size 3), mode: EMode ==> [
-                        (subSize 2) snd, fromList [("alpha2",(tau2 , @@hplusTC@@Ord (b)))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha2",(@@hplusTC@@Ord (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha2",[@@hplusTC@@Ord (b)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha2",[@@hplusTC@@Ord (b)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha2",(tau2 , @@hplusTC@@Ord (b)))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha2",(@@hplusTC@@Ord (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha2",Maybe (@@hplusTC@@Ord (b)))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> Bool) @ size 1), mode: EMode ==> [
-                        (subSize 0) GHC.List.or, fromList [("alpha2",[Bool])], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) GHC.List.null, fromList [("alpha2",[tau2])], fromList [("alpha",3),("tau",3)]
-                        (subSize 0) GHC.List.and, fromList [("alpha2",[Bool])], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) Data.Maybe.isNothing, fromList [("alpha2",Maybe (tau2))], fromList [("alpha",3),("tau",3)]
-                        (subSize 0) Data.Maybe.isJust, fromList [("alpha2",Maybe (tau2))], fromList [("alpha",3),("tau",3)]
-                        (subSize 0) Data.Either.isRight, fromList [("alpha2",Either (tau3) (tau2))], fromList [("alpha",3),("tau",4)]
-                        (subSize 0) Data.Either.isLeft, fromList [("alpha2",Either (tau3) (tau2))], fromList [("alpha",3),("tau",4)]
-                        (subSize 0) Data.Bool.not, fromList [("alpha2",Bool)], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> Either (b) (tau0)) @ size 3), mode: EMode ==> [
-                        (subSize 2) Data.Either.Right, fromList [("alpha2",tau0)], fromList [("alpha",3),("tau",4)]
-                        (subSize 2) Data.Either.Left, fromList [("alpha2",b)], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> Either (tau1) (b)) @ size 3), mode: EMode ==> [
-                        (subSize 2) Data.Either.Right, fromList [("alpha2",b)], fromList [("alpha",3),("tau",4)]
-                        (subSize 2) Data.Either.Left, fromList [("alpha2",tau1)], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> Int) @ size 1), mode: EMode ==> [
-                        (subSize 0) GHC.List.length, fromList [("alpha2",[tau1])], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-
-                * ((alpha2 -> Int) @ size 2), mode: EMode ==> [
-                        (subSize 1) snd, fromList [("alpha2",(tau2 , Int))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) fst, fromList [("alpha2",(Int , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) GHC.List.last, fromList [("alpha2",[Int])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.head, fromList [("alpha2",[Int])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha2",(tau2 , Int))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha2",(Int , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha2",Maybe (Int))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                
-                * ((alpha2 -> Int) @ size 3), mode: EMode ==> [
-                        (subSize 1) GHC.List.sum @@hplusTCInstance@@0NumInt, fromList [("alpha2",[Int])], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.product @@hplusTCInstance@@0NumInt, fromList [("alpha2",[Int])], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.minimum @@hplusTCInstance@@0OrdInt, fromList [("alpha2",[Int])], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.maximum @@hplusTCInstance@@0OrdInt, fromList [("alpha2",[Int])], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> [a]) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.tail, fromList [("alpha2",[a])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.reverse, fromList [("alpha2",[a])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.repeat, fromList [("alpha2",a)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.init, fromList [("alpha2",[a])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.cycle, fromList [("alpha2",[a])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.concat, fromList [("alpha2",[[a]])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Maybe.maybeToList, fromList [("alpha2",Maybe (a))], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (a)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.rights, fromList [("alpha2",[Either (tau2) (a)])], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Either.lefts, fromList [("alpha2",[Either (a) (tau1)])], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> [a]) @ size 3), mode: EMode ==> [
-                        (subSize 1) (GHC.List.++) arg2, fromList [("alpha2",[a])], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) snd, fromList [("alpha2",(tau2 , [a]))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha2",([a] , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha2",[[a]])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha2",[[a]])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha2",(tau2 , [a]))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha2",([a] , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha2",Maybe ([a]))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> [a]) @ size 4), mode: EMode ==> [
-                        (subSize 2) Data.Maybe.fromMaybe arg2, fromList [("alpha2",Maybe ([a]))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromRight arg2, fromList [("alpha2",Either (tau2) ([a]))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) Data.Either.fromLeft arg2, fromList [("alpha2",Either ([a]) (tau1))], fromList [("alpha",2),("tau",1)]
-                        (subSize 2) (GHC.List.++) [], fromList [("alpha2",[a])], fromList [("alpha",2),("tau",2)]
-                        (subSize 1) GHC.List.concatMap (\arg3 -> arg2), fromList [("alpha2",[tau2])], fromList [("alpha",4),("arg",4),("tau",3)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.False), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.True), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile (\arg3 -> Data.Bool.otherwise), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.False), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.True), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.filter (\arg3 -> Data.Bool.otherwise), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate (\arg3 -> arg3), fromList [("alpha2",a)], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate' (\arg3 -> arg3), fromList [("alpha2",a)], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.otherwise), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.True), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                        (subSize 1) GHC.List.takeWhile (\arg3 -> Data.Bool.False), fromList [("alpha2",[a])], fromList [("alpha",4),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> [b]) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.tail, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.reverse, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.repeat, fromList [("alpha2",b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.init, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.cycle, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.concat, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Maybe.maybeToList, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.rights, fromList [("alpha2",[Either (tau2) (b)])], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Either.lefts, fromList [("alpha2",[Either (b) (tau1)])], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> [b]) @ size 3), mode: EMode ==> [
-                        (subSize 1) (:) arg0, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) snd, fromList [("alpha2",(tau2 , [b]))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha2",([b] , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha2",(tau2 , [b]))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha2",([b] , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha2",Maybe ([b]))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> Maybe (a)) @ size 2), mode: EMode ==> [
-                        (subSize 1) Data.Maybe.listToMaybe, fromList [("alpha2",[a])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Maybe.Just, fromList [("alpha2",a)], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> Maybe (a)) @ size 3), mode: EMode ==> [
-                        (subSize 2) snd, fromList [("alpha2",(tau2 , Maybe (a)))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha2",(Maybe (a) , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha2",[Maybe (a)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha2",[Maybe (a)])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha2",(tau2 , Maybe (a)))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha2",(Maybe (a) , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha2",Maybe (Maybe (a)))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> (a , tau0)) @ size 3), mode: EMode ==> [
-                        (subSize 2) Data.Tuple.swap, fromList [("alpha2",(tau0 , a))], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> (a , tau0)) @ size 4), mode: EMode ==> [
-                        (subSize 3) snd, fromList [("alpha2",(tau3 , (a , tau0)))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) fst, fromList [("alpha2",((a , tau0) , tau2))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) GHC.List.last, fromList [("alpha2",[(a , tau0)])], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) GHC.List.head, fromList [("alpha2",[(a , tau0)])], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Tuple.snd, fromList [("alpha2",(tau3 , (a , tau0)))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) Data.Tuple.fst, fromList [("alpha2",((a , tau0) , tau2))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) Data.Maybe.fromJust, fromList [("alpha2",Maybe ((a , tau0)))], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> (tau1 , a)) @ size 3), mode: EMode ==> [
-                        (subSize 2) Data.Tuple.swap, fromList [("alpha2",(a , tau1))], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> (tau1 , a)) @ size 4), mode: EMode ==> [
-                        (subSize 3) snd, fromList [("alpha2",(tau3 , (tau1 , a)))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) fst, fromList [("alpha2",((tau1 , a) , tau2))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) GHC.List.last, fromList [("alpha2",[(tau1 , a)])], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) GHC.List.head, fromList [("alpha2",[(tau1 , a)])], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Tuple.snd, fromList [("alpha2",(tau3 , (tau1 , a)))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) Data.Tuple.fst, fromList [("alpha2",((tau1 , a) , tau2))], fromList [("alpha",3),("tau",4)]
-                        (subSize 3) Data.Maybe.fromJust, fromList [("alpha2",Maybe ((tau1 , a)))], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> b) @ size 1), mode: EMode ==> [
-                        (subSize 0) arg1, fromList [("alpha2",a)], fromList [("alpha",3),("tau",1)]
-                ] COMPLETE
-                * ((alpha2 -> b) @ size 1), mode: EMode ==> [
-                        (subSize 0) arg1, fromList [("alpha2",a)], fromList [("alpha",3),("arg",5),("tau",1)]
-                ] COMPLETE
-                * ((alpha2 -> b) @ size 1), mode: EMode ==> [
-                        (subSize 0) arg1, fromList [("alpha2",a)], fromList [("alpha",3),("arg",5),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> b) @ size 2), mode: EMode ==> [
-                        (subSize 1) snd, fromList [("alpha2",(tau2 , b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) fst, fromList [("alpha2",(b , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) GHC.List.last, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.head, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha2",(tau2 , b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha2",(b , tau1))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> b) @ size 3), mode: EMode ==> [
-                        (subSize 1) Data.Maybe.fromMaybe arg0, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.fromRight arg0, fromList [("alpha2",Either (tau2) (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.fromLeft arg0, fromList [("alpha2",Either (b) (tau1))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> [b])) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.takeWhile, fromList [("alpha1",[b]),("alpha2",b -> Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.take, fromList [("alpha1",[b]),("alpha2",Int)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.scanr1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.scanl1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.replicate, fromList [("alpha1",b),("alpha2",Int)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.map, fromList [("alpha1",[tau2]),("alpha2",tau2 -> b)], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) GHC.List.iterate', fromList [("alpha1",b),("alpha2",b -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.iterate, fromList [("alpha1",b),("alpha2",b -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.filter, fromList [("alpha1",[b]),("alpha2",b -> Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile, fromList [("alpha1",[b]),("alpha2",b -> Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.drop, fromList [("alpha1",[b]),("alpha2",Int)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.concatMap, fromList [("alpha1",[tau2]),("alpha2",tau2 -> [b])], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Maybe.mapMaybe, fromList [("alpha1",[tau2]),("alpha2",tau2 -> Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) (:), fromList [("alpha1",[b]),("alpha2",b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) (GHC.List.++), fromList [("alpha1",[b]),("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> [b])) @ size 3), mode: EMode ==> [
-                        (subSize 2) GHC.List.sum, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Num ([b]))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.product, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Num ([b]))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.minimum, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Ord ([b]))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.maximum, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Ord ([b]))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldr1, fromList [("alpha1",[[b]]),("alpha2",[b] -> [b] -> [b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldl1', fromList [("alpha1",[[b]]),("alpha2",[b] -> [b] -> [b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldl1, fromList [("alpha1",[[b]]),("alpha2",[b] -> [b] -> [b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.uncurry, fromList [("alpha1",(tau3 , tau2)),("alpha2",tau3 -> tau2 -> [b])], fromList [("alpha",3),("tau",4)]
-                        (subSize 2) Data.Maybe.fromMaybe, fromList [("alpha1",Maybe ([b])),("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.fromRight, fromList [("alpha1",Either (tau2) ([b])),("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Either.fromLeft, fromList [("alpha1",Either ([b]) (tau1)),("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[[b]])], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> Maybe (b))) @ size 3), mode: EMode ==> [
-                        (subSize 2) GHC.List.sum, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Num (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.product, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Num (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.minimum, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Ord (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.maximum, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Ord (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldr1, fromList [("alpha1",[Maybe (b)]),("alpha2",Maybe (b) -> Maybe (b) -> Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldl1', fromList [("alpha1",[Maybe (b)]),("alpha2",Maybe (b) -> Maybe (b) -> Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.foldl1, fromList [("alpha1",[Maybe (b)]),("alpha2",Maybe (b) -> Maybe (b) -> Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.uncurry, fromList [("alpha1",(tau3 , tau2)),("alpha2",tau3 -> tau2 -> Maybe (b))], fromList [("alpha",3),("tau",4)]
-                        (subSize 2) Data.Maybe.fromMaybe, fromList [("alpha1",Maybe (Maybe (b))),("alpha2",Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.fromRight, fromList [("alpha1",Either (tau2) (Maybe (b))),("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Either.fromLeft, fromList [("alpha1",Either (Maybe (b)) (tau1)),("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> (b , tau0))) @ size 3), mode: EMode ==> [
-                        (subSize 2) (,), fromList [("alpha1",tau0),("alpha2",b)], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> (tau1 , b))) @ size 3), mode: EMode ==> [
-                        (subSize 2) (,), fromList [("alpha1",b),("alpha2",tau1)], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> a)) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.sum, fromList [("alpha1",[a]),("alpha2",@@hplusTC@@Num (a))], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) GHC.List.product, fromList [("alpha1",[a]),("alpha2",@@hplusTC@@Num (a))], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) GHC.List.minimum, fromList [("alpha1",[a]),("alpha2",@@hplusTC@@Ord (a))], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) GHC.List.maximum, fromList [("alpha1",[a]),("alpha2",@@hplusTC@@Ord (a))], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) GHC.List.foldr1, fromList [("alpha1",[a]),("alpha2",a -> a -> a)], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) GHC.List.foldl1', fromList [("alpha1",[a]),("alpha2",a -> a -> a)], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) GHC.List.foldl1, fromList [("alpha1",[a]),("alpha2",a -> a -> a)], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) Data.Tuple.uncurry, fromList [("alpha1",(tau2 , tau1)),("alpha2",tau2 -> tau1 -> a)], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Maybe.fromMaybe, fromList [("alpha1",Maybe (a)),("alpha2",a)], fromList [("alpha",3),("tau",1)]
-                        (subSize 1) Data.Either.fromRight, fromList [("alpha1",Either (tau1) (a)),("alpha2",a)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.fromLeft, fromList [("alpha1",Either (a) (tau0)),("alpha2",a)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[a])], fromList [("alpha",3),("tau",1)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> a)) @ size 3), mode: EMode ==> [
-                        (subSize 2) snd, fromList [("alpha2",(tau1 , alpha1 -> a))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) fst, fromList [("alpha2",(alpha1 -> a , tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) GHC.List.last, fromList [("alpha2",[alpha1 -> a])], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) GHC.List.head, fromList [("alpha2",[alpha1 -> a])], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha2",(tau1 , alpha1 -> a))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha2",(alpha1 -> a , tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha2",Maybe (alpha1 -> a))], fromList [("alpha",3),("tau",1)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> (alpha0 -> b))) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.foldr, fromList [("alpha0",[tau1]),("alpha1",b),("alpha2",tau1 -> b -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldl', fromList [("alpha0",[tau1]),("alpha1",b),("alpha2",b -> tau1 -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) GHC.List.foldl, fromList [("alpha0",[tau1]),("alpha1",b),("alpha2",b -> tau1 -> b)], fromList [("alpha",3),("tau",2)]
+                * ((alpha2 -> (alpha1 -> (alpha0 -> b))) @ size 2), mode: EMode, args: fromList [] ==> [
                         (subSize 1) Data.Maybe.maybe, fromList [("alpha0",Maybe (tau1)),("alpha1",tau1 -> b),("alpha2",b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) Data.Either.either, fromList [("alpha0",Either (tau2) (tau1)),("alpha1",tau1 -> b),("alpha2",tau2 -> b)], fromList [("alpha",3),("tau",3)]
-                        (subSize 1) Data.Bool.bool, fromList [("alpha0",Bool),("alpha1",b),("alpha2",b)], fromList [("alpha",3),("tau",1)]
                 ] COMPLETE
-                * ((alpha2 -> (alpha1 -> (alpha0 -> b))) @ size 3), mode: EMode ==> [
-                        (subSize 2) GHC.List.sum, fromList [("alpha1",[alpha0 -> b]),("alpha2",@@hplusTC@@Num (alpha0 -> b))], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) GHC.List.product, fromList [("alpha1",[alpha0 -> b]),("alpha2",@@hplusTC@@Num (alpha0 -> b))], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) GHC.List.minimum, fromList [("alpha1",[alpha0 -> b]),("alpha2",@@hplusTC@@Ord (alpha0 -> b))], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) GHC.List.maximum, fromList [("alpha1",[alpha0 -> b]),("alpha2",@@hplusTC@@Ord (alpha0 -> b))], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) GHC.List.foldr1, fromList [("alpha1",[alpha0 -> b]),("alpha2",(alpha0 -> b) -> (alpha0 -> b) -> alpha0 -> b)], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) GHC.List.foldl1', fromList [("alpha1",[alpha0 -> b]),("alpha2",(alpha0 -> b) -> (alpha0 -> b) -> alpha0 -> b)], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) GHC.List.foldl1, fromList [("alpha1",[alpha0 -> b]),("alpha2",(alpha0 -> b) -> (alpha0 -> b) -> alpha0 -> b)], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) Data.Tuple.uncurry, fromList [("alpha1",(tau2 , tau1)),("alpha2",tau2 -> tau1 -> alpha0 -> b)], fromList [("alpha",3),("tau",3)]
-                        (subSize 2) Data.Maybe.fromMaybe, fromList [("alpha1",Maybe (alpha0 -> b)),("alpha2",alpha0 -> b)], fromList [("alpha",3),("tau",1)]
-                        (subSize 2) Data.Either.fromRight, fromList [("alpha1",Either (tau1) (alpha0 -> b)),("alpha2",alpha0 -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Either.fromLeft, fromList [("alpha1",Either (alpha0 -> b) (tau0)),("alpha2",alpha0 -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[alpha0 -> b])], fromList [("alpha",3),("tau",1)]
+                * ((alpha2 -> (alpha1 -> (alpha0 -> b))) @ size 5), mode: EMode, args: fromList [] ==> [
+                        (subSize 2) Data.Maybe.maybe (\arg1 -> arg1), fromList [("alpha0",b),("alpha1",Maybe (tau1)),("alpha2",tau1 -> b -> b)], fromList [("alpha",4),("arg",2),("tau",2)]
                 ] COMPLETE
-                * ((alpha2 -> (alpha1 -> (alpha0 -> b))) @ size 4), mode: EMode ==> [
-                        (subSize 2) Data.Maybe.maybe arg1, fromList [("alpha0",a),("alpha1",Maybe (tau1)),("alpha2",tau1 -> a -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 2) Data.Bool.bool arg1, fromList [("alpha0",a),("alpha1",Bool),("alpha2",a -> b)], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) snd, fromList [("alpha2",(tau1 , alpha1 -> alpha0 -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) fst, fromList [("alpha2",(alpha1 -> alpha0 -> b , tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) GHC.List.last, fromList [("alpha2",[alpha1 -> alpha0 -> b])], fromList [("alpha",3),("tau",1)]
-                        (subSize 3) GHC.List.head, fromList [("alpha2",[alpha1 -> alpha0 -> b])], fromList [("alpha",3),("tau",1)]
-                        (subSize 3) Data.Tuple.snd, fromList [("alpha2",(tau1 , alpha1 -> alpha0 -> b))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Tuple.fst, fromList [("alpha2",(alpha1 -> alpha0 -> b , tau0))], fromList [("alpha",3),("tau",2)]
-                        (subSize 3) Data.Tuple.curry, fromList [("alpha2",(alpha1 , alpha0) -> b)], fromList [("alpha",3),("tau",3)]
-                        (subSize 3) Data.Maybe.fromJust, fromList [("alpha2",Maybe (alpha1 -> alpha0 -> b))], fromList [("alpha",3),("tau",1)]
-                ] COMPLETE
-                * ((alpha3 -> @@hplusTC@@Num (a)) @ size 3), mode: EMode ==> [
-                        (subSize 2) snd, fromList [("alpha3",(tau2 , @@hplusTC@@Num (a)))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha3",(@@hplusTC@@Num (a) , tau1))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha3",[@@hplusTC@@Num (a)])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha3",[@@hplusTC@@Num (a)])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha3",(tau2 , @@hplusTC@@Num (a)))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha3",(@@hplusTC@@Num (a) , tau1))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha3",Maybe (@@hplusTC@@Num (a)))], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> @@hplusTC@@Ord (a)) @ size 3), mode: EMode ==> [
-                        (subSize 2) snd, fromList [("alpha3",(tau2 , @@hplusTC@@Ord (a)))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) fst, fromList [("alpha3",(@@hplusTC@@Ord (a) , tau1))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) GHC.List.last, fromList [("alpha3",[@@hplusTC@@Ord (a)])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.head, fromList [("alpha3",[@@hplusTC@@Ord (a)])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Tuple.snd, fromList [("alpha3",(tau2 , @@hplusTC@@Ord (a)))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Tuple.fst, fromList [("alpha3",(@@hplusTC@@Ord (a) , tau1))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Maybe.fromJust, fromList [("alpha3",Maybe (@@hplusTC@@Ord (a)))], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> Bool) @ size 1), mode: EMode ==> [
-                        (subSize 0) GHC.List.or, fromList [("alpha3",[Bool])], fromList [("alpha",4),("tau",2)]
-                        (subSize 0) GHC.List.null, fromList [("alpha3",[tau2])], fromList [("alpha",4),("tau",3)]
-                        (subSize 0) GHC.List.and, fromList [("alpha3",[Bool])], fromList [("alpha",4),("tau",2)]
-                        (subSize 0) Data.Maybe.isNothing, fromList [("alpha3",Maybe (tau2))], fromList [("alpha",4),("tau",3)]
-                        (subSize 0) Data.Maybe.isJust, fromList [("alpha3",Maybe (tau2))], fromList [("alpha",4),("tau",3)]
-                        (subSize 0) Data.Either.isRight, fromList [("alpha3",Either (tau3) (tau2))], fromList [("alpha",4),("tau",4)]
-                        (subSize 0) Data.Either.isLeft, fromList [("alpha3",Either (tau3) (tau2))], fromList [("alpha",4),("tau",4)]
-                        (subSize 0) Data.Bool.not, fromList [("alpha3",Bool)], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> Bool) @ size 2), mode: EMode ==> [
-                        (subSize 0) (Data.Bool.||) Data.Bool.False, fromList [("alpha3",Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) (Data.Bool.||) Data.Bool.True, fromList [("alpha3",Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) (Data.Bool.||) Data.Bool.otherwise, fromList [("alpha3",Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) (Data.Bool.&&) Data.Bool.False, fromList [("alpha3",Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) (Data.Bool.&&) Data.Bool.True, fromList [("alpha3",Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 0) (Data.Bool.&&) Data.Bool.otherwise, fromList [("alpha3",Bool)], fromList [("alpha",3),("tau",2)]
-                        (subSize 1) snd, fromList [("alpha3",(tau3 , Bool))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) fst, fromList [("alpha3",(Bool , tau2))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) GHC.List.last, fromList [("alpha3",[Bool])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.head, fromList [("alpha3",[Bool])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha3",(tau3 , Bool))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha3",(Bool , tau2))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha3",Maybe (Bool))], fromList [("alpha",4),("tau",3)]
-                ] COMPLETE
-                * ((alpha3 -> Int) @ size 1), mode: EMode ==> [
-                        (subSize 0) GHC.List.length, fromList [("alpha3",[tau2])], fromList [("alpha",4),("tau",3)]
-                ] COMPLETE
-                * ((alpha3 -> [tau1]) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.tail, fromList [("alpha3",[tau1])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.reverse, fromList [("alpha3",[tau1])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.repeat, fromList [("alpha3",tau1)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.init, fromList [("alpha3",[tau1])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.cycle, fromList [("alpha3",[tau1])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.concat, fromList [("alpha3",[[tau1]])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Maybe.maybeToList, fromList [("alpha3",Maybe (tau1))], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Maybe.catMaybes, fromList [("alpha3",[Maybe (tau1)])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Either.rights, fromList [("alpha3",[Either (tau3) (tau1)])], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Either.lefts, fromList [("alpha3",[Either (tau1) (tau2)])], fromList [("alpha",4),("tau",4)]
-                ] COMPLETE
-                * ((alpha3 -> a) @ size 2), mode: EMode ==> [
-                        (subSize 1) snd, fromList [("alpha3",(tau2 , a))], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) fst, fromList [("alpha3",(a , tau1))], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.last, fromList [("alpha3",[a])], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.head, fromList [("alpha3",[a])], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha3",(tau2 , a))], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha3",(a , tau1))], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha3",Maybe (a))], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> a) @ size 3), mode: EMode ==> [
-                        (subSize 1) (GHC.List.!!) arg2, fromList [("alpha3",Int)], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ((alpha3 -> b) @ size 1), mode: EMode ==> [
-                        (subSize 0) arg1, fromList [("alpha3",a)], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> b) @ size 1), mode: EMode ==> [
-                        (subSize 0) arg1, fromList [("alpha3",a)], fromList [("alpha",4),("arg",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> b) @ size 1), mode: EMode ==> [
-                        (subSize 0) arg1, fromList [("alpha3",a)], fromList [("alpha",4),("arg",4),("tau",3)]
-                ] COMPLETE
-                * ((alpha3 -> b) @ size 2), mode: EMode ==> [
-                        (subSize 1) snd, fromList [("alpha3",(tau3 , b))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) fst, fromList [("alpha3",(b , tau2))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) GHC.List.last, fromList [("alpha3",[b])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.head, fromList [("alpha3",[b])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Tuple.snd, fromList [("alpha3",(tau3 , b))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Tuple.fst, fromList [("alpha3",(b , tau2))], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Maybe.fromJust, fromList [("alpha3",Maybe (b))], fromList [("alpha",4),("tau",3)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> Int)) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.sum, fromList [("alpha2",[Int]),("alpha3",@@hplusTC@@Num (Int))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.product, fromList [("alpha2",[Int]),("alpha3",@@hplusTC@@Num (Int))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.minimum, fromList [("alpha2",[Int]),("alpha3",@@hplusTC@@Ord (Int))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.maximum, fromList [("alpha2",[Int]),("alpha3",@@hplusTC@@Ord (Int))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldr1, fromList [("alpha2",[Int]),("alpha3",Int -> Int -> Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldl1', fromList [("alpha2",[Int]),("alpha3",Int -> Int -> Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldl1, fromList [("alpha2",[Int]),("alpha3",Int -> Int -> Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) Data.Tuple.uncurry, fromList [("alpha2",(tau3 , tau2)),("alpha3",tau3 -> tau2 -> Int)], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Maybe.fromMaybe, fromList [("alpha2",Maybe (Int)),("alpha3",Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) Data.Either.fromRight, fromList [("alpha2",Either (tau2) (Int)),("alpha3",Int)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Either.fromLeft, fromList [("alpha2",Either (Int) (tau1)),("alpha3",Int)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) (GHC.List.!!), fromList [("alpha2",Int),("alpha3",[Int])], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> [a])) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.takeWhile, fromList [("alpha2",[a]),("alpha3",a -> Bool)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.take, fromList [("alpha2",[a]),("alpha3",Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.scanr1, fromList [("alpha2",[a]),("alpha3",a -> a -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.scanl1, fromList [("alpha2",[a]),("alpha3",a -> a -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.replicate, fromList [("alpha2",a),("alpha3",Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.map, fromList [("alpha2",[tau2]),("alpha3",tau2 -> a)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.iterate', fromList [("alpha2",a),("alpha3",a -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate, fromList [("alpha2",a),("alpha3",a -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.filter, fromList [("alpha2",[a]),("alpha3",a -> Bool)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile, fromList [("alpha2",[a]),("alpha3",a -> Bool)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.drop, fromList [("alpha2",[a]),("alpha3",Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.concatMap, fromList [("alpha2",[tau2]),("alpha3",tau2 -> [a])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Maybe.mapMaybe, fromList [("alpha2",[tau2]),("alpha3",tau2 -> Maybe (a))], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) (:), fromList [("alpha2",[a]),("alpha3",a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) (GHC.List.++), fromList [("alpha2",[a]),("alpha3",[a])], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> [a])) @ size 3), mode: EMode ==> [
-                        (subSize 2) GHC.List.sum, fromList [("alpha2",[[a]]),("alpha3",@@hplusTC@@Num ([a]))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.product, fromList [("alpha2",[[a]]),("alpha3",@@hplusTC@@Num ([a]))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.minimum, fromList [("alpha2",[[a]]),("alpha3",@@hplusTC@@Ord ([a]))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.maximum, fromList [("alpha2",[[a]]),("alpha3",@@hplusTC@@Ord ([a]))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldr1, fromList [("alpha2",[[a]]),("alpha3",[a] -> [a] -> [a])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldl1', fromList [("alpha2",[[a]]),("alpha3",[a] -> [a] -> [a])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldl1, fromList [("alpha2",[[a]]),("alpha3",[a] -> [a] -> [a])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Tuple.uncurry, fromList [("alpha2",(tau3 , tau2)),("alpha3",tau3 -> tau2 -> [a])], fromList [("alpha",4),("tau",4)]
-                        (subSize 2) Data.Maybe.fromMaybe, fromList [("alpha2",Maybe ([a])),("alpha3",[a])], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Either.fromRight, fromList [("alpha2",Either (tau2) ([a])),("alpha3",[a])], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Either.fromLeft, fromList [("alpha2",Either ([a]) (tau1)),("alpha3",[a])], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) (GHC.List.!!), fromList [("alpha2",Int),("alpha3",[[a]])], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> [b])) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.takeWhile, fromList [("alpha2",[b]),("alpha3",b -> Bool)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.take, fromList [("alpha2",[b]),("alpha3",Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.scanr1, fromList [("alpha2",[b]),("alpha3",b -> b -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.scanl1, fromList [("alpha2",[b]),("alpha3",b -> b -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.replicate, fromList [("alpha2",b),("alpha3",Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.map, fromList [("alpha2",[tau2]),("alpha3",tau2 -> b)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.iterate', fromList [("alpha2",b),("alpha3",b -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.iterate, fromList [("alpha2",b),("alpha3",b -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.filter, fromList [("alpha2",[b]),("alpha3",b -> Bool)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.dropWhile, fromList [("alpha2",[b]),("alpha3",b -> Bool)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.drop, fromList [("alpha2",[b]),("alpha3",Int)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.concatMap, fromList [("alpha2",[tau2]),("alpha3",tau2 -> [b])], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Maybe.mapMaybe, fromList [("alpha2",[tau2]),("alpha3",tau2 -> Maybe (b))], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) (:), fromList [("alpha2",[b]),("alpha3",b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) (GHC.List.++), fromList [("alpha2",[b]),("alpha3",[b])], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> Maybe (a))) @ size 3), mode: EMode ==> [
-                        (subSize 2) GHC.List.sum, fromList [("alpha2",[Maybe (a)]),("alpha3",@@hplusTC@@Num (Maybe (a)))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.product, fromList [("alpha2",[Maybe (a)]),("alpha3",@@hplusTC@@Num (Maybe (a)))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.minimum, fromList [("alpha2",[Maybe (a)]),("alpha3",@@hplusTC@@Ord (Maybe (a)))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.maximum, fromList [("alpha2",[Maybe (a)]),("alpha3",@@hplusTC@@Ord (Maybe (a)))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldr1, fromList [("alpha2",[Maybe (a)]),("alpha3",Maybe (a) -> Maybe (a) -> Maybe (a))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldl1', fromList [("alpha2",[Maybe (a)]),("alpha3",Maybe (a) -> Maybe (a) -> Maybe (a))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldl1, fromList [("alpha2",[Maybe (a)]),("alpha3",Maybe (a) -> Maybe (a) -> Maybe (a))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Tuple.uncurry, fromList [("alpha2",(tau3 , tau2)),("alpha3",tau3 -> tau2 -> Maybe (a))], fromList [("alpha",4),("tau",4)]
-                        (subSize 2) Data.Maybe.fromMaybe, fromList [("alpha2",Maybe (Maybe (a))),("alpha3",Maybe (a))], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Either.fromRight, fromList [("alpha2",Either (tau2) (Maybe (a))),("alpha3",Maybe (a))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Either.fromLeft, fromList [("alpha2",Either (Maybe (a)) (tau1)),("alpha3",Maybe (a))], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) (GHC.List.!!), fromList [("alpha2",Int),("alpha3",[Maybe (a)])], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> (a , tau0))) @ size 3), mode: EMode ==> [
-                        (subSize 2) (,), fromList [("alpha2",tau0),("alpha3",a)], fromList [("alpha",4),("tau",4)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> (tau1 , a))) @ size 3), mode: EMode ==> [
-                        (subSize 2) (,), fromList [("alpha2",a),("alpha3",tau1)], fromList [("alpha",4),("tau",4)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> b)) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.sum, fromList [("alpha2",[b]),("alpha3",@@hplusTC@@Num (b))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.product, fromList [("alpha2",[b]),("alpha3",@@hplusTC@@Num (b))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.minimum, fromList [("alpha2",[b]),("alpha3",@@hplusTC@@Ord (b))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.maximum, fromList [("alpha2",[b]),("alpha3",@@hplusTC@@Ord (b))], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldr1, fromList [("alpha2",[b]),("alpha3",b -> b -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldl1', fromList [("alpha2",[b]),("alpha3",b -> b -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldl1, fromList [("alpha2",[b]),("alpha3",b -> b -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) Data.Tuple.uncurry, fromList [("alpha2",(tau3 , tau2)),("alpha3",tau3 -> tau2 -> b)], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) Data.Maybe.fromMaybe, fromList [("alpha2",Maybe (b)),("alpha3",b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) Data.Either.fromRight, fromList [("alpha2",Either (tau2) (b)),("alpha3",b)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Either.fromLeft, fromList [("alpha2",Either (b) (tau1)),("alpha3",b)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) (GHC.List.!!), fromList [("alpha2",Int),("alpha3",[b])], fromList [("alpha",4),("tau",2)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> (alpha1 -> [b]))) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.zipWith, fromList [("alpha1",[tau2]),("alpha2",[tau3]),("alpha3",tau3 -> tau2 -> b)], fromList [("alpha",4),("tau",4)]
-                        (subSize 1) GHC.List.scanr, fromList [("alpha1",[tau2]),("alpha2",b),("alpha3",tau2 -> b -> b)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.scanl', fromList [("alpha1",[tau2]),("alpha2",b),("alpha3",b -> tau2 -> b)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) GHC.List.scanl, fromList [("alpha1",[tau2]),("alpha2",b),("alpha3",b -> tau2 -> b)], fromList [("alpha",4),("tau",3)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> (alpha1 -> a))) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.foldr, fromList [("alpha1",[tau1]),("alpha2",a),("alpha3",tau1 -> a -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldl', fromList [("alpha1",[tau1]),("alpha2",a),("alpha3",a -> tau1 -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) GHC.List.foldl, fromList [("alpha1",[tau1]),("alpha2",a),("alpha3",a -> tau1 -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) Data.Maybe.maybe, fromList [("alpha1",Maybe (tau1)),("alpha2",tau1 -> a),("alpha3",a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 1) Data.Either.either, fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> a),("alpha3",tau2 -> a)], fromList [("alpha",4),("tau",3)]
-                        (subSize 1) Data.Bool.bool, fromList [("alpha1",Bool),("alpha2",a),("alpha3",a)], fromList [("alpha",4),("tau",1)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> (alpha1 -> a))) @ size 3), mode: EMode ==> [
-                        (subSize 2) GHC.List.sum, fromList [("alpha2",[alpha1 -> a]),("alpha3",@@hplusTC@@Num (alpha1 -> a))], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) GHC.List.product, fromList [("alpha2",[alpha1 -> a]),("alpha3",@@hplusTC@@Num (alpha1 -> a))], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) GHC.List.minimum, fromList [("alpha2",[alpha1 -> a]),("alpha3",@@hplusTC@@Ord (alpha1 -> a))], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) GHC.List.maximum, fromList [("alpha2",[alpha1 -> a]),("alpha3",@@hplusTC@@Ord (alpha1 -> a))], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) GHC.List.foldr1, fromList [("alpha2",[alpha1 -> a]),("alpha3",(alpha1 -> a) -> (alpha1 -> a) -> alpha1 -> a)], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) GHC.List.foldl1', fromList [("alpha2",[alpha1 -> a]),("alpha3",(alpha1 -> a) -> (alpha1 -> a) -> alpha1 -> a)], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) GHC.List.foldl1, fromList [("alpha2",[alpha1 -> a]),("alpha3",(alpha1 -> a) -> (alpha1 -> a) -> alpha1 -> a)], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) Data.Tuple.uncurry, fromList [("alpha2",(tau2 , tau1)),("alpha3",tau2 -> tau1 -> alpha1 -> a)], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Maybe.fromMaybe, fromList [("alpha2",Maybe (alpha1 -> a)),("alpha3",alpha1 -> a)], fromList [("alpha",4),("tau",1)]
-                        (subSize 2) Data.Either.fromRight, fromList [("alpha2",Either (tau1) (alpha1 -> a)),("alpha3",alpha1 -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Either.fromLeft, fromList [("alpha2",Either (alpha1 -> a) (tau0)),("alpha3",alpha1 -> a)], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) (GHC.List.!!), fromList [("alpha2",Int),("alpha3",[alpha1 -> a])], fromList [("alpha",4),("tau",1)]
-                ] COMPLETE
-                * ((alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> b)))) @ size 3), mode: EMode ==> [
-                        (subSize 2) GHC.List.foldr, fromList [("alpha1",[tau1]),("alpha2",alpha0 -> b),("alpha3",tau1 -> (alpha0 -> b) -> alpha0 -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldl', fromList [("alpha1",[tau1]),("alpha2",alpha0 -> b),("alpha3",(alpha0 -> b) -> tau1 -> alpha0 -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) GHC.List.foldl, fromList [("alpha1",[tau1]),("alpha2",alpha0 -> b),("alpha3",(alpha0 -> b) -> tau1 -> alpha0 -> b)], fromList [("alpha",4),("tau",2)]
+                * ((alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> b)))) @ size 3), mode: EMode, args: fromList [] ==> [
                         (subSize 2) Data.Maybe.maybe, fromList [("alpha1",Maybe (tau1)),("alpha2",tau1 -> alpha0 -> b),("alpha3",alpha0 -> b)], fromList [("alpha",4),("tau",2)]
-                        (subSize 2) Data.Either.either, fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> alpha0 -> b),("alpha3",tau2 -> alpha0 -> b)], fromList [("alpha",4),("tau",3)]
-                        (subSize 2) Data.Bool.bool, fromList [("alpha1",Bool),("alpha2",alpha0 -> b),("alpha3",alpha0 -> b)], fromList [("alpha",4),("tau",1)]
                 ] COMPLETE
-                * ((alpha4 -> Int) @ size 1), mode: EMode ==> [
-                        (subSize 0) GHC.List.length, fromList [("alpha4",[tau2])], fromList [("alpha",5),("tau",3)]
-                ] COMPLETE
-                * ((alpha4 -> (alpha3 -> Bool)) @ size 1), mode: EMode ==> [
-                        (subSize 0) GHC.List.any, fromList [("alpha3",[tau2]),("alpha4",tau2 -> Bool)], fromList [("alpha",5),("tau",3)]
-                        (subSize 0) GHC.List.all, fromList [("alpha3",[tau2]),("alpha4",tau2 -> Bool)], fromList [("alpha",5),("tau",3)]
-                        (subSize 0) GHC.Char.neChar, fromList [("alpha3",Char),("alpha4",Char)], fromList [("alpha",5),("tau",2)]
-                        (subSize 0) GHC.Char.eqChar, fromList [("alpha3",Char),("alpha4",Char)], fromList [("alpha",5),("tau",2)]
-                        (subSize 0) (Data.Bool.||), fromList [("alpha3",Bool),("alpha4",Bool)], fromList [("alpha",5),("tau",2)]
-                        (subSize 0) (Data.Bool.&&), fromList [("alpha3",Bool),("alpha4",Bool)], fromList [("alpha",5),("tau",2)]
-                ] COMPLETE
-                * ((alpha4 -> (alpha3 -> a)) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.sum, fromList [("alpha3",[a]),("alpha4",@@hplusTC@@Num (a))], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) GHC.List.product, fromList [("alpha3",[a]),("alpha4",@@hplusTC@@Num (a))], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) GHC.List.minimum, fromList [("alpha3",[a]),("alpha4",@@hplusTC@@Ord (a))], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) GHC.List.maximum, fromList [("alpha3",[a]),("alpha4",@@hplusTC@@Ord (a))], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) GHC.List.foldr1, fromList [("alpha3",[a]),("alpha4",a -> a -> a)], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) GHC.List.foldl1', fromList [("alpha3",[a]),("alpha4",a -> a -> a)], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) GHC.List.foldl1, fromList [("alpha3",[a]),("alpha4",a -> a -> a)], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) Data.Tuple.uncurry, fromList [("alpha3",(tau3 , tau2)),("alpha4",tau3 -> tau2 -> a)], fromList [("alpha",5),("tau",4)]
-                        (subSize 1) Data.Maybe.fromMaybe, fromList [("alpha3",Maybe (a)),("alpha4",a)], fromList [("alpha",5),("tau",2)]
-                        (subSize 1) Data.Either.fromRight, fromList [("alpha3",Either (tau2) (a)),("alpha4",a)], fromList [("alpha",5),("tau",3)]
-                        (subSize 1) Data.Either.fromLeft, fromList [("alpha3",Either (a) (tau1)),("alpha4",a)], fromList [("alpha",5),("tau",3)]
-                        (subSize 1) (GHC.List.!!), fromList [("alpha3",Int),("alpha4",[a])], fromList [("alpha",5),("tau",2)]
-                ] COMPLETE
-                * ((alpha4 -> (alpha3 -> (alpha2 -> [a]))) @ size 2), mode: EMode ==> [
-                        (subSize 1) GHC.List.zipWith, fromList [("alpha2",[tau2]),("alpha3",[tau3]),("alpha4",tau3 -> tau2 -> a)], fromList [("alpha",5),("tau",4)]
-                        (subSize 1) GHC.List.scanr, fromList [("alpha2",[tau2]),("alpha3",a),("alpha4",tau2 -> a -> a)], fromList [("alpha",5),("tau",3)]
-                        (subSize 1) GHC.List.scanl', fromList [("alpha2",[tau2]),("alpha3",a),("alpha4",a -> tau2 -> a)], fromList [("alpha",5),("tau",3)]
-                        (subSize 1) GHC.List.scanl, fromList [("alpha2",[tau2]),("alpha3",a),("alpha4",a -> tau2 -> a)], fromList [("alpha",5),("tau",3)]
+                * ((alpha5 -> (alpha4 -> (alpha3 -> b))) @ size 2), mode: EMode, args: fromList [] ==> [
+                        (subSize 1) Data.Maybe.maybe, fromList [("alpha3",Maybe (tau3)),("alpha4",tau3 -> b),("alpha5",b)], fromList [("alpha",6),("tau",4)]
                 ] COMPLETE
         }
 
 
+  alpha3 ==> tau0
+  alpha2 ==> tau1 -> tau0
+  alpha1 ==> Maybe (tau1)
+  tau0   ==> alpha0 -> b
+
+
+"Data.Maybe.maybe"                          <tau0> . <tau1> . tau0 ->   (tau1 -> tau0) -> Maybe (tau1) -> tau0
+                                                              alpha3 -> (alpha2        -> alpha1       -> (alpha0 -> b)
+
+
+
+*** Exception: oops... (IMode) (alpha0 -> b) @ size 2 says complete but isn't there: 
+        \arg1 -> arg1 
+        sub: []
+        nameCounter: [("alpha",4),("arg",2),("tau",2)]
+        args: fromList []
+        afterSub: fromList [("alpha1",Maybe (tau1)),("alpha2",tau1 -> alpha0 -> b),("alpha3",alpha0 -> b)]
+        beforeSub: fromList [("alpha1",Maybe (tau1)),("alpha2",tau1 -> alpha0 -> b),("alpha3",alpha0 -> b)]
+
+
+
+
+running dfs on <b> . <a> . (a -> b) at size 8
+
+==================== !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> b)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> b))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+((((Data.Maybe.maybe (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+((((Data.Maybe.maybe (\arg1 -> (?? :: b))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+-----------------
+
+running dfs on <b> . <a> . (a -> b) at size 9
+
+==================== !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> b)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> b))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+((((Data.Maybe.maybe (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+((((Data.Maybe.maybe (\arg1 -> (?? :: b))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+-----------------
 
 
 
@@ -1512,1272 +120,1047 @@ current memo map: {
 
 
 
-mapEither
-synGuard' "(a -> Either b c) -> [a] -> ([b], [c])" ["Data.Either.partitionEithers", "GHC.List.map"] [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
-syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
-solution: "\\f xs -> Data.Either.partitionEithers (Data.List.map f xs)"
-
-(?? :: ([b],[c]))
-(?? :: alpha -> ([b],[c])) (?? :: alpha)
-Data.Either.partitionEithers (?? :: [Either b c])
-Data.Either.partitionEithers (?? :: [Either b c]) (?? :: [Either b c])
-
-                * ((alpha0 -> ([b] , [c])) @ size 3), mode: EMode ==> [
-                        Data.Either.partitionEithers, fromList [("alpha0",[Either (b) (c)])], fromList [("alpha",1),("tau",2)]
-                ] COMPLETE
-                
- Done with <c> . <b> . <a> . (((a -> Either (b) (c))) -> ([a] -> ([b] , [c])))!
-
-> mapEither????
-> the zip one
-> syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
 
 
 
---------------------------
---------------------------
 
 
-> syn "Maybe (a->b)->a->b"
-fromJust arg0 arg1
 
-RESULTS:{"outCandidates":[{"outExamples":[],"solution":"\\arg0 arg1 -> GHC.List.head (Data.Maybe.maybeToList arg0) arg1"}],"outDocs":[{"functionSig":"Maybe a -> [a]","functionName":"maybeToList","functionDesc":"The maybeToList function returns an empty list when given\nNothing or a singleton list when given Just.\n\nExamples\n\nBasic usage:\n\n\n>>> maybeToList (Just 7)\n[7]\n\n\n\n>>> maybeToList Nothing\n[]\n\n\nOne can use maybeToList to avoid pattern matching when combined\nwith a function that (safely) works on lists:\n\n\n>>> import Text.Read ( readMaybe )\n\n>>> sum $ maybeToList (readMaybe \"3\")\n3\n\n>>> sum $ maybeToList (readMaybe \"\")\n0\n\n"},{"functionSig":"[a] -> a","functionName":"head","functionDesc":"<math>. Extract the first element of a list, which must be\nnon-empty.\n"},{"functionSig":"Maybe (((a -> b)))","functionName":"arg0","functionDesc":""},{"functionSig":"a","functionName":"arg1","functionDesc":""}],"outError":""}
 
-(Quota 4) Done with <b> . <a> . (Maybe (((a -> b))) -> (a -> b))!
-size +  subSize solution
-4       0       GHC.List.head (Data.Maybe.maybeToList arg0) arg1
 
-sub = {
-        alpha0 ==> a (size 1)
-        alpha1 ==> [a -> b] (size 3)
-        alpha2 ==> Maybe (a -> b) (size 3)
-      } (size 0)
 
-current memo map: {
-                * ([@@hplusTC@@Num (b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ([@@hplusTC@@Ord (b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ([Either (([b])) (tau2)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Either ((Maybe (b))) (tau2)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Either (((b , tau0))) (tau3)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([Either (((tau1 , b))) (tau3)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([Either (b) (tau1)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * ([Either (b) (tau2)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Either (b) (tau3)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([Either (tau2) (b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * ([Either (tau3) (([b]))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Either (tau3) ((Maybe (b)))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Either (tau3) (b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Either (tau4) (((b , tau0)))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([Either (tau4) (((tau1 , b)))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([Either (tau4) (b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([[[b]]] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ([[Maybe (b)]] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ([[(b , tau0)]] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([[(tau1 , b)]] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([[b]] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([[b]] @ size 2), mode: IMode ==> [
-                        GHC.List.repeat [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([[(alpha0 -> b)]] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ([Maybe (([b]))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ([Maybe ((Maybe (b)))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ([Maybe (((b , tau0)))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Maybe (((tau1 , b)))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([Maybe (b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([Maybe (b)] @ size 2), mode: IMode ==> [
-                        GHC.List.repeat Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([([b] , tau1)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([(Maybe (b) , tau1)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([((b , tau0) , tau2)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([((tau1 , b) , tau2)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([((tau5 , tau4) , b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",7)]
-                ] COMPLETE
-                * ([(b , tau0)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * ([(b , tau1)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([(b , tau3)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([(tau0 , b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([(tau1 , b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * ([(tau2 , [b])] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([(tau2 , Maybe (b))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ([(tau3 , (b , tau0))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([(tau3 , (tau1 , b))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([(tau4 , b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ([b] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([b] @ size 3), mode: IMode ==> [
-                        Data.Tuple.fst (Data.Either.partitionEithers []), fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst (GHC.List.unzip []), fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd (Data.Either.partitionEithers []), fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd (GHC.List.unzip []), fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd (GHC.List.unzip3 []), fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.concat (GHC.List.repeat []), fromList [], fromList [("alpha",2),("tau",3)]
-                        GHC.List.head (GHC.List.repeat []), fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ([(alpha0 -> b)] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * ([(alpha0 -> b)] @ size 2), mode: IMode ==> [
-                        Data.Maybe.maybeToList arg0, fromList [("alpha0",a)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.repeat snd, fromList [("alpha0",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat fst, fromList [("alpha0",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat GHC.List.last, fromList [("alpha0",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.repeat GHC.List.head, fromList [("alpha0",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.repeat Data.Tuple.snd, fromList [("alpha0",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat Data.Tuple.fst, fromList [("alpha0",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat Data.Maybe.fromJust, fromList [("alpha0",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                ] not complete
-                * ([(alpha1 -> (b , tau0))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ([(alpha1 -> (tau1 , b))] @ size 1), mode: IMode ==> [
-                        [], fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * (Maybe ((@@hplusTC@@Num (b))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * (Maybe ((@@hplusTC@@Ord (b))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * (Maybe (([[b]])) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * (Maybe (([Maybe (b)])) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * (Maybe (([(b , tau0)])) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe (([(tau1 , b)])) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe (([b])) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * (Maybe ((Maybe (((b , tau0))))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe ((Maybe (((tau1 , b))))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe ((Maybe (b))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * (Maybe ((([b] , tau1))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe (((Maybe (b) , tau1))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe ((((b , tau0) , tau2))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * (Maybe ((((tau1 , b) , tau2))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * (Maybe (((b , tau0))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * (Maybe (((b , tau0))) @ size 2), mode: IMode ==> [
-                        Data.Maybe.listToMaybe [], fromList [], fromList [("alpha",2),("tau",4)]
-                        GHC.List.uncons [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * (Maybe (((b , tau1))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * (Maybe (((tau0 , b))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * (Maybe (((tau1 , b))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * (Maybe (((tau1 , b))) @ size 2), mode: IMode ==> [
-                        Data.Maybe.listToMaybe [], fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * (Maybe (((tau2 , [b]))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe (((tau2 , Maybe (b)))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * (Maybe (((tau3 , (b , tau0)))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * (Maybe (((tau3 , (tau1 , b)))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * (Maybe (b) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * (Maybe (b) @ size 2), mode: IMode ==> [
-                        Data.Maybe.listToMaybe [], fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * (Maybe (b) @ size 3), mode: IMode ==> [
-                        GHC.List.head (GHC.List.repeat Data.Maybe.Nothing), fromList [], fromList [("alpha",2),("tau",3)]
-                        GHC.List.last (GHC.List.repeat Data.Maybe.Nothing), fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * (Maybe (((alpha0 -> b))) @ size 1), mode: IMode ==> [
-                        arg0, fromList [("alpha0",a)], fromList [("alpha",3),("tau",2)]
-                ] not complete
-                * (Maybe (((alpha1 -> (b , tau0)))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * (Maybe (((alpha1 -> (tau1 , b)))) @ size 1), mode: IMode ==> [
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * (([b] , tau1) @ size 2), mode: IMode ==> [
-                        Data.Either.partitionEithers [], fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.unzip [], fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ((b , tau0) @ size 3), mode: IMode ==> [
-                        Data.Maybe.fromJust (Data.Maybe.listToMaybe []), fromList [], fromList [("alpha",2),("tau",4)]
-                        Data.Maybe.fromJust (GHC.List.uncons []), fromList [], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ((tau1 , b) @ size 3), mode: IMode ==> [
-                        Data.Maybe.fromJust (Data.Maybe.listToMaybe []), fromList [], fromList [("alpha",2),("tau",4)]
-                ] COMPLETE
-                * ((tau2 , [b]) @ size 2), mode: IMode ==> [
-                        Data.Either.partitionEithers [], fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.unzip [], fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.unzip3 [], fromList [], fromList [("alpha",3),("tau",7)]
-                ] COMPLETE
-                * (a @ size 1), mode: IMode ==> [
-                        arg1, fromList [], fromList [("alpha",3),("tau",2)]
-                ] not complete
-                * (tau1 @ size 1), mode: IMode ==> [
-                        snd, fromList [], fromList [("alpha",3),("tau",6)]
-                        fst, fromList [], fromList [("alpha",3),("tau",6)]
-                        Text.Show.showsPrec, fromList [], fromList [("alpha",3),("tau",5)]
-                        Text.Show.shows, fromList [], fromList [("alpha",3),("tau",5)]
-                        Text.Show.showString, fromList [], fromList [("alpha",3),("tau",4)]
-                        Text.Show.showParen, fromList [], fromList [("alpha",3),("tau",4)]
-                        Text.Show.showListWith, fromList [], fromList [("alpha",3),("tau",5)]
-                        Text.Show.showList, fromList [], fromList [("alpha",3),("tau",5)]
-                        Text.Show.showChar, fromList [], fromList [("alpha",3),("tau",4)]
-                        Text.Show.show, fromList [], fromList [("alpha",3),("tau",5)]
-                        (,), fromList [], fromList [("alpha",3),("tau",6)]
-                        [], fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.zipWith3, fromList [], fromList [("alpha",3),("tau",8)]
-                        GHC.List.zipWith, fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.zip3, fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.zip, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.unzip3, fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.unzip, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.uncons, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.takeWhile, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.take, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.tail, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.sum, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.splitAt, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.span, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.scanr1, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.scanr, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.scanl1, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.scanl', fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.scanl, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.reverse, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.replicate, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.repeat, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.product, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.or, fromList [], fromList [("alpha",3),("tau",4)]
-                        GHC.List.null, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.notElem, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.minimum, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.maximum, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.map, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.lookup, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.length, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.last, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.iterate', fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.iterate, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.init, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.head, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.foldr1, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.foldr, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldl1', fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.foldl1, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.foldl', fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldl, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.filter, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.elem, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.dropWhile, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.drop, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.cycle, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.concatMap, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.concat, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.break, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.any, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.List.and, fromList [], fromList [("alpha",3),("tau",4)]
-                        GHC.List.all, fromList [], fromList [("alpha",3),("tau",5)]
-                        GHC.Char.neChar, fromList [], fromList [("alpha",3),("tau",4)]
-                        GHC.Char.eqChar, fromList [], fromList [("alpha",3),("tau",4)]
-                        GHC.Char.chr, fromList [], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.uncurry, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.swap, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.curry, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Maybe.maybeToList, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.maybe, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.mapMaybe, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.listToMaybe, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.isNothing, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.isJust, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.fromMaybe, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.fromJust, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.catMaybes, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.Nothing, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.Just, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.List.group, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Either.rights, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.partitionEithers, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.lefts, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.isRight, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.isLeft, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.fromRight, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.fromLeft, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.either, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Either.Right, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.Left, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Bool.otherwise, fromList [], fromList [("alpha",3),("tau",4)]
-                        Data.Bool.not, fromList [], fromList [("alpha",3),("tau",4)]
-                        Data.Bool.bool, fromList [], fromList [("alpha",3),("tau",5)]
-                        Data.Bool.True, fromList [], fromList [("alpha",3),("tau",4)]
-                        Data.Bool.False, fromList [], fromList [("alpha",3),("tau",4)]
-                        (:), fromList [], fromList [("alpha",3),("tau",5)]
-                        @@hplusTCInstance@@8Eq, fromList [], fromList [("alpha",3),("tau",5)]
-                        @@hplusTCInstance@@5Semigroup, fromList [], fromList [("alpha",3),("tau",6)]
-                        @@hplusTCInstance@@3Eq, fromList [], fromList [("alpha",3),("tau",6)]
-                        @@hplusTCInstance@@2Ord, fromList [], fromList [("alpha",3),("tau",6)]
-                        @@hplusTCInstance@@1Read, fromList [], fromList [("alpha",3),("tau",6)]
-                        @@hplusTCInstance@@0ShowUnit, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0ShowInt, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0ShowFloat, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0ShowDouble, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0ShowChar, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0ShowBool, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0Show, fromList [], fromList [("alpha",3),("tau",6)]
-                        @@hplusTCInstance@@0OrdInt, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0OrdFloat, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0OrdDouble, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0OrdChar, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0OrdBool, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0NumInt, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0NumFloat, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0NumDouble, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0EqUnit, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0EqInt, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0EqFloat, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0EqDouble, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0EqChar, fromList [], fromList [("alpha",3),("tau",4)]
-                        @@hplusTCInstance@@0EqBool, fromList [], fromList [("alpha",3),("tau",4)]
-                        (GHC.List.++), fromList [], fromList [("alpha",3),("tau",5)]
-                        (GHC.List.!!), fromList [], fromList [("alpha",3),("tau",5)]
-                        (Data.Eq.==), fromList [], fromList [("alpha",3),("tau",5)]
-                        (Data.Eq./=), fromList [], fromList [("alpha",3),("tau",5)]
-                        (Data.Bool.||), fromList [], fromList [("alpha",3),("tau",4)]
-                        (Data.Bool.&&), fromList [], fromList [("alpha",3),("tau",4)]
-                        arg1, fromList [], fromList [("alpha",3),("tau",4)]
-                        arg0, fromList [], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((tau4 -> (tau3 -> (b , tau0))) @ size 1), mode: IMode ==> [
-                        snd, fromList [], fromList [("alpha",3),("tau",7)]
-                        fst, fromList [], fromList [("alpha",3),("tau",7)]
-                        (,), fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.sum, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.product, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.minimum, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.maximum, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.head, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldr1, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldl1', fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldl1, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry, fromList [], fromList [("alpha",3),("tau",8)]
-                        Data.Tuple.snd, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.fst, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Maybe.fromMaybe, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.fromRight, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Either.fromLeft, fromList [], fromList [("alpha",3),("tau",7)]
-                        (GHC.List.!!), fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ((tau4 -> (tau3 -> (tau1 , b))) @ size 1), mode: IMode ==> [
-                        snd, fromList [], fromList [("alpha",3),("tau",7)]
-                        fst, fromList [], fromList [("alpha",3),("tau",7)]
-                        (,), fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.sum, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.product, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.minimum, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.maximum, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.head, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldr1, fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldl1', fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.foldl1, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry, fromList [], fromList [("alpha",3),("tau",8)]
-                        Data.Tuple.snd, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.fst, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Maybe.fromMaybe, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [], fromList [("alpha",3),("tau",6)]
-                        Data.Either.fromRight, fromList [], fromList [("alpha",3),("tau",7)]
-                        Data.Either.fromLeft, fromList [], fromList [("alpha",3),("tau",7)]
-                        (GHC.List.!!), fromList [], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 1), mode: IMode ==> [
-                        snd, fromList [("alpha0",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha0",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha0",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha0",[b])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha0",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha0",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha0",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * (b @ size 3), mode: EMode ==> [
-                        Data.Maybe.fromJust (Data.Maybe.listToMaybe []), fromList [], fromList [("alpha",2),("tau",3)]
-                ] not complete
-                * (b @ size 4), mode: EMode ==> [
-                        GHC.List.head (Data.Maybe.maybeToList arg0) arg1, fromList [], fromList [("alpha",3),("tau",2)]
-                        snd (Data.Maybe.fromJust (Data.Maybe.listToMaybe [])), fromList [], fromList [("alpha",2),("tau",4)]
-                        fst (Data.Maybe.fromJust (GHC.List.uncons [])), fromList [], fromList [("alpha",2),("tau",3)]
-                        fst (Data.Maybe.fromJust (Data.Maybe.listToMaybe [])), fromList [], fromList [("alpha",2),("tau",4)]
-                        Data.Maybe.fromJust (GHC.List.head (GHC.List.repeat Data.Maybe.Nothing)), fromList [], fromList [("alpha",2),("tau",3)]
-                        Data.Maybe.fromJust (GHC.List.last (GHC.List.repeat Data.Maybe.Nothing)), fromList [], fromList [("alpha",2),("tau",3)]
-                        Data.Tuple.fst (Data.Maybe.fromJust (Data.Maybe.listToMaybe [])), fromList [], fromList [("alpha",2),("tau",4)]
-                        Data.Tuple.fst (Data.Maybe.fromJust (GHC.List.uncons [])), fromList [], fromList [("alpha",2),("tau",3)]
-                        Data.Tuple.snd (Data.Maybe.fromJust (Data.Maybe.listToMaybe [])), fromList [], fromList [("alpha",2),("tau",4)]
-                        GHC.List.head (GHC.List.head (GHC.List.repeat [])), fromList [], fromList [("alpha",2),("tau",3)]
-                        GHC.List.head (GHC.List.concat (GHC.List.repeat [])), fromList [], fromList [("alpha",2),("tau",3)]
-                        GHC.List.head (Data.Tuple.snd (GHC.List.unzip3 [])), fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.head (Data.Tuple.snd (GHC.List.unzip [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.head (Data.Tuple.snd (Data.Either.partitionEithers [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.head (Data.Tuple.fst (GHC.List.unzip [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.head (Data.Tuple.fst (Data.Either.partitionEithers [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last (Data.Tuple.fst (Data.Either.partitionEithers [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last (Data.Tuple.fst (GHC.List.unzip [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last (Data.Tuple.snd (Data.Either.partitionEithers [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last (Data.Tuple.snd (GHC.List.unzip [])), fromList [], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last (Data.Tuple.snd (GHC.List.unzip3 [])), fromList [], fromList [("alpha",3),("tau",7)]
-                        GHC.List.last (GHC.List.concat (GHC.List.repeat [])), fromList [], fromList [("alpha",2),("tau",3)]
-                        GHC.List.last (GHC.List.head (GHC.List.repeat [])), fromList [], fromList [("alpha",2),("tau",3)]
-                ] not complete
-                * ((alpha0 -> b) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha0",(tau1 , b))], fromList [("alpha",1),("tau",2)]
-                        fst, fromList [("alpha0",(b , tau0))], fromList [("alpha",1),("tau",2)]
-                        GHC.List.last, fromList [("alpha0",[b])], fromList [("alpha",1),("tau",1)]
-                        GHC.List.head, fromList [("alpha0",[b])], fromList [("alpha",1),("tau",1)]
-                        Data.Tuple.snd, fromList [("alpha0",(tau1 , b))], fromList [("alpha",1),("tau",2)]
-                        Data.Tuple.fst, fromList [("alpha0",(b , tau0))], fromList [("alpha",1),("tau",2)]
-                        Data.Maybe.fromJust, fromList [("alpha0",Maybe (b))], fromList [("alpha",1),("tau",1)]
-                ] COMPLETE
-                * ((alpha0 -> b) @ size 3), mode: EMode ==> [
-                        GHC.List.head (Data.Maybe.maybeToList arg0), fromList [("alpha0",a)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.head (GHC.List.repeat snd), fromList [("alpha0",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head (GHC.List.repeat fst), fromList [("alpha0",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head (GHC.List.repeat GHC.List.last), fromList [("alpha0",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head (GHC.List.repeat GHC.List.head), fromList [("alpha0",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head (GHC.List.repeat Data.Tuple.snd), fromList [("alpha0",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head (GHC.List.repeat Data.Tuple.fst), fromList [("alpha0",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head (GHC.List.repeat Data.Maybe.fromJust), fromList [("alpha0",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                ] not complete
-                * ((alpha1 -> [b]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha1",(tau2 , [b]))], fromList [("alpha",2),("tau",3)]
-                        fst, fromList [("alpha1",([b] , tau1))], fromList [("alpha",2),("tau",3)]
-                        GHC.List.tail, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        GHC.List.reverse, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        GHC.List.repeat, fromList [("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                        GHC.List.last, fromList [("alpha1",[[b]])], fromList [("alpha",2),("tau",2)]
-                        GHC.List.init, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        GHC.List.head, fromList [("alpha1",[[b]])], fromList [("alpha",2),("tau",2)]
-                        GHC.List.cycle, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        GHC.List.concat, fromList [("alpha1",[[b]])], fromList [("alpha",2),("tau",2)]
-                        Data.Tuple.snd, fromList [("alpha1",(tau2 , [b]))], fromList [("alpha",2),("tau",3)]
-                        Data.Tuple.fst, fromList [("alpha1",([b] , tau1))], fromList [("alpha",2),("tau",3)]
-                        Data.Maybe.maybeToList, fromList [("alpha1",Maybe (b))], fromList [("alpha",2),("tau",2)]
-                        Data.Maybe.fromJust, fromList [("alpha1",Maybe ([b]))], fromList [("alpha",2),("tau",2)]
-                        Data.Maybe.catMaybes, fromList [("alpha1",[Maybe (b)])], fromList [("alpha",2),("tau",2)]
-                        Data.Either.rights, fromList [("alpha1",[Either (tau2) (b)])], fromList [("alpha",2),("tau",3)]
-                        Data.Either.lefts, fromList [("alpha1",[Either (b) (tau1)])], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> Maybe (b)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha1",(tau2 , Maybe (b)))], fromList [("alpha",2),("tau",3)]
-                        fst, fromList [("alpha1",(Maybe (b) , tau1))], fromList [("alpha",2),("tau",3)]
-                        GHC.List.last, fromList [("alpha1",[Maybe (b)])], fromList [("alpha",2),("tau",2)]
-                        GHC.List.head, fromList [("alpha1",[Maybe (b)])], fromList [("alpha",2),("tau",2)]
-                        Data.Tuple.snd, fromList [("alpha1",(tau2 , Maybe (b)))], fromList [("alpha",2),("tau",3)]
-                        Data.Tuple.fst, fromList [("alpha1",(Maybe (b) , tau1))], fromList [("alpha",2),("tau",3)]
-                        Data.Maybe.listToMaybe, fromList [("alpha1",[b])], fromList [("alpha",2),("tau",2)]
-                        Data.Maybe.fromJust, fromList [("alpha1",Maybe (Maybe (b)))], fromList [("alpha",2),("tau",2)]
-                        Data.Maybe.Just, fromList [("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                ] COMPLETE
-                * ((alpha1 -> (b , tau0)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha1",(tau3 , (b , tau0)))], fromList [("alpha",2),("tau",4)]
-                        fst, fromList [("alpha1",((b , tau0) , tau2))], fromList [("alpha",2),("tau",4)]
-                        GHC.List.last, fromList [("alpha1",[(b , tau0)])], fromList [("alpha",2),("tau",3)]
-                        GHC.List.head, fromList [("alpha1",[(b , tau0)])], fromList [("alpha",2),("tau",3)]
-                        Data.Tuple.swap, fromList [("alpha1",(tau0 , b))], fromList [("alpha",2),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha1",(tau3 , (b , tau0)))], fromList [("alpha",2),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha1",((b , tau0) , tau2))], fromList [("alpha",2),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha1",Maybe ((b , tau0)))], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> (b , tau0)) @ size 2), mode: EMode ==> [
-                        Data.Tuple.uncurry snd, fromList [("alpha1",((tau6 , tau3 -> (b , tau0)) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry fst, fromList [("alpha1",((tau3 -> (b , tau0) , tau5) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry (,), fromList [("alpha1",(b , tau0))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry GHC.List.sum, fromList [("alpha1",(@@hplusTC@@Num ((b , tau0)) , [(b , tau0)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.product, fromList [("alpha1",(@@hplusTC@@Num ((b , tau0)) , [(b , tau0)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.minimum, fromList [("alpha1",(@@hplusTC@@Ord ((b , tau0)) , [(b , tau0)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.maximum, fromList [("alpha1",(@@hplusTC@@Ord ((b , tau0)) , [(b , tau0)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.last, fromList [("alpha1",([tau3 -> (b , tau0)] , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.head, fromList [("alpha1",([tau3 -> (b , tau0)] , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.foldr1, fromList [("alpha1",((b , tau0) -> (b , tau0) -> (b , tau0) , [(b , tau0)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.foldl1', fromList [("alpha1",((b , tau0) -> (b , tau0) -> (b , tau0) , [(b , tau0)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.foldl1, fromList [("alpha1",((b , tau0) -> (b , tau0) -> (b , tau0) , [(b , tau0)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry Data.Tuple.uncurry, fromList [("alpha1",(tau7 -> tau6 -> (b , tau0) , (tau7 , tau6)))], fromList [("alpha",3),("tau",8)]
-                        Data.Tuple.uncurry Data.Tuple.snd, fromList [("alpha1",((tau6 , tau3 -> (b , tau0)) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry Data.Tuple.fst, fromList [("alpha1",((tau3 -> (b , tau0) , tau5) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry Data.Maybe.fromMaybe, fromList [("alpha1",((b , tau0) , Maybe ((b , tau0))))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry Data.Maybe.fromJust, fromList [("alpha1",(Maybe (tau3 -> (b , tau0)) , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry Data.Either.fromRight, fromList [("alpha1",((b , tau0) , Either (tau6) ((b , tau0))))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry Data.Either.fromLeft, fromList [("alpha1",((b , tau0) , Either ((b , tau0)) (tau5)))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry (GHC.List.!!), fromList [("alpha1",([(b , tau0)] , Int))], fromList [("alpha",3),("tau",6)]
-                ] COMPLETE
-                * ((alpha1 -> (tau1 , b)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha1",(tau3 , (tau1 , b)))], fromList [("alpha",2),("tau",4)]
-                        fst, fromList [("alpha1",((tau1 , b) , tau2))], fromList [("alpha",2),("tau",4)]
-                        GHC.List.last, fromList [("alpha1",[(tau1 , b)])], fromList [("alpha",2),("tau",3)]
-                        GHC.List.head, fromList [("alpha1",[(tau1 , b)])], fromList [("alpha",2),("tau",3)]
-                        Data.Tuple.swap, fromList [("alpha1",(b , tau1))], fromList [("alpha",2),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha1",(tau3 , (tau1 , b)))], fromList [("alpha",2),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha1",((tau1 , b) , tau2))], fromList [("alpha",2),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha1",Maybe ((tau1 , b)))], fromList [("alpha",2),("tau",3)]
-                ] COMPLETE
-                * ((alpha1 -> (tau1 , b)) @ size 2), mode: EMode ==> [
-                        Data.Tuple.uncurry snd, fromList [("alpha1",((tau6 , tau3 -> (tau1 , b)) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry fst, fromList [("alpha1",((tau3 -> (tau1 , b) , tau5) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry (,), fromList [("alpha1",(tau1 , b))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry GHC.List.sum, fromList [("alpha1",(@@hplusTC@@Num ((tau1 , b)) , [(tau1 , b)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.product, fromList [("alpha1",(@@hplusTC@@Num ((tau1 , b)) , [(tau1 , b)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.minimum, fromList [("alpha1",(@@hplusTC@@Ord ((tau1 , b)) , [(tau1 , b)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.maximum, fromList [("alpha1",(@@hplusTC@@Ord ((tau1 , b)) , [(tau1 , b)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.last, fromList [("alpha1",([tau3 -> (tau1 , b)] , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.head, fromList [("alpha1",([tau3 -> (tau1 , b)] , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.foldr1, fromList [("alpha1",((tau1 , b) -> (tau1 , b) -> (tau1 , b) , [(tau1 , b)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.foldl1', fromList [("alpha1",((tau1 , b) -> (tau1 , b) -> (tau1 , b) , [(tau1 , b)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry GHC.List.foldl1, fromList [("alpha1",((tau1 , b) -> (tau1 , b) -> (tau1 , b) , [(tau1 , b)]))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry Data.Tuple.uncurry, fromList [("alpha1",(tau7 -> tau6 -> (tau1 , b) , (tau7 , tau6)))], fromList [("alpha",3),("tau",8)]
-                        Data.Tuple.uncurry Data.Tuple.snd, fromList [("alpha1",((tau6 , tau3 -> (tau1 , b)) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry Data.Tuple.fst, fromList [("alpha1",((tau3 -> (tau1 , b) , tau5) , tau3))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry Data.Maybe.fromMaybe, fromList [("alpha1",((tau1 , b) , Maybe ((tau1 , b))))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry Data.Maybe.fromJust, fromList [("alpha1",(Maybe (tau3 -> (tau1 , b)) , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.uncurry Data.Either.fromRight, fromList [("alpha1",((tau1 , b) , Either (tau6) ((tau1 , b))))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry Data.Either.fromLeft, fromList [("alpha1",((tau1 , b) , Either ((tau1 , b)) (tau5)))], fromList [("alpha",3),("tau",7)]
-                        Data.Tuple.uncurry (GHC.List.!!), fromList [("alpha1",([(tau1 , b)] , Int))], fromList [("alpha",3),("tau",6)]
-                        (,) snd, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) fst, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Text.Show.showsPrec, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Text.Show.shows, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Text.Show.showString, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) Text.Show.showParen, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) Text.Show.showListWith, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Text.Show.showList, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Text.Show.showChar, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) Text.Show.show, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) (,), fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) [], fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.zipWith3, fromList [("alpha1",b)], fromList [("alpha",3),("tau",8)]
-                        (,) GHC.List.zipWith, fromList [("alpha1",b)], fromList [("alpha",3),("tau",7)]
-                        (,) GHC.List.zip3, fromList [("alpha1",b)], fromList [("alpha",3),("tau",7)]
-                        (,) GHC.List.zip, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.unzip3, fromList [("alpha1",b)], fromList [("alpha",3),("tau",7)]
-                        (,) GHC.List.unzip, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.uncons, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.takeWhile, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.take, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.tail, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.sum, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.splitAt, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.span, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.scanr1, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.scanr, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.scanl1, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.scanl', fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.scanl, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.reverse, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.replicate, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.repeat, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.product, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.or, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) GHC.List.null, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.notElem, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.minimum, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.maximum, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.map, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.lookup, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.length, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.last, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.iterate', fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.iterate, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.init, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.head, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.foldr1, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.foldr, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.foldl1', fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.foldl1, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.foldl', fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.foldl, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.filter, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.elem, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.dropWhile, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.drop, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.cycle, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.concatMap, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) GHC.List.concat, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.break, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.any, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.List.and, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) GHC.List.all, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) GHC.Char.neChar, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) GHC.Char.eqChar, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) GHC.Char.chr, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) Data.Tuple.uncurry, fromList [("alpha1",b)], fromList [("alpha",3),("tau",7)]
-                        (,) Data.Tuple.swap, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Tuple.snd, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Tuple.fst, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Tuple.curry, fromList [("alpha1",b)], fromList [("alpha",3),("tau",7)]
-                        (,) Data.Maybe.maybeToList, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.maybe, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Maybe.mapMaybe, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Maybe.listToMaybe, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.isNothing, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.isJust, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.fromMaybe, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.fromJust, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.catMaybes, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.Nothing, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Maybe.Just, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.List.group, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Either.rights, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.partitionEithers, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.lefts, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.isRight, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.isLeft, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.fromRight, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.fromLeft, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.either, fromList [("alpha1",b)], fromList [("alpha",3),("tau",7)]
-                        (,) Data.Either.Right, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Either.Left, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) Data.Bool.otherwise, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) Data.Bool.not, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) Data.Bool.bool, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) Data.Bool.True, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) Data.Bool.False, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) (:), fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) @@hplusTCInstance@@8Eq, fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) @@hplusTCInstance@@5Semigroup, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) @@hplusTCInstance@@3Eq, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) @@hplusTCInstance@@2Ord, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) @@hplusTCInstance@@1Read, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) @@hplusTCInstance@@0ShowUnit, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0ShowInt, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0ShowFloat, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0ShowDouble, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0ShowChar, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0ShowBool, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0Show, fromList [("alpha1",b)], fromList [("alpha",3),("tau",6)]
-                        (,) @@hplusTCInstance@@0OrdInt, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0OrdFloat, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0OrdDouble, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0OrdChar, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0OrdBool, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0NumInt, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0NumFloat, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0NumDouble, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0EqUnit, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0EqInt, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0EqFloat, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0EqDouble, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0EqChar, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) @@hplusTCInstance@@0EqBool, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) (GHC.List.++), fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) (GHC.List.!!), fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) (Data.Eq.==), fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) (Data.Eq./=), fromList [("alpha1",b)], fromList [("alpha",3),("tau",5)]
-                        (,) (Data.Bool.||), fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) (Data.Bool.&&), fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) arg1, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                        (,) arg0, fromList [("alpha1",b)], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha1 -> (alpha0 -> b)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha1",(tau1 , alpha0 -> b))], fromList [("alpha",2),("tau",2)]
-                        fst, fromList [("alpha1",(alpha0 -> b , tau0))], fromList [("alpha",2),("tau",2)]
-                        GHC.List.sum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Num (b))], fromList [("alpha",2),("tau",1)]
-                        GHC.List.product, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Num (b))], fromList [("alpha",2),("tau",1)]
-                        GHC.List.minimum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Ord (b))], fromList [("alpha",2),("tau",1)]
-                        GHC.List.maximum, fromList [("alpha0",[b]),("alpha1",@@hplusTC@@Ord (b))], fromList [("alpha",2),("tau",1)]
-                        GHC.List.last, fromList [("alpha1",[alpha0 -> b])], fromList [("alpha",2),("tau",1)]
-                        GHC.List.head, fromList [("alpha1",[alpha0 -> b])], fromList [("alpha",2),("tau",1)]
-                        GHC.List.foldr1, fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
-                        GHC.List.foldl1', fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
-                        GHC.List.foldl1, fromList [("alpha0",[b]),("alpha1",b -> b -> b)], fromList [("alpha",2),("tau",1)]
-                        Data.Tuple.uncurry, fromList [("alpha0",(tau2 , tau1)),("alpha1",tau2 -> tau1 -> b)], fromList [("alpha",2),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha1",(tau1 , alpha0 -> b))], fromList [("alpha",2),("tau",2)]
-                        Data.Tuple.fst, fromList [("alpha1",(alpha0 -> b , tau0))], fromList [("alpha",2),("tau",2)]
-                        Data.Maybe.fromMaybe, fromList [("alpha0",Maybe (b)),("alpha1",b)], fromList [("alpha",2),("tau",1)]
-                        Data.Maybe.fromJust, fromList [("alpha1",Maybe (alpha0 -> b))], fromList [("alpha",2),("tau",1)]
-                        Data.Either.fromRight, fromList [("alpha0",Either (tau1) (b)),("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                        Data.Either.fromLeft, fromList [("alpha0",Either (b) (tau0)),("alpha1",b)], fromList [("alpha",2),("tau",2)]
-                        (GHC.List.!!), fromList [("alpha0",Int),("alpha1",[b])], fromList [("alpha",2),("tau",1)]
-                ] COMPLETE
-                * ((alpha2 -> @@hplusTC@@Num (b)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau2 , @@hplusTC@@Num (b)))], fromList [("alpha",3),("tau",3)]
-                        fst, fromList [("alpha2",(@@hplusTC@@Num (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[@@hplusTC@@Num (b)])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.head, fromList [("alpha2",[@@hplusTC@@Num (b)])], fromList [("alpha",3),("tau",2)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau2 , @@hplusTC@@Num (b)))], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.fst, fromList [("alpha2",(@@hplusTC@@Num (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (@@hplusTC@@Num (b)))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> @@hplusTC@@Ord (b)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau2 , @@hplusTC@@Ord (b)))], fromList [("alpha",3),("tau",3)]
-                        fst, fromList [("alpha2",(@@hplusTC@@Ord (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[@@hplusTC@@Ord (b)])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.head, fromList [("alpha2",[@@hplusTC@@Ord (b)])], fromList [("alpha",3),("tau",2)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau2 , @@hplusTC@@Ord (b)))], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.fst, fromList [("alpha2",(@@hplusTC@@Ord (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (@@hplusTC@@Ord (b)))], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> [Either (b) (tau1)]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , [Either (b) (tau1)]))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",([Either (b) (tau1)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.tail, fromList [("alpha2",[Either (b) (tau1)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.reverse, fromList [("alpha2",[Either (b) (tau1)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat, fromList [("alpha2",Either (b) (tau1))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[[Either (b) (tau1)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.init, fromList [("alpha2",[Either (b) (tau1)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[[Either (b) (tau1)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.cycle, fromList [("alpha2",[Either (b) (tau1)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.concat, fromList [("alpha2",[[Either (b) (tau1)]])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , [Either (b) (tau1)]))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",([Either (b) (tau1)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe (Either (b) (tau1)))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([Either (b) (tau1)]))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (Either (b) (tau1))])], fromList [("alpha",3),("tau",4)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau4) (Either (b) (tau1))])], fromList [("alpha",3),("tau",5)]
-                        Data.Either.lefts, fromList [("alpha2",[Either (Either (b) (tau1)) (tau3)])], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> [Either (tau2) (b)]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , [Either (tau2) (b)]))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",([Either (tau2) (b)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.tail, fromList [("alpha2",[Either (tau2) (b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.reverse, fromList [("alpha2",[Either (tau2) (b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat, fromList [("alpha2",Either (tau2) (b))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[[Either (tau2) (b)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.init, fromList [("alpha2",[Either (tau2) (b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[[Either (tau2) (b)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.cycle, fromList [("alpha2",[Either (tau2) (b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.concat, fromList [("alpha2",[[Either (tau2) (b)]])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , [Either (tau2) (b)]))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",([Either (tau2) (b)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe (Either (tau2) (b)))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([Either (tau2) (b)]))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (Either (tau2) (b))])], fromList [("alpha",3),("tau",4)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau4) (Either (tau2) (b))])], fromList [("alpha",3),("tau",5)]
-                        Data.Either.lefts, fromList [("alpha2",[Either (Either (tau2) (b)) (tau3)])], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> [[b]]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , [[b]]))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",([[b]] , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.tail, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.reverse, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.repeat, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[[[b]]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.init, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[[[b]]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.cycle, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.concat, fromList [("alpha2",[[[b]]])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , [[b]]))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",([[b]] , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe ([b]))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([[b]]))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe ([b])])], fromList [("alpha",3),("tau",3)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau3) ([b])])], fromList [("alpha",3),("tau",4)]
-                        Data.Either.lefts, fromList [("alpha2",[Either ([b]) (tau2)])], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> [Maybe (b)]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , [Maybe (b)]))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",([Maybe (b)] , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.tail, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.reverse, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.repeat, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[[Maybe (b)]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.init, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[[Maybe (b)]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.cycle, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.concat, fromList [("alpha2",[[Maybe (b)]])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , [Maybe (b)]))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",([Maybe (b)] , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe (Maybe (b)))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([Maybe (b)]))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (Maybe (b))])], fromList [("alpha",3),("tau",3)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau3) (Maybe (b))])], fromList [("alpha",3),("tau",4)]
-                        Data.Either.lefts, fromList [("alpha2",[Either (Maybe (b)) (tau2)])], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> [(b , tau0)]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , [(b , tau0)]))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",([(b , tau0)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.tail, fromList [("alpha2",[(b , tau0)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.reverse, fromList [("alpha2",[(b , tau0)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat, fromList [("alpha2",(b , tau0))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[[(b , tau0)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.init, fromList [("alpha2",[(b , tau0)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[[(b , tau0)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.cycle, fromList [("alpha2",[(b , tau0)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.concat, fromList [("alpha2",[[(b , tau0)]])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , [(b , tau0)]))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",([(b , tau0)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe ((b , tau0)))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([(b , tau0)]))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe ((b , tau0))])], fromList [("alpha",3),("tau",4)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau4) ((b , tau0))])], fromList [("alpha",3),("tau",5)]
-                        Data.Either.lefts, fromList [("alpha2",[Either ((b , tau0)) (tau3)])], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> [(tau1 , b)]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , [(tau1 , b)]))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",([(tau1 , b)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.tail, fromList [("alpha2",[(tau1 , b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.reverse, fromList [("alpha2",[(tau1 , b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.repeat, fromList [("alpha2",(tau1 , b))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[[(tau1 , b)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.init, fromList [("alpha2",[(tau1 , b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[[(tau1 , b)]])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.cycle, fromList [("alpha2",[(tau1 , b)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.concat, fromList [("alpha2",[[(tau1 , b)]])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , [(tau1 , b)]))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",([(tau1 , b)] , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe ((tau1 , b)))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([(tau1 , b)]))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe ((tau1 , b))])], fromList [("alpha",3),("tau",4)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau4) ((tau1 , b))])], fromList [("alpha",3),("tau",5)]
-                        Data.Either.lefts, fromList [("alpha2",[Either ((tau1 , b)) (tau3)])], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> [b]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , [b]))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",([b] , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.tail, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.reverse, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.repeat, fromList [("alpha2",b)], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.init, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.cycle, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.concat, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , [b]))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",([b] , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([b]))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau3) (b)])], fromList [("alpha",3),("tau",4)]
-                        Data.Either.lefts, fromList [("alpha2",[Either (b) (tau2)])], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> [(alpha0 -> b)]) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau2 , [alpha0 -> b]))], fromList [("alpha",3),("tau",3)]
-                        fst, fromList [("alpha2",([alpha0 -> b] , tau1))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.tail, fromList [("alpha2",[alpha0 -> b])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.reverse, fromList [("alpha2",[alpha0 -> b])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.repeat, fromList [("alpha2",alpha0 -> b)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.last, fromList [("alpha2",[[alpha0 -> b]])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.init, fromList [("alpha2",[alpha0 -> b])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.head, fromList [("alpha2",[[alpha0 -> b]])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.cycle, fromList [("alpha2",[alpha0 -> b])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.concat, fromList [("alpha2",[[alpha0 -> b]])], fromList [("alpha",3),("tau",2)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau2 , [alpha0 -> b]))], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.fst, fromList [("alpha2",([alpha0 -> b] , tau1))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.maybeToList, fromList [("alpha2",Maybe (alpha0 -> b))], fromList [("alpha",3),("tau",2)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ([alpha0 -> b]))], fromList [("alpha",3),("tau",2)]
-                        Data.Maybe.catMaybes, fromList [("alpha2",[Maybe (alpha0 -> b)])], fromList [("alpha",3),("tau",2)]
-                        Data.Either.rights, fromList [("alpha2",[Either (tau2) (alpha0 -> b)])], fromList [("alpha",3),("tau",3)]
-                        Data.Either.lefts, fromList [("alpha2",[Either (alpha0 -> b) (tau1)])], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> Maybe (([b]))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , Maybe ([b])))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",(Maybe ([b]) , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[Maybe ([b])])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[Maybe ([b])])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , Maybe ([b])))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",(Maybe ([b]) , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.listToMaybe, fromList [("alpha2",[[b]])], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (Maybe ([b])))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.Just, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> Maybe ((Maybe (b)))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , Maybe (Maybe (b))))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",(Maybe (Maybe (b)) , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[Maybe (Maybe (b))])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[Maybe (Maybe (b))])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , Maybe (Maybe (b))))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",(Maybe (Maybe (b)) , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.listToMaybe, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (Maybe (Maybe (b))))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.Just, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> Maybe (((b , tau0)))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , Maybe ((b , tau0))))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",(Maybe ((b , tau0)) , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.uncons, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[Maybe ((b , tau0))])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[Maybe ((b , tau0))])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , Maybe ((b , tau0))))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",(Maybe ((b , tau0)) , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.listToMaybe, fromList [("alpha2",[(b , tau0)])], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (Maybe ((b , tau0))))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.Just, fromList [("alpha2",(b , tau0))], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> Maybe (((tau1 , b)))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , Maybe ((tau1 , b))))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",(Maybe ((tau1 , b)) , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.last, fromList [("alpha2",[Maybe ((tau1 , b))])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[Maybe ((tau1 , b))])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , Maybe ((tau1 , b))))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",(Maybe ((tau1 , b)) , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.listToMaybe, fromList [("alpha2",[(tau1 , b)])], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (Maybe ((tau1 , b))))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.Just, fromList [("alpha2",(tau1 , b))], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> Maybe (b)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , Maybe (b)))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",(Maybe (b) , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , Maybe (b)))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",(Maybe (b) , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.listToMaybe, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (Maybe (b)))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.Just, fromList [("alpha2",b)], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> ([b] , tau1)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , ([b] , tau1)))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",(([b] , tau1) , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.unzip, fromList [("alpha2",[(b , tau3)])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.last, fromList [("alpha2",[([b] , tau1)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[([b] , tau1)])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.swap, fromList [("alpha2",(tau1 , [b]))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , ([b] , tau1)))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",(([b] , tau1) , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (([b] , tau1)))], fromList [("alpha",3),("tau",4)]
-                        Data.Either.partitionEithers, fromList [("alpha2",[Either (b) (tau3)])], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> (Maybe (b) , tau1)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , (Maybe (b) , tau1)))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",((Maybe (b) , tau1) , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.last, fromList [("alpha2",[(Maybe (b) , tau1)])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[(Maybe (b) , tau1)])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.swap, fromList [("alpha2",(tau1 , Maybe (b)))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , (Maybe (b) , tau1)))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",((Maybe (b) , tau1) , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((Maybe (b) , tau1)))], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> ((b , tau0) , tau2)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau5 , ((b , tau0) , tau2)))], fromList [("alpha",3),("tau",6)]
-                        fst, fromList [("alpha2",(((b , tau0) , tau2) , tau4))], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [("alpha2",[((b , tau0) , tau2)])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.head, fromList [("alpha2",[((b , tau0) , tau2)])], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.swap, fromList [("alpha2",(tau2 , (b , tau0)))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau5 , ((b , tau0) , tau2)))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst, fromList [("alpha2",(((b , tau0) , tau2) , tau4))], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (((b , tau0) , tau2)))], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> ((tau1 , b) , tau2)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau5 , ((tau1 , b) , tau2)))], fromList [("alpha",3),("tau",6)]
-                        fst, fromList [("alpha2",(((tau1 , b) , tau2) , tau4))], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [("alpha2",[((tau1 , b) , tau2)])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.head, fromList [("alpha2",[((tau1 , b) , tau2)])], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.swap, fromList [("alpha2",(tau2 , (tau1 , b)))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau5 , ((tau1 , b) , tau2)))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst, fromList [("alpha2",(((tau1 , b) , tau2) , tau4))], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (((tau1 , b) , tau2)))], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> (b , tau1)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau5 , (b , tau1)))], fromList [("alpha",3),("tau",6)]
-                        fst, fromList [("alpha2",((b , tau1) , tau4))], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [("alpha2",[(b , tau1)])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.head, fromList [("alpha2",[(b , tau1)])], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.swap, fromList [("alpha2",(tau1 , b))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau5 , (b , tau1)))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst, fromList [("alpha2",((b , tau1) , tau4))], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((b , tau1)))], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> (tau0 , b)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau5 , (tau0 , b)))], fromList [("alpha",3),("tau",6)]
-                        fst, fromList [("alpha2",((tau0 , b) , tau4))], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [("alpha2",[(tau0 , b)])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.head, fromList [("alpha2",[(tau0 , b)])], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.swap, fromList [("alpha2",(b , tau0))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau5 , (tau0 , b)))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst, fromList [("alpha2",((tau0 , b) , tau4))], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((tau0 , b)))], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> (tau1 , (alpha0 -> b))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , (tau1 , alpha0 -> b)))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",((tau1 , alpha0 -> b) , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[(tau1 , alpha0 -> b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[(tau1 , alpha0 -> b)])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.swap, fromList [("alpha2",(alpha0 -> b , tau1))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , (tau1 , alpha0 -> b)))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",((tau1 , alpha0 -> b) , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((tau1 , alpha0 -> b)))], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> (tau2 , [b])) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , (tau2 , [b])))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",((tau2 , [b]) , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.unzip3, fromList [("alpha2",[((tau5 , tau4) , b)])], fromList [("alpha",3),("tau",6)]
-                        GHC.List.unzip, fromList [("alpha2",[(tau4 , b)])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.last, fromList [("alpha2",[(tau2 , [b])])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[(tau2 , [b])])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.swap, fromList [("alpha2",([b] , tau2))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , (tau2 , [b])))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",((tau2 , [b]) , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((tau2 , [b])))], fromList [("alpha",3),("tau",4)]
-                        Data.Either.partitionEithers, fromList [("alpha2",[Either (tau4) (b)])], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> (tau2 , Maybe (b))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau4 , (tau2 , Maybe (b))))], fromList [("alpha",3),("tau",5)]
-                        fst, fromList [("alpha2",((tau2 , Maybe (b)) , tau3))], fromList [("alpha",3),("tau",5)]
-                        GHC.List.last, fromList [("alpha2",[(tau2 , Maybe (b))])], fromList [("alpha",3),("tau",4)]
-                        GHC.List.head, fromList [("alpha2",[(tau2 , Maybe (b))])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.swap, fromList [("alpha2",(Maybe (b) , tau2))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau4 , (tau2 , Maybe (b))))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.fst, fromList [("alpha2",((tau2 , Maybe (b)) , tau3))], fromList [("alpha",3),("tau",5)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((tau2 , Maybe (b))))], fromList [("alpha",3),("tau",4)]
-                ] COMPLETE
-                * ((alpha2 -> (tau3 , (b , tau0))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau5 , (tau3 , (b , tau0))))], fromList [("alpha",3),("tau",6)]
-                        fst, fromList [("alpha2",((tau3 , (b , tau0)) , tau4))], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [("alpha2",[(tau3 , (b , tau0))])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.head, fromList [("alpha2",[(tau3 , (b , tau0))])], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.swap, fromList [("alpha2",((b , tau0) , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau5 , (tau3 , (b , tau0))))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst, fromList [("alpha2",((tau3 , (b , tau0)) , tau4))], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((tau3 , (b , tau0))))], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> (tau3 , (tau1 , b))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau5 , (tau3 , (tau1 , b))))], fromList [("alpha",3),("tau",6)]
-                        fst, fromList [("alpha2",((tau3 , (tau1 , b)) , tau4))], fromList [("alpha",3),("tau",6)]
-                        GHC.List.last, fromList [("alpha2",[(tau3 , (tau1 , b))])], fromList [("alpha",3),("tau",5)]
-                        GHC.List.head, fromList [("alpha2",[(tau3 , (tau1 , b))])], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.swap, fromList [("alpha2",((tau1 , b) , tau3))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau5 , (tau3 , (tau1 , b))))], fromList [("alpha",3),("tau",6)]
-                        Data.Tuple.fst, fromList [("alpha2",((tau3 , (tau1 , b)) , tau4))], fromList [("alpha",3),("tau",6)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((tau3 , (tau1 , b))))], fromList [("alpha",3),("tau",5)]
-                ] COMPLETE
-                * ((alpha2 -> ((alpha0 -> b) , tau0)) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , (alpha0 -> b , tau0)))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",((alpha0 -> b , tau0) , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[(alpha0 -> b , tau0)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[(alpha0 -> b , tau0)])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.swap, fromList [("alpha2",(tau0 , alpha0 -> b))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , (alpha0 -> b , tau0)))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",((alpha0 -> b , tau0) , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe ((alpha0 -> b , tau0)))], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> b) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        GHC.List.last, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , b))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",(b , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> [b])) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau2 , alpha1 -> [b]))], fromList [("alpha",3),("tau",3)]
-                        fst, fromList [("alpha2",(alpha1 -> [b] , tau1))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.takeWhile, fromList [("alpha1",[b]),("alpha2",b -> Bool)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.take, fromList [("alpha1",[b]),("alpha2",Int)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.sum, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Num ([b]))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.scanr1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.scanl1, fromList [("alpha1",[b]),("alpha2",b -> b -> b)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.replicate, fromList [("alpha1",b),("alpha2",Int)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.product, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Num ([b]))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.minimum, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Ord ([b]))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.maximum, fromList [("alpha1",[[b]]),("alpha2",@@hplusTC@@Ord ([b]))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.map, fromList [("alpha1",[tau2]),("alpha2",tau2 -> b)], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[alpha1 -> [b]])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.iterate', fromList [("alpha1",b),("alpha2",b -> b)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.iterate, fromList [("alpha1",b),("alpha2",b -> b)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.head, fromList [("alpha2",[alpha1 -> [b]])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.foldr1, fromList [("alpha1",[[b]]),("alpha2",[b] -> [b] -> [b])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.foldl1', fromList [("alpha1",[[b]]),("alpha2",[b] -> [b] -> [b])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.foldl1, fromList [("alpha1",[[b]]),("alpha2",[b] -> [b] -> [b])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.filter, fromList [("alpha1",[b]),("alpha2",b -> Bool)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.dropWhile, fromList [("alpha1",[b]),("alpha2",b -> Bool)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.drop, fromList [("alpha1",[b]),("alpha2",Int)], fromList [("alpha",3),("tau",2)]
-                        GHC.List.concatMap, fromList [("alpha1",[tau2]),("alpha2",tau2 -> [b])], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.uncurry, fromList [("alpha1",(tau3 , tau2)),("alpha2",tau3 -> tau2 -> [b])], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau2 , alpha1 -> [b]))], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.fst, fromList [("alpha2",(alpha1 -> [b] , tau1))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.mapMaybe, fromList [("alpha1",[tau2]),("alpha2",tau2 -> Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromMaybe, fromList [("alpha1",Maybe ([b])),("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (alpha1 -> [b]))], fromList [("alpha",3),("tau",2)]
-                        Data.Either.fromRight, fromList [("alpha1",Either (tau2) ([b])),("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        Data.Either.fromLeft, fromList [("alpha1",Either ([b]) (tau1)),("alpha2",[b])], fromList [("alpha",3),("tau",3)]
-                        (:), fromList [("alpha1",[b]),("alpha2",b)], fromList [("alpha",3),("tau",2)]
-                        (GHC.List.++), fromList [("alpha1",[b]),("alpha2",[b])], fromList [("alpha",3),("tau",2)]
-                        (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[[b]])], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> Maybe (b))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau2 , alpha1 -> Maybe (b)))], fromList [("alpha",3),("tau",3)]
-                        fst, fromList [("alpha2",(alpha1 -> Maybe (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.sum, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Num (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.product, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Num (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.minimum, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Ord (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.maximum, fromList [("alpha1",[Maybe (b)]),("alpha2",@@hplusTC@@Ord (Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.last, fromList [("alpha2",[alpha1 -> Maybe (b)])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.head, fromList [("alpha2",[alpha1 -> Maybe (b)])], fromList [("alpha",3),("tau",2)]
-                        GHC.List.foldr1, fromList [("alpha1",[Maybe (b)]),("alpha2",Maybe (b) -> Maybe (b) -> Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.foldl1', fromList [("alpha1",[Maybe (b)]),("alpha2",Maybe (b) -> Maybe (b) -> Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        GHC.List.foldl1, fromList [("alpha1",[Maybe (b)]),("alpha2",Maybe (b) -> Maybe (b) -> Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        Data.Tuple.uncurry, fromList [("alpha1",(tau3 , tau2)),("alpha2",tau3 -> tau2 -> Maybe (b))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau2 , alpha1 -> Maybe (b)))], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.fst, fromList [("alpha2",(alpha1 -> Maybe (b) , tau1))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromMaybe, fromList [("alpha1",Maybe (Maybe (b))),("alpha2",Maybe (b))], fromList [("alpha",3),("tau",2)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (alpha1 -> Maybe (b)))], fromList [("alpha",3),("tau",2)]
-                        Data.Either.fromRight, fromList [("alpha1",Either (tau2) (Maybe (b))),("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        Data.Either.fromLeft, fromList [("alpha1",Either (Maybe (b)) (tau1)),("alpha2",Maybe (b))], fromList [("alpha",3),("tau",3)]
-                        (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[Maybe (b)])], fromList [("alpha",3),("tau",2)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> (b , tau0))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , alpha1 -> (b , tau0)))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",(alpha1 -> (b , tau0) , tau2))], fromList [("alpha",3),("tau",4)]
-                        (,), fromList [("alpha1",tau0),("alpha2",b)], fromList [("alpha",3),("tau",4)]
-                        GHC.List.sum, fromList [("alpha1",[(b , tau0)]),("alpha2",@@hplusTC@@Num ((b , tau0)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.product, fromList [("alpha1",[(b , tau0)]),("alpha2",@@hplusTC@@Num ((b , tau0)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.minimum, fromList [("alpha1",[(b , tau0)]),("alpha2",@@hplusTC@@Ord ((b , tau0)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.maximum, fromList [("alpha1",[(b , tau0)]),("alpha2",@@hplusTC@@Ord ((b , tau0)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[alpha1 -> (b , tau0)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[alpha1 -> (b , tau0)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.foldr1, fromList [("alpha1",[(b , tau0)]),("alpha2",(b , tau0) -> (b , tau0) -> (b , tau0))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.foldl1', fromList [("alpha1",[(b , tau0)]),("alpha2",(b , tau0) -> (b , tau0) -> (b , tau0))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.foldl1, fromList [("alpha1",[(b , tau0)]),("alpha2",(b , tau0) -> (b , tau0) -> (b , tau0))], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.uncurry, fromList [("alpha1",(tau4 , tau3)),("alpha2",tau4 -> tau3 -> (b , tau0))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , alpha1 -> (b , tau0)))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",(alpha1 -> (b , tau0) , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromMaybe, fromList [("alpha1",Maybe ((b , tau0))),("alpha2",(b , tau0))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (alpha1 -> (b , tau0)))], fromList [("alpha",3),("tau",3)]
-                        Data.Either.fromRight, fromList [("alpha1",Either (tau3) ((b , tau0))),("alpha2",(b , tau0))], fromList [("alpha",3),("tau",4)]
-                        Data.Either.fromLeft, fromList [("alpha1",Either ((b , tau0)) (tau2)),("alpha2",(b , tau0))], fromList [("alpha",3),("tau",4)]
-                        (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[(b , tau0)])], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-                * ((alpha2 -> (alpha1 -> (tau1 , b))) @ size 1), mode: EMode ==> [
-                        snd, fromList [("alpha2",(tau3 , alpha1 -> (tau1 , b)))], fromList [("alpha",3),("tau",4)]
-                        fst, fromList [("alpha2",(alpha1 -> (tau1 , b) , tau2))], fromList [("alpha",3),("tau",4)]
-                        (,), fromList [("alpha1",b),("alpha2",tau1)], fromList [("alpha",3),("tau",4)]
-                        GHC.List.sum, fromList [("alpha1",[(tau1 , b)]),("alpha2",@@hplusTC@@Num ((tau1 , b)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.product, fromList [("alpha1",[(tau1 , b)]),("alpha2",@@hplusTC@@Num ((tau1 , b)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.minimum, fromList [("alpha1",[(tau1 , b)]),("alpha2",@@hplusTC@@Ord ((tau1 , b)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.maximum, fromList [("alpha1",[(tau1 , b)]),("alpha2",@@hplusTC@@Ord ((tau1 , b)))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.last, fromList [("alpha2",[alpha1 -> (tau1 , b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.head, fromList [("alpha2",[alpha1 -> (tau1 , b)])], fromList [("alpha",3),("tau",3)]
-                        GHC.List.foldr1, fromList [("alpha1",[(tau1 , b)]),("alpha2",(tau1 , b) -> (tau1 , b) -> (tau1 , b))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.foldl1', fromList [("alpha1",[(tau1 , b)]),("alpha2",(tau1 , b) -> (tau1 , b) -> (tau1 , b))], fromList [("alpha",3),("tau",3)]
-                        GHC.List.foldl1, fromList [("alpha1",[(tau1 , b)]),("alpha2",(tau1 , b) -> (tau1 , b) -> (tau1 , b))], fromList [("alpha",3),("tau",3)]
-                        Data.Tuple.uncurry, fromList [("alpha1",(tau4 , tau3)),("alpha2",tau4 -> tau3 -> (tau1 , b))], fromList [("alpha",3),("tau",5)]
-                        Data.Tuple.snd, fromList [("alpha2",(tau3 , alpha1 -> (tau1 , b)))], fromList [("alpha",3),("tau",4)]
-                        Data.Tuple.fst, fromList [("alpha2",(alpha1 -> (tau1 , b) , tau2))], fromList [("alpha",3),("tau",4)]
-                        Data.Maybe.fromMaybe, fromList [("alpha1",Maybe ((tau1 , b))),("alpha2",(tau1 , b))], fromList [("alpha",3),("tau",3)]
-                        Data.Maybe.fromJust, fromList [("alpha2",Maybe (alpha1 -> (tau1 , b)))], fromList [("alpha",3),("tau",3)]
-                        Data.Either.fromRight, fromList [("alpha1",Either (tau3) ((tau1 , b))),("alpha2",(tau1 , b))], fromList [("alpha",3),("tau",4)]
-                        Data.Either.fromLeft, fromList [("alpha1",Either ((tau1 , b)) (tau2)),("alpha2",(tau1 , b))], fromList [("alpha",3),("tau",4)]
-                        (GHC.List.!!), fromList [("alpha1",Int),("alpha2",[(tau1 , b)])], fromList [("alpha",3),("tau",3)]
-                ] COMPLETE
-        }
 
-(43.12 secs, 2,187,765,728 bytes)
-> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -46,7 +46,7 @@ mkHole :: RType -> OurProgram
 mkHole t = Hole (show t) (\hole -> hole)
 -- add trace for lambda
 addLam :: Monad m => String -> OurType -> StateT GoalTrace m ()
-addLam argName tArg = modify $ updateGoalTrace (Hole tArg $ \hole -> Lam argName hole)
+addLam argName tBody = modify $ updateGoalTrace (Hole tBody $ \hole -> Lam argName hole)
 -- add trace for app
 addApp :: Monad m => OurType -> OurType -> StateT GoalTrace m ()
 addApp t1 t2 = modify $ updateGoalTrace (Hole t1 $ \hole1 -> Hole t2 $ \hole2 -> App hole1 hole2)

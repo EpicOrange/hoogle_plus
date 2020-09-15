@@ -29,13 +29,13 @@ solution: "\\f xs -> Data.Maybe.listToMaybe (Data.Maybe.mapMaybe f xs)"
 
 mergeEither
 synGuard' "Either a (Either a b) -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
+syn' "Either a (Either a b) -> Either a b" [(["Left 2"], "Left 2"), (["Right (Left 2)"], "Left 2"), (["Right (Right 2.2)"], "Right 2.2")]
 solution: "\\arg0 -> Data.Either.either Left (Data.Either.either Left Right) arg0"
 
 (Quota 9) Done with <b> . <a> . (Either (a) ((Either (a) (b))) -> Either (a) (b))!
 size    subSize solution
-7       25      Data.Either.either (\arg1 ->
-    Data.Either.Left arg1) (\arg2 ->
-    arg2) arg0
+7       25      Data.Either.either (\arg1 -> Data.Either.Left arg1) (\arg2 -> arg2) arg0
+                Data.Either.either Data.Either.Left (\arg2 -> arg2) arg0
 
 
 multiApp

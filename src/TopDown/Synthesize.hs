@@ -101,7 +101,7 @@ memoizeProgram mode quota args goalType compute = do
       memoMap <- liftMemo get
       case Map.lookup key memoMap of
         -- found some stored programs, so return them
-        Just stored           -> retrieve stored
+        Just stored           -> mzero -- retrieve stored
         -- found no stored programs, but it's at a smaller quota so we keep checking
         Nothing | num < quota -> mzero
         -- found no stored programs, so we need to run compute @ quota to generate them
@@ -118,23 +118,27 @@ memoizeProgram mode quota args goalType compute = do
       -- liftIO $ printf "!!!!!!!!!!!  (mapSize: %d)\twe are using it yay! with (goal, quota): (%s, %s)\n" (Map.size ourMap) (show goalType) (show quota) 
       -- update the current state's sub
 
-
-                          -- 1. add together sub and storedSub (we already have code for this)
-                          --       don't do any substitutions. just add them together #simple
-
-
+              -- 1. add together sub and storedSub (we already have code for this)
+              --       don't do any substitutions. just add them together #simple
 
       (prog, subSize, savedSub, storedNameCounter) <- choices list
       -- append the saved sub to our current and now updated sub
       let sub' = savedSub <> Map.map (stypeSubstitute savedSub) sub
       -- let sub' = savedSub <> sub
       
-      -- debug for zip and []
-      -- when ((show goalType) == "(alpha2 -> (alpha1 -> [(b , c)]))" || (show goalType) == "[b]" ) $ do
-      --   liftIO $ printf "\t* sub: %s\n" (show sub)
-      --   liftIO $ printf "\t* savedSub: %s\n" (show savedSub)
-      --   liftIO $ printf "\t* sub' (should be the two above combined): %s\n" (show sub')
+      when ((show goalType) == "(alpha0 -> Either (a) (b))") $ do
+        liftIO $ printf "==========\n"
+        progSize <- sizeOfProg prog subSize
+        liftIO $ printf "size is!!!!! --> %s\n" (show progSize)
+        liftIO $ printf "\t* sub: %s\n" (show sub)
+        liftIO $ printf "\t* savedSub: %s\n" (show savedSub)
+        liftIO $ printf "\t* sub' (should be the two above combined): %s\n" (show sub')
+        
       
+        -- * sub: fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> alpha0 -> Either (a) (b)),("alpha3",tau2 -> alpha0 -> Either (a) (b))]
+        -- * savedSub: fromList [("alpha0",Either (a) (b))]
+        -- * sub' (should be the two above combined): fromList [("alpha0",Either (a) (b)),("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> Either (a) (b) -> Either (a) (b)),("alpha3",tau2 -> Either (a) (b) -> Either (a) (b))]
+
       assign typeAssignment sub'
       assign nameCounter storedNameCounter
       return (prog, subSize)
@@ -145,10 +149,13 @@ memoizeProgram mode quota args goalType compute = do
     evaluate :: MemoKey -> TopDownSolver IO (RProgram, Int)
     evaluate key = do
         -- (will reenumerate all programs and possibly change memoMap)
-        -- beforeSub <- use typeAssignment
+        beforeSub <- use typeAssignment
         (prog, subSize) <- compute `mplus` setComplete key
         afterSub <- use typeAssignment
-
+        when (show goalType == "(alpha0 -> b)") $ do
+          liftIO $ printf "\n==================== !!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+          liftGoalTrace $ printGoalTrace
+ 
         -- take the difference between the subs
         -- let subDiff = afterSub `Map.difference` beforeSub
 
@@ -159,7 +166,19 @@ memoizeProgram mode quota args goalType compute = do
 
         -- only keeps the parts of the new sub that are relevant to the query
         let updatedSub = Map.filterWithKey (\k v -> k `isInfixOf` (show goalType)) afterSub
+        -- when ("alpha0" `elem` (Map.keys afterSub) && not ("alpha0" `elem` (Map.keys updatedSub))) $ do
+        --   liftIO $ do
+        --     printf "\n====================\nFuck! We removed alpha0 from goalType %s\n" (show goalType)
+        --     printf "afterSub: %s\n" (show afterSub)
+        --     printf "updatedSub: %s\n" (show updatedSub)
+            -- error "damn"
+
+-- Fuck! We removed alpha0 from goalType (tau2 -> Either (a) (b))
+-- Fuck! We removed alpha0 from goalType (Either (a) (b) -> Either (a) (b))
+-- "alpha0",Either (tau2) (tau1)
         
+        -- idea: maybe we shouldn't check just the goal but also the sub
+        -- fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> alpha0 -> Either (a) (b)),("alpha3",tau2 -> alpha0 -> Either (a) (b))]
 
         -- when ((show $ _goalType key) == "(alpha1 -> [b])" || (show $ _goalType key) == "(alpha0 -> [b])") $ do
         --   liftIO $ printf "program: %s, beforeSub: %s\n" (show prog) (show beforeSub)
@@ -200,8 +219,10 @@ memoizeProgram mode quota args goalType compute = do
               Nothing | isComplete -> do
                 memoMap <- liftMemo get
                 liftIO $ printMemoMap memoMap
-                error $ printf "oops... (%s) %s @ size %s says complete but isn't there: \n\t%s \n\tsub: %s\n\tnameCounter: %s\n" 
-                  (show mode) (show goalType) (show progSize) (show prog) (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter)
+                liftGoalTrace $ printGoalTrace
+                error $ printf "oops... (%s) %s @ size %s says complete but isn't there: \n\t%s \n\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tafterSub: %s\n\tbeforeSub: %s\n" 
+                  (show mode) (show goalType) (show progSize) (show prog) (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ args)
+                  (show $ afterSub) (show $ beforeSub)
               -- if it isn't in the list but the list is incomplete, add it
               Nothing      -> do
                 liftMemo $ put $ add prog
@@ -338,8 +359,10 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       (prog, subSize) <- inEnv `mplus` doSplit mode
       progSize <- sizeOfProg prog subSize
       guardCheck prog subSize
-      when (show goalType == "(alpha1 -> [(b , c)])") $ debug $ printf "\t[this comment] prog: %s, size: %d\n" (show prog) (progSize)
-      
+
+      -- debug $ printf "right before returning2: \n"
+      -- printSub
+
       return (prog, subSize)
 
     -- search params
@@ -357,6 +380,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- only check env if e mode, or if we're using the alt I mode
       guard (useAltIMode || mode == EMode)
       (id, schema, subSize) <- getUnifiedComponent :: TopDownSolver IO (Id, SType, Int)
+
       return (Program { content = PSymbol id, typeOf = addTrue schema }, subSize)
 
     -- | add args to env, and search for the return type
@@ -372,12 +396,20 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
 
         -- we're synthesizing the body for the lambda
         -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
-        liftGoalTrace $ addLam argName (show tArg)
+        -- sub <- use typeAssignment
+        -- let subbedArg = stypeSubstitute sub (shape tArg)
+        -- debug $ printf "========\n"
+        -- printSub
+        -- debug $ printf "========\n"
+        -- liftGoalTrace $ addLam argName (show subbedArg)
+        liftGoalTrace $ addLam argName (show tBody)
         (body, subSize) <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) {-subQuota-} tBody
 
         let program = Program { content = PFun argName body, typeOf = goalType }
         progSize <- sizeOfProg program subSize
         guard (progSize <= sizeQuota)
+        -- debug $ printf "right before returning: \n" -- doesn't have alpha0
+        -- printSub
 
         return (program, subSize)
 
@@ -493,7 +525,6 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       let subbedType = stypeSubstitute sub (shape freshVars)
       -- debug $ printf "quota %d %d, (id, schema): %s :: %s\n\tt1: %s\n\tt2: %s\n\tinto: %s\n\tchecks: %s\n\n"
       --   sizeQuota {-subQuota-} id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
-      
       guard =<< use isChecked
 
       {-
@@ -549,73 +580,36 @@ sub = {
       -}
 
 
-      -- debug $ printf "%s unified with subSize: %s, for total size: %s\n" id (show subSize) (show sizeSub)
-      -- debug $ when (subSize /= sizeSub) $ printf "DIFFERENT!!!!! \n\n\n\n*******************\n\n\n\n\n\n\n\n"
-      -- debug $ printf "-------------\n"
-      -- subs into itself (makes sure everything that taus depend on are replaced with those values instead of taus)
-      -- turns
-      --    * alpha0 ~ [tau0]
-      --    * alpha1 ~ tau0
-      --    * tau0 ~ [tau4]
-      -- into:
-      --    * alpha0 ~ [[tau4]]
-      --    * alpha1 ~ [tau4]
 
+-- ===================
+-- Here!!!
+-- sub = {
+--         alpha0 ==> Either (tau2) (Either (a) (b)) (size 5)
+--         alpha1 ==> Either (a) (b) -> Either (a) (b) (size 6)
+--         alpha2 ==> tau2 -> Either (a) (b) (size 4)
+--         tau1 ==> Either (a) (b) (size 3)
+--       } (size 0)
+-- ===================
 
       addedSubSize <- sizeOfSub
       let sub' = Map.map (stypeSubstitute sub) sub
-      let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
+      let sub'' = sub'
+      -- let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
+      
+
       assign typeAssignment sub''
       
+      -- when (show goalType == "Either (a) (b)"  && id == "arg2") $ do
+        
+      --   debug $ printf "\n\n\n===================\nHere!!!\n"
+      --   printSub --- this should include alpha0!!!!!! let's see if it does
+      --   debug $ printf "sub'': %s\n" (show sub'')
+      --   debug $ printf "===================\n"
+      --   error "fuck"
+
       return (id, subbedType, addedSubSize)
       -- return (id, subbedType)
 
-                              -- GHC.List.length, fromList [("alpha0",[tau0])], fromList [("alpha",1),("tau",1)]
--- before: sub = {
---         alpha0 ==> [a] (size 2)
---         tau0 ==> a (size 1)
---       } (size 0)
-
--- sub = {
---         alpha0 ==> [a] (size 2)
---         tau0 ==> a (size 1)
---       } (size 1)
--- before: sub = {
---         alpha0 ==> [a] (size 2)
---         tau0 ==> a (size 1)
---       } (size 0)
-
--- sub = {
---         alpha0 ==> [a] (size 2)
---       } (size 1)
-
-
-
-{-
-    goal: (?? :: alpha -> T) (?? :: alpha)
-              list unfies
-                * alpha ~ [tau0]
-              
-              if tau0 isn't already in the sub, then it;s a free varaible -> desn't need to be in sub (we;re not removing anything)
-
-              (alpha0 -> alpha1 -> Int) (alpha0) (alpha1)
-         f :: [tau0]  -> tau0   -> Int
-
-              => after finding a prog for (alpha0 -> alpha1 -> Int)
-                * alpha0 ~ [tau0] <- here, tau0 is completely free
-                * alpha1 ~ tau0
-              => after finding a prog for (alpha0 ~ [b])
-                * alpha0 ~ [[tau4]]
-                * alpha1 ~ [tau4]
-                
-              
-              (alpha0 -> alpha1 -> tau0) (alpha0) (alpha1)
-         f :: [tau1]  -> tau1   -> tau1
-
-
-
-              can make alpha ~ [a], but what about tau1??? we're removing that 
--}
       where
         -- moves all Data.Function functions to the end and moves the args to the front
         reorganizeSymbols :: [(Id, RSchema)]

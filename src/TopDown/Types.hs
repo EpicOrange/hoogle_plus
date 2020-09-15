@@ -76,7 +76,7 @@ printMemoMap memoMap = do
   where
     printListItem :: (MemoKey, MemoValue) -> IO ()
     printListItem (key, (list, isComplete)) = do
-      printf "\t\t* (%s @ size %s), mode: %s ==> [\n" (show $ _goalType key) (show $ _progSize key) (show $ _mode key)
+      printf "\t\t* (%s @ size %s), mode: %s, args: %s ==> [\n" (show $ _goalType key) (show $ _progSize key) (show $ _mode key) (show $ _args key)
       mapM_ (\(prog, subSize, sub, storedNameCounter) -> printf "\t\t\t(subSize %s) %s, %s, %s\n" (show subSize) (show prog) (show sub) (show storedNameCounter)) list 
       printf "\t\t] %s\n" (if isComplete then "COMPLETE" else "not complete")
 
