@@ -306,7 +306,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
 
         -- we're synthesizing the body for the lambda
         -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
-        lift $ addLam argName (show tArg)
+        lift $ addLam argName (show tBody)
         body <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) {-subQuota-} tBody
 
         let program = Program { content = PFun argName body, typeOf = goalType }
