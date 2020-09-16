@@ -1,4 +1,4 @@
-module TopDown.TypeChecker (topDownSolveTypeConstraint, unify) where
+module TopDown.TypeChecker (topDownSolveTypeConstraint, unify, unifySub) where
 
 import Database.Convert
 import Database.Util
@@ -20,6 +20,7 @@ import Control.Monad.Extra
 import Data.Map (Map)
 import Data.List
 import qualified Data.Map as Map
+import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Set as Set
 import Text.Pretty.Simple
 import Data.Maybe
@@ -226,3 +227,19 @@ topDownSolveTypeConstraint env t1 t2 = do
 
 -- isValidSubst :: Map Id SType -> Bool
 -- isValidSubst m = not $ any (\(v, t) -> v `Set.member` typeVarsOf t) (Map.toList m)
+
+
+unifySub :: (MonadIO m, MonadPlus m) => Map Id SType -> Map Id SType -> Checker m (Map Id SType)
+unifySub = unionWithM combiner
+  where
+    -- this is Map.unionWith, but takes in a monadic combining function
+    unionWithM f = Map.mergeA Map.preserveMissing Map.preserveMissing (Map.zipWithMaybeAMatched f)
+    -- e.g. s1 {alpha ==> a}     s2 {alpha ==> b}
+    -- unify alpha with b in s1 (which is the current typeAssignment)
+    -- guard isChecked
+    -- and return the new value of alpha in s1
+    combiner :: (MonadIO m, MonadPlus m) => Id -> SType -> SType -> StateT CheckerState m (Maybe SType)
+    combiner k t1 t2 = do
+      unify undefined k t2
+      guard =<< use isChecked
+      Map.lookup k <$> use typeAssignment

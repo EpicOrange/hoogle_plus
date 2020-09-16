@@ -41,7 +41,6 @@ type TopDownSolver m = StateT CheckerState (StateT ArgsMap (StateT GoalTrace (Lo
 evalTopDownSolver :: forall a. RType -> Chan Message -> [TopDownSolver IO a] -> IO a
 evalTopDownSolver goalType messageChan m =
   (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ msum $ map (evalGoalTrace . evalArgsMap . evalCheckerState) m
-  -- (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ evalArgsMap $ msum $ map (evalGoalTrace . evalCheckerState) m
   where
     evalCheckerState = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
     evalArgsMap = (`evalStateT` Map.empty)                                      -- for StateT ArgsMap
@@ -49,10 +48,11 @@ evalTopDownSolver goalType messageChan m =
 
     -- temporary (tm)
     printMemoMap' :: StateT MemoMap IO a -> StateT MemoMap IO a
-    printMemoMap' m = m >>= (\ret -> do
-      memoMap <- get
-      lift $ printMemoMap memoMap
-      return ret)
+    printMemoMap' = id
+    -- printMemoMap' m = m >>= (\ret -> do
+    --   memoMap <- get
+    --   lift $ printMemoMap memoMap
+    --   return ret)
 
 liftMemo :: Monad m => LogicT (StateT MemoMap m) a -> TopDownSolver m a
 liftMemo = lift . lift . lift
@@ -76,7 +76,7 @@ printMemoMap memoMap = do
     printListItem :: (MemoKey, MemoValue) -> IO ()
     printListItem (key, (list, isComplete)) = do
       printf "\t\t* (%s @ size %s), mode: %s, args: %s ==> [\n" (show $ _goalType key) (show $ _progSize key) (show $ _mode key) (show $ _args key)
-      mapM_ (\(prog, args, sub, storedNameCounter) -> printf "\t\t\t(args %s) %s, %s, %s\n" (show args) (show prog) (show sub) (show storedNameCounter)) list 
+      mapM_ (\(prog, subSize, sub, storedNameCounter) -> printf "\t\t\t(sub size %s) %s, %s, %s\n" (show subSize) (show prog) (show sub) (show storedNameCounter)) list 
       printf "\t\t] %s\n" (if isComplete then "COMPLETE" else "not complete")
 
 printSub :: (MonadIO m) => StateT CheckerState m ()

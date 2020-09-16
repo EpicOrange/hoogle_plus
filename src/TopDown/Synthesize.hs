@@ -35,7 +35,6 @@ import Control.Monad.Logic
 import Control.Monad.State
 import Data.List
 import qualified Data.Map as Map
-import qualified Data.Map.Merge.Strict as Map
 import Data.Map (Map)
 import qualified Data.Set as Set
 import Data.Set (Set)
@@ -113,7 +112,6 @@ memoizeProgram mode quota goalType compute = do
     retrieve :: MemoValue -> TopDownSolver IO (RProgram, Int)
     retrieve (list, isComplete) = do
       sub <- use typeAssignment
-      -- liftIO $ when (not isComplete) error "oh no! isComplete is false... this shouldn't ever happen" 
       guard isComplete
       -- liftIO $ printf "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! we are using it yay! with goal: %s, got: %s\n" (show goalType) (show list)
       ourMap <- liftMemo get
@@ -138,20 +136,33 @@ memoizeProgram mode quota goalType compute = do
       -- example 2: goal is b, sub has alpha0 ==> Maybe tau1
       --   and we load (arg1 :: alpha0) with alpha0 ==> b  --- NOT OK
       
-      -- this is Map.unionWith, but takes in a monadic combining function
-      let unionWithM f = Map.mergeA Map.preserveMissing Map.preserveMissing (Map.zipWithMaybeAMatched f)
-      -- when the type variable k (e.g. alpha0) maps to both t1 and t2,
-      -- unify k with t2 (the typeAssignment already has k ==> t1)
-      -- guard isChecked
-      -- return new unified value of k (e.g. alpha0)
-      let combiner :: Id -> SType -> SType -> TopDownSolver IO (Maybe SType)
-          combiner k t1 t2 = do
-            unify undefined k t2
-            guard =<< use isChecked
-            Map.lookup k <$> use typeAssignment
-      sub' <- unionWithM combiner s1 s2
+      sub' <- unifySub s1 s2
       
-         
+      when (show prog == "[]") $ do
+        liftIO $ printf "============ we retrieved [] from memoize for goal %s at quota %d ======!!!!!!!!!!\n" (show goalType) quota
+        liftIO $ printf "(from map) it has sub size %d\n" subSize
+        liftGoalTrace $ printGoalTrace
+        -- printSub
+        liftIO $ printf "\tsub: %s\n\tsavedSub: %s\n" (show sub) (show savedSub)
+        liftIO $ printf "==========================================\n" 
+
+      {-
+
+      sub: {alpha0 ==> tau0}
+        (we unify some component)
+        sub: {alpha0 ==> tau0, tau0 ==> a}, which turns into
+        sub: {alpha0 ==> a}
+          (we solve a few goals, and store them with sub: {alpha0 ==> a} in the sub)
+          ... eventually fails, backtrack
+      sub: {alpha0 ==> tau0}
+        (we unify some other component)
+        sub: {alpha0 ==> b}
+
+        is the key the same??
+
+          (we see the same goals as before, but we try to load them with {alpha0 ==> a} in the sub)
+
+      -}
          -- TODO this is where we are and why we're stuck
          {-
                 - query: synGuard "a -> b" ["maybe"]
@@ -161,15 +172,6 @@ memoizeProgram mode quota goalType compute = do
          -}
         
 
-
-      when ((show goalType) == "(alpha0 -> Either (a) (b))") $ do
-        liftIO $ printf "==========\n"
-        progSize <- sizeOfProg prog subSize
-        liftIO $ printf "size is!!!!! --> %s\n" (show progSize)
-        liftIO $ printf "\t* sub: %s\n" (show sub)
-        liftIO $ printf "\t* savedSub: %s\n" (show savedSub)
-        liftIO $ printf "\t* sub' (should be the two above combined): %s\n" (show sub')
-        
       
         --  * sub: fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> alpha0 -> Either (a) (b)),("alpha3",tau2 -> alpha0 -> Either (a) (b))]
         --  * savedSub: fromList [("alpha0",Either (a) (b))]
@@ -198,11 +200,13 @@ memoizeProgram mode quota goalType compute = do
         --    store nameCounter in the map
 
         -- only keeps the parts of the new sub that are relevant to the query
+        let updatedSub = afterSub `Map.difference` beforeSub
+        
         --   TODO this is problematic:
         --   when we solve (?? :: b) with component (arg1 :: alpha0),
         --   this erases the alpha0 ==> b in sub
-        let updatedSub = afterSub `Map.difference` beforeSub
         -- let updatedSub = Map.filterWithKey (\k v -> k `isInfixOf` (show goalType)) afterSub
+        
         -- when ("alpha0" `elem` (Map.keys afterSub) && not ("alpha0" `elem` (Map.keys updatedSub))) $ do
         --   liftIO $ do
         --     printf "\n====================\nFuck! We removed alpha0 from goalType %s\n" (show goalType)
@@ -246,23 +250,31 @@ memoizeProgram mode quota goalType compute = do
           Just (list, isComplete) -> do
             -- see if there's an existing (prog, sub) in the list (ignoring nameCounter)
             -- if so, update the nameCounter to be the maximum of itself and progNameCounter
-            case find (\(p,s,u,c) -> (p,s,u) == (prog, subSize, updatedSub)) list of
+            -- case find (\(p,s,u,c) -> (p,s,u) == (prog, subSize, updatedSub)) list of
+            case find (\(p,s,u,c) -> (p,s) == (prog, subSize)) list of
               -- if it isn't in the completed list, that's wrong because isComplete means everything's in the list
               Nothing | isComplete -> do
                 memoMap <- liftMemo get
-                liftIO $ printMemoMap memoMap
+                -- liftIO $ printMemoMap memoMap
                 liftGoalTrace $ printGoalTrace
-                error $ printf "oops... (%s) %s @ size %s says complete but isn't there: \n\t%s :: %s\n\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tbeforeSub: %s\n\tafterSub: %s\n" 
-                  (show mode) (show goalType) (show progSize) (show prog) (show $ typeOf prog) (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ subbedArgs)
-                  (show $ beforeSub) (show $ afterSub)
+                error $ do
+                  let err1 = printf "oops... (%s) %s @ size %s (%s + subsize %s) says complete but isn't there: \n\t%s :: %s\n" (show mode) (show goalType) (show progSize) (show $ sizeOfContent prog) (show subSize) (show prog) (show $ typeOf prog)
+                  let err2 = printf "\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tbeforeSub: %s\n\tafterSub: %s\n" (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ subbedArgs) (show $ beforeSub) (show $ afterSub)
+                  err1 ++ err2
               -- if it isn't in the list but the list is incomplete, add it
               Nothing      -> do
                 liftMemo $ put $ add prog
                 -- liftIO $ printf "\t### adding program %s to (size %d) goal %s\n" (show prog) (quota) (show goalType)
                 return (prog, subSize)
               -- if (prog, sub) is already in the list, update the nameCounter to be the maximum of itself and progNameCounter
-              Just (_,_,_,c) -> do
-                let list' = map (\(p,s,u,c) -> if (p,s,u) == (prog, subSize, updatedSub) then (p, s, u, Map.unionWith max c progNameCounter) else (p,s,u,c)) list
+              -- Just (_,_,_,c) -> do
+              Just (_,_,u,c) -> do
+                let s1 = u
+                let s2 = updatedSub
+                -- get the most specific sub combination
+                unionedSub <- unifySub s1 s2 -- TODO unify here 
+                -- let list' = map (\(p,s,u,c) -> if (p,s,u) == (prog, subSize, updatedSub) then (p, s, u, Map.unionWith max c progNameCounter) else (p,s,u,c)) list
+                let list' = map (\(p,s,u,c) -> if (p,s) == (prog, subSize) then (p, s, unionedSub, Map.unionWith max c progNameCounter) else (p,s,u,c)) list
                 liftMemo $ put $ Map.insert key' (list', isComplete) memoMap'
                 return (prog, subSize)
 
@@ -486,15 +498,15 @@ dfs mode env messageChan searchParams sizeQuota {-subQuota-} goalType
       -- (sizeQuota == 6) here???????
       alphaTSize <- sizeOfProg alphaTProgram alphaTSubSize
       let alphaQuota = sizeQuota - alphaTSize
-      when (show alphaTProgram == "GHC.List.zip") $ do
-        debug $ printf "****************** sizeQuota: %d, alphaQuota: %d, sizeOfContent (%s) = %d\n" sizeQuota alphaQuota (show alphaTProgram) (sizeOfContent alphaTProgram)
-        printSub
+      -- when (show alphaTProgram == "GHC.List.zip") $ do
+      --   debug $ printf "****************** sizeQuota: %d, alphaQuota: %d, sizeOfContent (%s) = %d\n" sizeQuota alphaQuota (show alphaTProgram) (sizeOfContent alphaTProgram)
+      --   printSub
       
       (alphaProgram, alphaSubSize) <- dfs IMode env messageChan searchParams alphaQuota {-subQuota-} alphaSub :: TopDownSolver IO (RProgram, Int)
       
-      when (show alphaTProgram == "GHC.List.zip") $ do
-        debug $ printf "****************** alphaProgram: %s, size: %d\n" (show alphaProgram) (sizeOfContent alphaProgram)
-        printSub
+      -- when (show alphaTProgram == "GHC.List.zip") $ do
+      --   debug $ printf "****************** alphaProgram: %s, size: %d\n" (show alphaProgram) (sizeOfContent alphaProgram)
+      --   printSub
 
       -- holedProgram <- head <$> liftGoalTrace get
       -- debug $ printf "typeOf alphaProgram (%s) = %s\n      %s\n" (show alphaProgram) (show $ typeOf alphaProgram) (show holedProgram)
@@ -566,86 +578,32 @@ dfs mode env messageChan searchParams sizeQuota {-subQuota-} goalType
       --   sizeQuota {-subQuota-} id (show schema) (show t1) (show t2) (show $ subbedType) (show checkResult)
       guard =<< use isChecked
 
-      {-
-        1. sum up all the taus (sizeOfSub)
-        2. add that to current subSize
-        3. substitute all free variables in sub
-        4. remove all taus from sub
-      -}
-      -- subSize <- sizeOfSub
-      -- liftSubSize $ modify (+subSize)
-      -- sizeSub <- liftSubSize get
-      -- debug $ printf "-------------\n"
-      -- printSub
-      
-      
-      {- TODO problem: 
 
-            length :: a . [a]    -> Int
-                          alpha -> Int
-            sub = {
-                    alpha0 ==> [tau0] (size 2)
-                    tau0 ==> is missing!!!
-                  } (size 0)
-
-            GHC.List.length arg0 unified with subSize: 0, for total size: 0
-
-
-(Quota 3) Done with <a> . ([a] -> Int)!
-size +  subSize solution
-2       1       GHC.List.length arg0
-
-sub = {
-        alpha0 ==> [a] (size 2)
-      } (size 1)
-
-        ---------
-
-        here, there is no tau0 in map because it's a free varialbe. do we still want the subsize to be 0? 
-
-        (alpha0 -> T) (alpha)
-          (arg0, 5)     (arg1, 4)
-
-          (arg0 arg1, 5 + 4 = 9)
-
-      
-        also, how do we isolate the size of the program? with just the things from the sub list that apply to the program at hand? 
-        I think our method of just accumulating things is wrong... FUCK lol 
-        I think we have to return the program size as a tuple from getUnifiedComponent and use that as the size to that program... 
-        and always return (RProgram, Int) everywhere
-        and when we're building up programs, combine their 2 sizes together
-        and get that size from getUnifiedComponent
-      
-      -}
-
-
-
--- ===================
--- Here!!!
--- sub = {
---         alpha0 ==> Either (tau2) (Either (a) (b)) (size 5)
---         alpha1 ==> Either (a) (b) -> Either (a) (b) (size 6)
---         alpha2 ==> tau2 -> Either (a) (b) (size 4)
---         tau1 ==> Either (a) (b) (size 3)
---       } (size 0)
--- ===================
 
       addedSubSize <- sizeOfSub
       let sub' = Map.map (stypeSubstitute sub) sub
       liftArgs $ modify $ Map.map (addTrue . stypeSubstitute sub . shape)
       let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
       
+      -- TODO: left off here
+      -- for some reason when testing cartProduct we synthesize (GHC.List.null []) but it says it's size 2 (when it should be 3 always)
+      -- TODO find a better query than (Bool -> b) -> b   that actually replicates this error
+      -- TODO also in memoize, when (GHC.List.null [])  is actually getting added to the map, 
+      --      print the goal trace to see why that might lead to subSize 1 and the situation that 
+      --      leads to the error would be subsize 0
+      
+      when (id == "Nil") $ do
+        liftIO $ printf "============ we synthesized [] for goal %s at quota %d ======!!!!!!!!!!\n" (show goalType) sizeQuota
+        liftIO $ printf "it has sub size %d\n" addedSubSize
+        liftGoalTrace $ printGoalTrace
+        -- printSub
+        liftIO $ printf "\tsub: %s\nsub': %s\nsub after filtering: %s\n" (show sub) (show sub') (show sub'')
+        liftIO $ printf "==========================================\n" 
+
+
 
       assign typeAssignment sub''
       
-      -- when (show goalType == "Either (a) (b)"  && id == "arg2") $ do
-        
-      --   debug $ printf "\n\n\n===================\nHere!!!\n"
-      --   printSub --- this should include alpha0!!!!!! let's see if it does
-      --   debug $ printf "sub'': %s\n" (show sub'')
-      --   debug $ printf "===================\n"
-      --   error "fuck"
-
       return (id, subbedType, addedSubSize)
       -- return (id, subbedType)
 

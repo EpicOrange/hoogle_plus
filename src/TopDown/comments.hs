@@ -1,83 +1,651 @@
 {-
 
 
-DARYA take a look1!
+cartProduct
 
+relevant parts of memo map:
+
+                * (Bool @ size 2), mode: IMode, args: fromList [("arg2",[(a , b)])] ==> [
+                        (sub size 0) Data.Bool.not Data.Bool.False, fromList [("alpha2",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.not Data.Bool.True, fromList [("alpha2",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.not Data.Bool.otherwise, fromList [("alpha2",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                ] COMPLETE
+                * (Bool @ size 3), mode: IMode, args: fromList [("arg2",[(a , b)])] ==> [
+                        (sub size 0) Data.Bool.False || Data.Bool.False, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.False || Data.Bool.True, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.False || Data.Bool.otherwise, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.True || Data.Bool.False, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.True || Data.Bool.True, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.True || Data.Bool.otherwise, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.otherwise || Data.Bool.False, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.otherwise || Data.Bool.True, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.otherwise || Data.Bool.otherwise, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.False && Data.Bool.False, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.False && Data.Bool.True, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.False && Data.Bool.otherwise, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.True && Data.Bool.False, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.True && Data.Bool.True, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.True && Data.Bool.otherwise, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.otherwise && Data.Bool.False, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.otherwise && Data.Bool.True, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.otherwise && Data.Bool.otherwise, fromList [("alpha2",Bool),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.not (Data.Bool.not Data.Bool.otherwise), fromList [("alpha2",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.not (Data.Bool.not Data.Bool.True), fromList [("alpha2",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 0) Data.Bool.not (Data.Bool.not Data.Bool.False), fromList [("alpha2",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 1) Data.Maybe.isJust Data.Maybe.Nothing, fromList [("alpha2",Maybe (tau1))], fromList [("alpha",3),("arg",3),("tau",3)]
+                        (sub size 1) Data.Maybe.isNothing Data.Maybe.Nothing, fromList [("alpha2",Maybe (tau1))], fromList [("alpha",3),("arg",3),("tau",3)]
+                        (sub size 1) GHC.List.and [], fromList [("alpha2",[Bool])], fromList [("alpha",3),("arg",3),("tau",2)]
+                        (sub size 1) GHC.List.null [], fromList [("alpha2",[tau1])], fromList [("alpha",3),("arg",3),("tau",3)]
+                        (sub size 1) GHC.List.null arg1, fromList [("alpha2",[tau1])], fromList [("alpha",3),("arg",3),("tau",2)]
+                        (sub size 1) GHC.List.null arg0, fromList [("alpha2",[tau1])], fromList [("alpha",3),("arg",3),("tau",2)]
+                        (sub size 1) GHC.List.or [], fromList [("alpha2",[Bool])], fromList [("alpha",3),("arg",3),("tau",2)]
+                ] COMPLETE
+                * (Bool @ size 4), mode: IMode, args: fromList [("arg2",[(a , b)])] ==> [
+                        (sub size 1) GHC.List.or (GHC.List.repeat Data.Bool.False), fromList [("alpha2",[Bool]),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 1) GHC.List.or (GHC.List.repeat Data.Bool.True), fromList [("alpha2",[Bool]),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                        (sub size 1) GHC.List.or (GHC.List.repeat Data.Bool.otherwise), fromList [("alpha2",[Bool]),("alpha3",Bool)], fromList [("alpha",2),("arg",3),("tau",1)]
+                ] not complete
+
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [[(a , b)]])
+((?? :: (alpha0 -> [[(a , b)]])) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [[(a , b)]]))) (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.takeWhile (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.takeWhile (\arg2 -> (?? :: Bool))) (?? :: alpha0))
+((GHC.List.takeWhile (\arg2 -> ((?? :: (alpha2 -> Bool)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.takeWhile (\arg2 -> (GHC.List.null (?? :: alpha2)))) (?? :: alpha0))
+-----------------
+*** Exception: oops... (IMode) Bool @ size 2 says complete but isn't there: 
+        GHC.List.null [] :: Bool
+        sub: [("alpha2",[tau1])]
+        nameCounter: [("alpha",2),("arg",3),("tau",2)]
+        args: fromList [("arg2",[(a , b)])]
+        beforeSub: fromList [("alpha0",[[(a , b)]]),("alpha1",[(a , b)] -> Bool)]
+        afterSub: fromList [("alpha0",[[(a , b)]]),("alpha1",[(a , b)] -> Bool),("alpha2",[tau1])]
+
+
+
+TODO       GHC.List.null []  is size (2 + 1) = 3, but we're returning it @ size 2?????????
+                  (the +1 from type variable from [])
+                  (we should look at why it's not being counted,
+                   i.e. when we return [] from getUnifiedFunctions,
+                    why is it returning size 0 not size 1?)
+
+
+
+synGuard' "[a] -> [b] -> [[(a,b)]]" ["GHC.List.map", "GHC.List.map", "Pair", "null", "Nil"] [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
+
+
+==========================================
+============ we synthesized [] for goal [tau1] ======!!!!!!!!!!
+it has sub size 0
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [[(a , b)]])
+((?? :: (alpha0 -> [[(a , b)]])) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [[(a , b)]]))) (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.takeWhile (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.takeWhile (\arg2 -> (?? :: Bool))) (?? :: alpha0))
+((GHC.List.takeWhile (\arg2 -> ((?? :: (alpha2 -> Bool)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.takeWhile (\arg2 -> (GHC.List.null (?? :: alpha2)))) (?? :: alpha0))
+-----------------
+        sub: fromList [("alpha0",[[(a , b)]]),("alpha1",[(a , b)] -> Bool),("alpha2",[tau1])]
+        savedSub: fromList []
+==========================================
+
+bool
+GHC.List.null []   <- size 2 if tau1 is not bound to anything???
+[] :: [Bool]
+
+next step:
+let's find a really small query that exhibits this behavior (where we generate a subprogram like null [], but without binding tau1 to anything)
+
+Bool
+GHC.List.null [] has size 3 and soemtiems size 2
+
+synGuard "(Bool -> b) -> b" ["null", "Nil"]
+
+-->    arg0 (?? :: Bool)
+-->    arg0 ((?? :: alpha0 -> Bool) (?? :: alpha0))
+-->    arg0 (GHC.List.null (?? :: alpha0))         alpha0 ~ [tau0]
+-->    arg0 (GHC.List.null (?? :: [tau0]))         {alpha0 ==> [tau0]}
+-->    arg0 (GHC.List.null ([] :: [tau0]))         [tau1] ~ [tau0]     tau1 ===> tau0
+-->    arg0 (GHC.List.null ([] :: [tau0]))         {alpha0 ==> [tau0], tau1 ===> tau0}   <- 1 subsize
+-->    arg0 (GHC.List.null [] :: Bool)
+
+
+
+
+
+*** Exception: oops... (IMode) Bool @ size 2 (2 + subsize 0) says complete but isn't there: 
+        GHC.List.null [] :: Bool
+
+
+==========================================
+============ we synthesized [] for goal [[(a , b)]] ====== !!!!!!!!!!
+it has sub size 4
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [[(a , b)]])
+((?? :: (alpha0 -> [[(a , b)]])) (?? :: alpha0))
+(GHC.List.cycle (?? :: alpha0))
+-----------------
+        sub: fromList [("alpha0",[[(a , b)]])]
+        savedSub: fromList []
+==========================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+> synGuard "(Bool -> b) -> b" ["null", "Nil"]
+
+==================
+Starting!
+Arguments: fromList [("arg0",(Bool -> b))]
+Goal: b
+==================
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 1
+========quota 1=========
+current memo map: {
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+sub = {
+      }
+
+========================
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 2
+========quota 2=========
+current memo map: {
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+sub = {
+      }
+
+========================
+========quota 1=========
+current memo map: {
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+-----------------
+sub = {
+      }
+
+========================
+========quota 1=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] not complete
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+      }
+
+========================
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 3
+========quota 3=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+sub = {
+      }
+
+========================
+========quota 2=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+-----------------
+sub = {
+      }
+
+========================
+========quota 2=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+      }
+
+========================
+========quota 1=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+      }
+
+========================
+========quota 1=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] not complete
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+(arg0 (GHC.List.null (?? :: alpha1)))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+        alpha1 ==> [tau0] (size 2)
+      }
+
+========================
+========quota 2=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+      }
+
+========================
+========quota 1=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+      }
+
+========================
+========quota 1=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+(arg0 (GHC.List.null (?? :: alpha1)))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+        alpha1 ==> [tau0] (size 2)
+      }
+
+========================
+========quota 1=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
 -----------------
 (?? :: b)
 ((?? :: (alpha0 -> b)) (?? :: alpha0))
 (((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
-((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> b)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-(((Data.Maybe.maybe (\arg1 -> arg1) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
-(((Data.Maybe.maybe (\arg1 -> arg1) (\arg2 -> (?? :: (b -> b)))) (?? :: alpha1)) (?? :: alpha0))
-(((Data.Maybe.maybe (\arg1 -> arg1) (\arg2 -> (\arg3 -> (?? :: b)))) (?? :: alpha1)) (?? :: alpha0))
 -----------------
-*** Exception: oops... (IMode) (b -> b) @ size 3 says complete but isn't there: 
-        \arg3 -> arg2 :: (b -> b)
-        sub: []
-        nameCounter: [("alpha",4),("arg",4),("tau",2)]
-        args: fromList [("arg2",tau1)]
-        beforeSub: fromList [("alpha0",b),("alpha1",Maybe (tau1)),("alpha2",tau1 -> b -> b),("alpha3",b -> b)]
-        afterSub: fromList [("alpha0",b),("alpha1",Maybe (b)),("alpha2",b -> b -> b),("alpha3",b -> b)]
+sub = {
+      }
 
-CallStack (from HasCallStack):
-  error, called at /home/hoogle_plus/src/TopDown/Synthesize.hs:256:17 in main:TopDown.Synthesize
+========================
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 4
+========quota 4=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+-----------------
+sub = {
+      }
+
+========================
+========quota 3=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+-----------------
+sub = {
+      }
+
+========================
+========quota 3=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+      }
+
+========================
+========quota 2=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+      }
+
+========================
+========quota 2=========
+current memo map: {
+                * ((alpha0 -> b) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) arg0, fromList [("alpha0",Bool)], fromList [("alpha",1)]
+                ] COMPLETE
+                * ((alpha1 -> Bool) @ size 1), mode: EMode, args: fromList [] ==> [
+                        (sub size 0) GHC.List.null, fromList [("alpha1",[tau0])], fromList [("alpha",2),("tau",1)]
+                ] COMPLETE
+        }
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+(arg0 (GHC.List.null (?? :: alpha1)))
+-----------------
+sub = {
+        alpha0 ==> Bool (size 1)
+        alpha1 ==> [tau0] (size 2)
+      }
+
+========================
+RESULTS:{"outCandidates":[{"outExamples":[],"solution":"\\arg0 -> arg0 (GHC.List.null [])"}],"outDocs":[{"functionSig":"[a] -> Bool","functionName":"null","functionDesc":"<math>. Test whether a list is empty.\n"},{"functionSig":"IntMap a","functionName":"Nil","functionDesc":""},{"functionSig":"(Bool -> b)","functionName":"arg0","functionDesc":""}],"outError":""}
+
+(Quota 4) Done with <b> . (((Bool -> b)) -> b)!
+size +  subSize solution
+3       1       arg0 (GHC.List.null [])
+
+sub = {
+        alpha0 ==> Bool (size 1)
+        alpha1 ==> [tau0] (size 2)
+      }
+
+(1.92 secs, 202,985,080 bytes)
+> 
 
 
-        args: fromList [("arg2",tau1)]
-        beforeSub: fromList [("alpha0",b),("alpha1",Maybe (tau1)),("alpha2",tau1 -> b -> b),("alpha3",b -> b)]
-        afterSub: fromList [("alpha0",b),("alpha1",Maybe (b)),("alpha2",b -> b -> b),("alpha3",b -> b)]
-
-in sub, we've substituted tau1 ===> b
-but not in args
-
-omg lol fuck 
-well can't we just go through args and replace it? do that sub shit with the args
-don't we have access to args in getUnifiedFunction? we can just change them there?
 
 
 
-goal: alpha -> b
-I Mode
-program <- dfs
-    \arg1 -> arg1
-args <- get 
-    []
-
-
-goal: b
-E Mode
-program <- dfs
-    arg1
-args <- get 
-    ["arg1" ==> alpha]
-
-
-key = goal args ...
-put in the map
-yay
 
 
 
-goal: alpha -> b
-we want to retrieve (theoritically) (\arg1 -> arg1)
-args <- get
-    []
-so lookup won't match because we stored it before
-with args = ["arg1"]
+
+> synGuard "(Bool -> b) -> b" ["null", "Nil"]
+
+==================
+Starting!
+Arguments: fromList [("arg0",(Bool -> b))]
+Goal: b
+==================
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 1
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 2
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 3
+============ we synthesized [] for goal [tau0] at quota 1 ======!!!!!!!!!!
+it has sub size 1
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+(arg0 (GHC.List.null (?? :: alpha1)))
+-----------------
+        sub: fromList [("alpha0",Bool),("alpha1",[tau0]),("tau1",tau0)]
+sub': fromList [("alpha0",Bool),("alpha1",[tau0]),("tau1",tau0)]
+sub after filtering: fromList [("alpha0",Bool),("alpha1",[tau0])]
+==========================================
+============ we synthesized [] for goal [tau0] at quota 1 ======!!!!!!!!!!
+it has sub size 1
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+(arg0 (GHC.List.null (?? :: alpha1)))
+-----------------
+        sub: fromList [("alpha0",Bool),("alpha1",[tau0]),("tau1",tau0)]
+sub': fromList [("alpha0",Bool),("alpha1",[tau0]),("tau1",tau0)]
+sub after filtering: fromList [("alpha0",Bool),("alpha1",[tau0])]
+==========================================
+
+running dfs on <b> . (((Bool -> b)) -> b) at size 4
+============ we synthesized [] for goal [tau0] at quota 2 ======!!!!!!!!!!
+it has sub size 1
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(arg0 (?? :: alpha0))
+(arg0 ((?? :: (alpha1 -> Bool)) (?? :: alpha1)))
+(arg0 (GHC.List.null (?? :: alpha1)))
+-----------------
+        sub: fromList [("alpha0",Bool),("alpha1",[tau0]),("tau1",tau0)]
+sub': fromList [("alpha0",Bool),("alpha1",[tau0]),("tau1",tau0)]
+sub after filtering: fromList [("alpha0",Bool),("alpha1",[tau0])]
+==========================================
+RESULTS:{"outCandidates":[{"outExamples":[],"solution":"\\arg0 -> arg0 (GHC.List.null [])"}],"outDocs":[{"functionSig":"[a] -> Bool","functionName":"null","functionDesc":"<math>. Test whether a list is empty.\n"},{"functionSig":"IntMap a","functionName":"Nil","functionDesc":""},{"functionSig":"(Bool -> b)","functionName":"arg0","functionDesc":""}],"outError":""}
+
+(Quota 4) Done with <b> . (((Bool -> b)) -> b)!
+size +  subSize solution
+3       1       arg0 (GHC.List.null [])
+
+sub = {
+        alpha0 ==> Bool (size 1)
+        alpha1 ==> [tau0] (size 2)
+      }
+
+(1.30 secs, 195,679,872 bytes)
+> 
 
 
 
-*** Exception: oops... (IMode) (tau1 -> b) @ size 2 says complete but isn't there: 
-        \arg3 -> arg1 :: (tau1 -> b)
-        sub: []
-        nameCounter: [("alpha",4),("arg",2),("tau",2)]
-        args: fromList []
-        beforeSub: fromList [("alpha0",Maybe (tau1)),("alpha1",tau1 -> b),("alpha2",b)]
-        afterSub: fromList [("alpha0",b),("alpha1",tau1 -> b),("alpha2",b)]
-??????????
 
-b doesn't unify with Maybe ???????????????????
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -183,1064 +751,69 @@ running dfs on <b> . <a> . (a -> b) at size 9
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      {-
+        1. sum up all the taus (sizeOfSub)
+        2. add that to current subSize
+        3. substitute all free variables in sub
+        4. remove all taus from sub
+      -}
+      -- subSize <- sizeOfSub
+      -- liftSubSize $ modify (+subSize)
+      -- sizeSub <- liftSubSize get
+      -- debug $ printf "-------------\n"
+      -- printSub
+      
+      
+      {- TODO problem: 
+
+            length :: a . [a]    -> Int
+                          alpha -> Int
+            sub = {
+                    alpha0 ==> [tau0] (size 2)
+                    tau0 ==> is missing!!!
+                  } (size 0)
+
+            GHC.List.length arg0 unified with subSize: 0, for total size: 0
+
+
+(Quota 3) Done with <a> . ([a] -> Int)!
+size +  subSize solution
+2       1       GHC.List.length arg0
+
+sub = {
+        alpha0 ==> [a] (size 2)
+      } (size 1)
+
+        ---------
+
+        here, there is no tau0 in map because it's a free varialbe. do we still want the subsize to be 0? 
+
+        (alpha0 -> T) (alpha)
+          (arg0, 5)     (arg1, 4)
+
+          (arg0 arg1, 5 + 4 = 9)
+
+      
+        also, how do we isolate the size of the program? with just the things from the sub list that apply to the program at hand? 
+        I think our method of just accumulating things is wrong... FUCK lol 
+        I think we have to return the program size as a tuple from getUnifiedComponent and use that as the size to that program... 
+        and always return (RProgram, Int) everywhere
+        and when we're building up programs, combine their 2 sizes together
+        and get that size from getUnifiedComponent
+      
+      -}
+
+
+
+-- ===================
+-- Here!!!
+-- sub = {
+--         alpha0 ==> Either (tau2) (Either (a) (b)) (size 5)
+--         alpha1 ==> Either (a) (b) -> Either (a) (b) (size 6)
+--         alpha2 ==> tau2 -> Either (a) (b) (size 4)
+--         tau1 ==> Either (a) (b) (size 3)
+--       } (size 0)
+-- ===================
 
 
 
