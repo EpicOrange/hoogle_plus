@@ -81,9 +81,8 @@ synthesize searchParams goal examples messageChan = do
 
     writeChan messageChan (MesgClose CSNormal)
 
-memoizeProgram :: SynMode -> Int -> Map Id RType -> RType -> TopDownSolver IO (RProgram, Int) -> TopDownSolver IO (RProgram, Int)
-memoizeProgram mode quota args goalType compute = do
-
+memoizeProgram :: SynMode -> Int -> RType -> TopDownSolver IO (RProgram, Int) -> TopDownSolver IO (RProgram, Int)
+memoizeProgram mode quota goalType compute = do
   -- debug
   when False $ do
     memoMap <- liftMemo get
@@ -99,6 +98,7 @@ memoizeProgram mode quota args goalType compute = do
     lookupProg num = do
       sub <- use typeAssignment
       let subbedGoal = addTrue $ stypeSubstitute sub (shape goalType)
+      args <- liftArgs get
       let key = MemoKey mode subbedGoal num args
       -- memoMap <- liftMemo get
       memoMap <- liftMemo get
@@ -188,11 +188,7 @@ memoizeProgram mode quota args goalType compute = do
         beforeSub <- use typeAssignment
         (prog, subSize) <- compute `mplus` setComplete key
         afterSub <- use typeAssignment
-        when (show goalType == "(alpha0 -> b)") $ do
-          liftIO $ printf "\n==================== !!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-          liftGoalTrace $ printGoalTrace
-
- 
+        afterArgs <- liftArgs get
         -- take the difference between the subs
         -- let subDiff = afterSub `Map.difference` beforeSub
 
@@ -221,28 +217,15 @@ memoizeProgram mode quota args goalType compute = do
         -- idea: maybe we shouldn't check just the goal but also the sub
         -- fromList [("alpha1",Either (tau2) (tau1)),("alpha2",tau1 -> alpha0 -> Either (a) (b)),("alpha3",tau2 -> alpha0 -> Either (a) (b))]
 
-        -- when ((show $ _goalType key) == "(alpha1 -> [b])" || (show $ _goalType key) == "(alpha0 -> [b])") $ do
-        --   liftIO $ printf "program: %s, beforeSub: %s\n" (show prog) (show beforeSub)
-        --   liftIO $ printf "program: %s, afterSub: %s\n" (show prog) (show afterSub)
-        --   liftIO $ printf "program: %s, subDiff: %s\n" (show prog) (show subDiff)
-        
-        -- TODO add these comments to the parts of the code that they apply to (so that it breaks up the massive comment)
-        -- we want to add this prog to the existing memo map if possible
-        -- there's 3 situations
-        --   1. key is not in the map
-        --      -> we want to add and return prog
-        --   2. (key ==> list) is in the map, and prog is already in the list
-        --      -> we want to not return prog (do nothing) --- guard
-        --   3. (key ==> list) is in the map, and prog is not in the list
-        --      -> we want to append and return prog
-
         progSize <- sizeOfProg prog subSize
         progNameCounter <- use nameCounter
         memoMap' <- liftMemo get :: TopDownSolver IO MemoMap
         -- sub <- use typeAssignment
         
-        let subbedGoal = addTrue $ stypeSubstitute afterSub (shape goalType)
-        let key' = MemoKey mode goalType progSize args
+        let applySub = addTrue . stypeSubstitute afterSub . shape :: RType -> RType
+        let subbedGoal = applySub goalType
+        let subbedArgs = Map.map applySub afterArgs
+        let key' = MemoKey mode goalType progSize subbedArgs
         let storedValue = (prog, subSize, updatedSub, progNameCounter)
         
         let add :: RProgram -> MemoMap
@@ -251,6 +234,14 @@ memoizeProgram mode quota args goalType compute = do
                   f (Just (list, isComplete)) = Just (storedValue:list, isComplete)
               Map.alter f key' memoMap'
         
+        -- we want to add this prog to the existing memo map if possible
+        -- there's 3 situations
+        --   1. key is not in the map
+        --      -> we want to add and return prog
+        --   2. (key ==> list) is in the map, and prog is already in the list
+        --      -> we want to not return prog (do nothing) --- guard
+        --   3. (key ==> list) is in the map, and prog is not in the list
+        --      -> we want to append and return prog
         case Map.lookup key' memoMap' of
           Just (list, isComplete) -> do
             -- see if there's an existing (prog, sub) in the list (ignoring nameCounter)
@@ -261,9 +252,9 @@ memoizeProgram mode quota args goalType compute = do
                 memoMap <- liftMemo get
                 liftIO $ printMemoMap memoMap
                 liftGoalTrace $ printGoalTrace
-                error $ printf "oops... (%s) %s @ size %s says complete but isn't there: \n\t%s \n\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tafterSub: %s\n\tbeforeSub: %s\n" 
-                  (show mode) (show goalType) (show progSize) (show prog) (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ args)
-                  (show $ afterSub) (show $ beforeSub)
+                error $ printf "oops... (%s) %s @ size %s says complete but isn't there: \n\t%s :: %s\n\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tbeforeSub: %s\n\tafterSub: %s\n" 
+                  (show mode) (show goalType) (show progSize) (show prog) (show $ typeOf prog) (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ subbedArgs)
+                  (show $ beforeSub) (show $ afterSub)
               -- if it isn't in the list but the list is incomplete, add it
               Nothing      -> do
                 liftMemo $ put $ add prog
@@ -312,7 +303,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
   -- plotted our tests, and solutions tend to have sub size = 3.7 * program size
   -- tests say (sub quota = 3 * program size quota) is best
-  (solution, subSize) <- dfs EMode env Map.empty messageChan searchParams quota {-(quota * 3)-} goalType :: TopDownSolver IO (RProgram, Int)
+  (solution, subSize) <- dfs EMode env messageChan searchParams quota {-(quota * 3)-} goalType :: TopDownSolver IO (RProgram, Int)
   liftGoalTrace $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
 
   -- check if the program has all the arguments that it should have (avoids calling check)  
@@ -374,8 +365,8 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 --    * if is a function type, add args to env, search for the return type, and return a lambda 
 --    * if not, search in e-mode
 --
-dfs :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> Int {- -> Int-} -> RType -> TopDownSolver IO (RProgram, Int)
-dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
+dfs :: SynMode -> Environment -> Chan Message -> SearchParams -> Int {- -> Int-} -> RType -> TopDownSolver IO (RProgram, Int)
+dfs mode env messageChan searchParams sizeQuota {-subQuota-} goalType
   | sizeQuota <= 0 = mzero
   | otherwise     = do
     -- make sure the sub isn't too big before proceeding 
@@ -384,7 +375,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
     -- guard (subSize < sizeQuota)
     -- TODO since getting rid of subSize stuff, is that ok? 
     if useMemoize
-      then memoizeProgram mode sizeQuota args goalType doDfs
+      then memoizeProgram mode sizeQuota goalType doDfs
       else doDfs
 
   where
@@ -432,7 +423,11 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
 
         -- add argument to new env and call dfs IMode with that new env
         let env' = addVariable argName tArg $ addArgument argName tArg env
-        let args' = Map.insert argName tArg args
+
+        -- args <- liftArgs get
+        -- let args' = Map.insert argName tArg args
+        -- liftArgs $ put args'
+        liftArgs $ modify $ Map.insert argName tArg
 
         -- we're synthesizing the body for the lambda
         -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
@@ -443,7 +438,11 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
         -- debug $ printf "========\n"
         -- liftGoalTrace $ addLam argName (show subbedArg)
         liftGoalTrace $ addLam argName (show tBody)
-        (body, subSize) <- dfs IMode env' args' messageChan searchParams (sizeQuota - 1) {-subQuota-} tBody
+        argsOld <- liftArgs get
+        (body, subSize) <- dfs IMode env' messageChan searchParams (sizeQuota - 1) {-subQuota-} tBody 
+        liftArgs $ put argsOld -- reset the args to before we synthesize this lambda body
+
+        -- map (\arg1 -> arg1) arg0
 
         let program = Program { content = PFun argName body, typeOf = goalType }
         progSize <- sizeOfProg program subSize
@@ -473,7 +472,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
       -- but that's rare, and we'll solve it in the next iteration anyways
       -- the time savings are worth it
       -- alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota - 2) {-subQuota-} schema :: TopDownSolver IO RProgram
-      (alphaTProgram, alphaTSubSize) <- dfs EMode env args messageChan searchParams (sizeQuota - 1) {-subQuota-} schema :: TopDownSolver IO (RProgram, Int)
+      (alphaTProgram, alphaTSubSize) <- dfs EMode env messageChan searchParams (sizeQuota - 1) {-subQuota-} schema :: TopDownSolver IO (RProgram, Int)
       -- alphaTProgram <- dfs EMode env args messageChan searchParams (sizeQuota) {-subQuota-} schema :: TopDownSolver IO RProgram
       -- debug $ printf "here!! %s\n" (show alphaTProgram)
       -- holedProgram <- head <$> lift get
@@ -491,7 +490,7 @@ dfs mode env args messageChan searchParams sizeQuota {-subQuota-} goalType
         debug $ printf "****************** sizeQuota: %d, alphaQuota: %d, sizeOfContent (%s) = %d\n" sizeQuota alphaQuota (show alphaTProgram) (sizeOfContent alphaTProgram)
         printSub
       
-      (alphaProgram, alphaSubSize) <- dfs IMode env args messageChan searchParams alphaQuota {-subQuota-} alphaSub :: TopDownSolver IO (RProgram, Int)
+      (alphaProgram, alphaSubSize) <- dfs IMode env messageChan searchParams alphaQuota {-subQuota-} alphaSub :: TopDownSolver IO (RProgram, Int)
       
       when (show alphaTProgram == "GHC.List.zip") $ do
         debug $ printf "****************** alphaProgram: %s, size: %d\n" (show alphaProgram) (sizeOfContent alphaProgram)
@@ -633,6 +632,7 @@ sub = {
 
       addedSubSize <- sizeOfSub
       let sub' = Map.map (stypeSubstitute sub) sub
+      liftArgs $ modify $ Map.map (addTrue . stypeSubstitute sub . shape)
       let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
       
 
@@ -652,10 +652,10 @@ sub = {
       where
         -- moves all Data.Function functions to the end and moves the args to the front
         reorganizeSymbols :: [(Id, RSchema)]
-        reorganizeSymbols = args ++ withoutDataFunctions
+        reorganizeSymbols = argSymbols ++ withoutDataFunctions
 
         ogSymbols            = Map.toList $ env ^. symbols
-        (args, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
+        (argSymbols, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
         withoutDataFunctions = snd $ partition (("Data.Function" `isInfixOf`) . fst) withoutArgs
 
     -- | Replace all bound type variables with fresh free variables

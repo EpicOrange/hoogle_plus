@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Types(SynMode(..), MemoKey(..), MemoValue, MemoMap, SubSize, TopDownSolver, evalTopDownSolver, liftMemo, liftGoalTrace, liftSubSize, printMemoMap, printSub, choices) where
+module TopDown.Types(SynMode(..), MemoKey(..), MemoValue, MemoMap, ArgsMap, TopDownSolver, evalTopDownSolver, liftMemo, liftGoalTrace, liftArgs, printMemoMap, printSub, choices) where
 
 import Control.Lens
 import Control.Monad.State
@@ -35,16 +35,16 @@ data MemoKey = MemoKey {
 -- TODO maybe put list into an object
 type MemoValue = ([(RProgram, Int, Map Id SType, Map Id Int)], Bool)
 type MemoMap = Map MemoKey MemoValue
-type SubSize = Int
-type TopDownSolver m = StateT CheckerState (StateT SubSize (StateT GoalTrace (LogicT (StateT MemoMap m))))
+type ArgsMap = Map Id RType
+type TopDownSolver m = StateT CheckerState (StateT ArgsMap (StateT GoalTrace (LogicT (StateT MemoMap m))))
 
 evalTopDownSolver :: forall a. RType -> Chan Message -> [TopDownSolver IO a] -> IO a
 evalTopDownSolver goalType messageChan m =
-  (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ msum $ map (evalGoalTrace . evalSubSize . evalCheckerState) m
-  -- (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ evalSubSize $ msum $ map (evalGoalTrace . evalCheckerState) m
+  (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ msum $ map (evalGoalTrace . evalArgsMap . evalCheckerState) m
+  -- (`evalStateT` Map.empty) $ printMemoMap' $ observeT $ evalArgsMap $ msum $ map (evalGoalTrace . evalCheckerState) m
   where
     evalCheckerState = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
-    evalSubSize = (`evalStateT` 0)                                              -- for StateT SubSize
+    evalArgsMap = (`evalStateT` Map.empty)                                      -- for StateT ArgsMap
     evalGoalTrace = (`evalStateT` [mkHole goalType])                            -- for StateT GoalTrace
 
     -- temporary (tm)
@@ -54,15 +54,14 @@ evalTopDownSolver goalType messageChan m =
       lift $ printMemoMap memoMap
       return ret)
 
--- TODO put these into a separate file cuz DAMN this file is getting really long (!!)
 liftMemo :: Monad m => LogicT (StateT MemoMap m) a -> TopDownSolver m a
 liftMemo = lift . lift . lift
 
 liftGoalTrace :: Monad m => StateT GoalTrace (LogicT (StateT MemoMap m)) a -> TopDownSolver m a
 liftGoalTrace = lift . lift
 
-liftSubSize :: Monad m => StateT SubSize (StateT GoalTrace (LogicT (StateT MemoMap m))) a -> TopDownSolver m a
-liftSubSize = lift
+liftArgs :: Monad m => StateT ArgsMap (StateT GoalTrace (LogicT (StateT MemoMap m))) a -> TopDownSolver m a
+liftArgs = lift
 
 -- | convert to Logic a
 choices :: (Traversable f, MonadPlus m) => f a -> m a
@@ -77,15 +76,15 @@ printMemoMap memoMap = do
     printListItem :: (MemoKey, MemoValue) -> IO ()
     printListItem (key, (list, isComplete)) = do
       printf "\t\t* (%s @ size %s), mode: %s, args: %s ==> [\n" (show $ _goalType key) (show $ _progSize key) (show $ _mode key) (show $ _args key)
-      mapM_ (\(prog, subSize, sub, storedNameCounter) -> printf "\t\t\t(subSize %s) %s, %s, %s\n" (show subSize) (show prog) (show sub) (show storedNameCounter)) list 
+      mapM_ (\(prog, args, sub, storedNameCounter) -> printf "\t\t\t(args %s) %s, %s, %s\n" (show args) (show prog) (show sub) (show storedNameCounter)) list 
       printf "\t\t] %s\n" (if isComplete then "COMPLETE" else "not complete")
 
-printSub :: (MonadIO m) => StateT CheckerState (StateT SubSize m) ()
+printSub :: (MonadIO m) => StateT CheckerState m ()
 printSub = do
   liftIO $ printf "sub = {\n"
   sub <- use typeAssignment
   liftIO $ mapM_ (\(id, t) -> printf "\t%s ==> %s (size %d)\n" id (show t) (sizeOfType t)) (Map.toList sub) --- * tau ==> Int
-  -- subSize <- sizeOfSub
-  subSize <- lift $ get
-  liftIO $ printf "      } (size %d)\n\n" (subSize)
+  -- subSize <- lift $ get
+  -- liftIO $ printf "      } (size %d)\n\n" (subSize)
+  liftIO $ printf "      }\n\n"
   

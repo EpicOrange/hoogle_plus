@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Debug(syn, synGuard, syn', synGuard') where
+module TopDown.Debug(syn, synGuard, syn', synGuard', ourProg) where
 
 import TopDown.Synthesize
 import HooglePlus.Synthesize
@@ -30,6 +30,8 @@ import Data.List
 searchP :: SearchParams
 searchP = defaultSearchParams {_topDownEnableDebug = True, _topDownUseMemoize = True}
 
+ourProg :: IO ()
+ourProg = syn "Maybe (a->b) -> a -> b"
 
 -- a wrapper for synthesize that you can run from `stack ghci`
 -- usage: syn "Int -> Int"
@@ -37,7 +39,7 @@ searchP = defaultSearchParams {_topDownEnableDebug = True, _topDownUseMemoize = 
 syn :: String -> IO ()
 syn inStr = syn' inStr []
 -- What if we can pass the guardInclude list into here??? :D
-  
+ 
 synGuard :: String -> [String] -> IO ()
 synGuard inStr guards = do
   env' <- readEnv $ envPath defaultSynquidParams

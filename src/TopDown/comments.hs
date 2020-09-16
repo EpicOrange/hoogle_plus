@@ -1,6 +1,87 @@
 {-
 
 
+DARYA take a look1!
+
+-----------------
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> b)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+(((Data.Maybe.maybe (\arg1 -> arg1) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+(((Data.Maybe.maybe (\arg1 -> arg1) (\arg2 -> (?? :: (b -> b)))) (?? :: alpha1)) (?? :: alpha0))
+(((Data.Maybe.maybe (\arg1 -> arg1) (\arg2 -> (\arg3 -> (?? :: b)))) (?? :: alpha1)) (?? :: alpha0))
+-----------------
+*** Exception: oops... (IMode) (b -> b) @ size 3 says complete but isn't there: 
+        \arg3 -> arg2 :: (b -> b)
+        sub: []
+        nameCounter: [("alpha",4),("arg",4),("tau",2)]
+        args: fromList [("arg2",tau1)]
+        beforeSub: fromList [("alpha0",b),("alpha1",Maybe (tau1)),("alpha2",tau1 -> b -> b),("alpha3",b -> b)]
+        afterSub: fromList [("alpha0",b),("alpha1",Maybe (b)),("alpha2",b -> b -> b),("alpha3",b -> b)]
+
+CallStack (from HasCallStack):
+  error, called at /home/hoogle_plus/src/TopDown/Synthesize.hs:256:17 in main:TopDown.Synthesize
+
+
+        args: fromList [("arg2",tau1)]
+        beforeSub: fromList [("alpha0",b),("alpha1",Maybe (tau1)),("alpha2",tau1 -> b -> b),("alpha3",b -> b)]
+        afterSub: fromList [("alpha0",b),("alpha1",Maybe (b)),("alpha2",b -> b -> b),("alpha3",b -> b)]
+
+in sub, we've substituted tau1 ===> b
+but not in args
+
+omg lol fuck 
+well can't we just go through args and replace it? do that sub shit with the args
+don't we have access to args in getUnifiedFunction? we can just change them there?
+
+
+
+goal: alpha -> b
+I Mode
+program <- dfs
+    \arg1 -> arg1
+args <- get 
+    []
+
+
+goal: b
+E Mode
+program <- dfs
+    arg1
+args <- get 
+    ["arg1" ==> alpha]
+
+
+key = goal args ...
+put in the map
+yay
+
+
+
+goal: alpha -> b
+we want to retrieve (theoritically) (\arg1 -> arg1)
+args <- get
+    []
+so lookup won't match because we stored it before
+with args = ["arg1"]
+
+
+
+*** Exception: oops... (IMode) (tau1 -> b) @ size 2 says complete but isn't there: 
+        \arg3 -> arg1 :: (tau1 -> b)
+        sub: []
+        nameCounter: [("alpha",4),("arg",2),("tau",2)]
+        args: fromList []
+        beforeSub: fromList [("alpha0",Maybe (tau1)),("alpha1",tau1 -> b),("alpha2",b)]
+        afterSub: fromList [("alpha0",b),("alpha1",tau1 -> b),("alpha2",b)]
+??????????
+
+b doesn't unify with Maybe ???????????????????
+
+
+
+----
 
 
 
