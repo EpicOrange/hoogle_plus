@@ -85,11 +85,5 @@ sizeOfSub = do
   let sub = st ^. typeAssignment :: Map Id SType
   let sub' = Map.filterWithKey (\id _ -> "tau" `isPrefixOf` id) sub
   return $ sum $ Map.map sizeOfType sub'
-  -- return $ Map.foldr f 0 sub'
-  -- where
-  --   f :: SType -> Int -> Int
-  --   f t acc = sizeOfType t + acc
 
-nadia_way = False
-
--- "fst arg0 arg1, snd arg0 arg1"
+nadia_way = True

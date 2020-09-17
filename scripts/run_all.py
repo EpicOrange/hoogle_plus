@@ -11,7 +11,7 @@ import json
 from subprocess import call, check_output, STDOUT
 from colorama import init, Fore, Back, Style
 
-HPLUS_CMD = ['stack', 'exec', '--', 'hplus'] # Command to call hoogle+
+HPLUS_CMD = ['stack', 'exec', '--', 'hplus', 'topdown', '--disable-memoize'] # Command to call hoogle+
 TIMEOUT_CMD = 'timeout' # Timeout command
 TIMEOUT = 300 # Timeout value (seconds)
 # TIMEOUT = 10 # Timeout value (seconds)

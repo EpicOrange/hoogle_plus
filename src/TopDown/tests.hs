@@ -50,7 +50,8 @@ solution: "\\arg0 -> (:) arg0 []"
 head-last
 synGuard' "[a] -> (a,a)" ["GHC.List.head", "Pair", "GHC.List.last"] [(["[1,2,3,4]"], "(1, 4)")]
 syn' "[a] -> (a,a)" [(["[1,2,3,4]"], "(1, 4)")]
-solution: "\\arg1 -> (Data.List.head arg1, Data.List.last arg1)"
+solution: "\\arg0 -> (Data.List.head arg0, Data.List.last arg0)"
+                      ((GHC.List.head arg0) , (GHC.List.last arg0))
 
 head-rest
 synGuard' "[a] -> (a, [a])" ["GHC.List.head", "Pair", "GHC.List.tail"] [(["[1,2,3,4]"], "(1, [2,3,4])")]
@@ -104,6 +105,7 @@ solution: "\\xs ys -> Data.List.map (\\x -> Data.List.map ((,) x) ys) xs"
 ours: \arg0 arg1 -> GHC.List.map (\arg2 -> GHC.List.zip (GHC.List.repeat arg2) arg1) arg0
 solution: "\\xs ys -> Data.List.map (\\x -> Data.List.map (\y -> (,) x y) ys) xs"
                     GHC.List.map (\arg2 -> GHC.List.map (\arg3 -> (arg2 , arg3)) arg1) arg0
+                    GHC.List.map (\arg2 -> GHC.List.map arg2 arg1) (GHC.List.map (,) arg0)
 
 multiAppPair
 synGuardO' "(a -> b, a -> c) -> a -> (b, c)" ["Pair", "Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
