@@ -1,0 +1,48 @@
+
+TODO ALSO worry about substitutions
+getUnif is not a magic function anymore
+
+goal: b
+  component <- ....             becomes $ :: <b> . <a> . (a->b)->a->b
+  (id, schema) <- getUnif...      schema is now (tau1->b)->tau1->b to match the goal type
+  -- it's non ground, so:
+  let args = allArgTypes ...         args is now [tau1->b, tau1]
+
+  -- first deal with first arg, tau1->b, which itself is a function type
+  -- so we'll be synthesizing a function that looks like
+  -- (\arg2 -> ?? :: b)
+  let argArgs = namedArgTypes ...         argArgs is now [("arg2", tau1)]
+  -- add all of them into the environment
+  let (newEnv, newQuery) = updateEnvWithSpecArgs (refineTop env arg) env :: (Environment, RType)
+  -- call dfs to solve b with new env
+  -- it might not use any of the args, but will def be at least size 1
+  body <- dfs newEnv messageChan (quota' - 1) (shape newQuery)
+
+  goal: b    (but now you have arg2 :: tau1)
+    component <- ....             becomes fromJust :: <a> . Maybe (a)->a
+  (id, schema) <- getUnif...      schema is now Maybe (tau3->tau4)->tau3->tau4 to match the goal type
+    -- it's non ground, so:
+    let args = allArgTypes ...         args is now [Maybe (tau3->b), tau3]
+
+    -- first deal with first arg, Maybe (tau3->b), which is a scalar type (not function!!!)
+    -- so we'll be synthesizing a regular RProgram (using PApp or PSymbol)
+    -- literally just
+    program <- dfs env messageChan quota' arg
+    
+    goal: Maybe (tau3->b)    (but now you have arg2 :: tau1)
+      component <- ....             becomes arg0 :: Maybe (a->b)
+      -- it's ground, so just return it as a PSymbol!
+    
+    -- next deal with second arg, tau3, which is a scalar type (not function!!!)
+    program <- dfs env messageChan quota' arg
+    -- ideally, this returns arg2 :: tau1
+    -- so we return the program: fromJust arg0 arg2
+  -- this gets put into the body variable of the lambda
+  -- so we get: \arg2 -> fromJust arg0 arg2
+
+  -- next deal with second arg, tau1, which is a scalar type (not function!!!)
+  -- ideally, this returns arg1 :: a
+  -- so we get: arg1
+
+-- so we get: ($) (\arg2 -> fromJust arg0 arg2) (arg1)
+-- or: (\arg2 -> fromJust arg0 arg2) $ (arg1)

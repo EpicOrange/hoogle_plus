@@ -20,8 +20,11 @@ synGuard' "(a -> Either b c) -> [a] -> ([b], [c])" ["Data.Either.partitionEither
 syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
 solution: "\\f xs -> Data.Either.partitionEithers (Data.List.map f xs)"
 
-
-
+fromPaper:
+Just (+ 1) -> 1 -> 2  and Nothing -> 1 -> 1
+syn' "Maybe (a->a) -> a -> a" [(["Just (+1)", "1"], "2"), (["Nothing", "1"], "1")]
+synGuard' "Maybe (a->a) -> a -> a" ["fromMaybe"] [(["Just (+1)", "1"], "2"), (["Nothing", "1"], "1")]
+\f x -> fromMaybe (\arg0 -> arg0) f x         (size 5)
 
 mapMaybes
 synGuard' "(a -> Maybe b) -> [a] -> Maybe b" ["Data.Maybe.listToMaybe", "Data.Maybe.mapMaybe"] [(["\\x -> if x < 3 then Nothing else Just (x * x)", "[2,4,6]"], "Just 16")]
