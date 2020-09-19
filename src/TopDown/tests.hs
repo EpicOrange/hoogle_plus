@@ -12,16 +12,15 @@ synGuard' "(a -> b) -> (a, a) -> (b, b)" ["Data.Tuple.fst", "Pair", "Data.Tuple.
 solution: "\\arg0 arg1 -> (arg0 (Data.Tuple.fst arg1), arg0 (Data.Tuple.snd arg1))"
 
 firstJust
-synGuard' "a -> [Maybe a] -> a" ["Data.Maybe.fromMaybe", "Data.Maybe.listToMaybe", "Data.Maybe.catMaybes"] [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
+synGuard' "a -> [Maybe a] -> a" ["Data.Maybe.fromMaybe", "Data.Maybe.listToMaybe", "Data.Maybe.catMaybes", "GHC.List.foldl"] [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
+syn' "a -> [Maybe a] -> a" [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
 solution: "\\x xs -> Data.Maybe.fromMaybe x (Data.Maybe.listToMaybe (Data.Maybe.catMaybes xs))"
+GHC.List.foldl Data.Maybe.fromMaybe
 
 mapEither
 synGuard' "(a -> Either b c) -> [a] -> ([b], [c])" ["Data.Either.partitionEithers", "GHC.List.map"] [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
 syn' "(a -> Either b c) -> [a] -> ([b], [c])" [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
 solution: "\\f xs -> Data.Either.partitionEithers (Data.List.map f xs)"
-
-
-
 
 mapMaybes
 synGuard' "(a -> Maybe b) -> [a] -> Maybe b" ["Data.Maybe.listToMaybe", "Data.Maybe.mapMaybe"] [(["\\x -> if x < 3 then Nothing else Just (x * x)", "[2,4,6]"], "Just 16")]
@@ -163,6 +162,7 @@ solution: "\\arg0 -> Data.Tuple.fst (Data.List.head arg0)"
 applyPair
 synGuard' "(a -> b, a) -> b" ["Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x * x, 10)"], "100")]
 solution: "\\arg0 -> (Data.Tuple.fst arg0) (Data.Tuple.snd arg0)"
+solution: "\\arg0 -> Data.Tuple.fst arg0 (Data.Tuple.snd arg0)"
 
 firstRight
 synGuard' "[Either a b] -> Either a b" [".Right", "GHC.List.head", "Data.Either.rights"] [(["[Left 1, Left 2, Right 3, Right 4]"], "Right 3")maybe
@@ -260,8 +260,12 @@ our solution: Data.Either.either arg1 (\arg2 -> arg2) arg0
 
 applyNtimes
 synGuard' "(a->a) -> a -> Int -> a" ["GHC.List.foldr", "GHC.List.replicate"] [(["\\x -> x ++ x", "\"f-\"", "3"], "\"f-f-f-f-f-f-f-f-\"")]
+synGuard' "(a->a) -> a -> Int -> a" ["GHC.List.iterate", "GHC.List.!!"] [(["\\x -> x ++ x", "\"f-\"", "3"], "\"f-f-f-f-f-f-f-f-\"")]
 solution: "\\arg0 arg1 arg2 -> Data.List.foldr ($) arg1 (Data.List.replicate arg2 arg0)"
 \\arg0 arg1 arg2 -> arg0 (GHC.List.foldr1 (\\arg3 -> arg0) (GHC.List.replicate arg2 arg1))
+\arg0 arg1 arg2 -> (GHC.List.iterate arg0 arg1) !! arg2
+iterate f x = [x, f x, f (f x), f (f (f x)).......]
+iterate f x !! 3 =  f (f (f x))
 
 eitherTriple
 synGuard' "Either a b -> Either a b -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 1", "Left 2"], "Left 1"), (["Left 1", "Right 2"], "Left 1"), (["Right 2", "Right 3"], "Right 3")]

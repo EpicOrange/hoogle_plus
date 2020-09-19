@@ -128,14 +128,19 @@ synthesize searchParams goal examples messageChan = do
 data SynMode = IMode | EMode deriving (Eq, Ord, Show)
 -- MemoMap: (mode, query, quota, args, sub) ==> (program), sub
 type MemoMap = Map (SynMode, RType, Int, Map Id RType, Map Id SType) (Logic (RProgram, Map Id SType))
-type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT MemoMap m)))
+type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT Int (StateT MemoMap m))))
 
-evalTopDownSolver :: Monad m => RType -> Chan Message -> [TopDownSolver m a] -> m a
+evalTopDownSolver :: MonadIO m => RType -> Chan Message -> [TopDownSolver m a] -> m a
 evalTopDownSolver goalType messageChan m =
-  (`evalStateT` Map.empty) $ observeT $ msum $ map (g . f) m
+  (`evalStateT` Map.empty) $ (`evalStateT` 0) $ printDebug $ observeT $ msum $ map (evalGoalTrace . evalCheckerState) m
   where
-    f = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
-    g = (`evalStateT` [mkHole goalType])                         -- for StateT GoalTrace
+    evalCheckerState = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
+    evalGoalTrace = (`evalStateT` [mkHole goalType])                            -- for StateT GoalTrace
+    printDebug m = do
+      result <- m
+      -- counter <- get
+      -- liftIO $ printf "counter: %d\n" counter
+      return result
 
 -- | convert to Logic a
 choices :: (Traversable f, MonadPlus m) => f a -> m a
@@ -177,6 +182,7 @@ choices = msum . fmap return
 --             let stored = choices xs
 --             lift $ lift $ lift $ modify (Map.insert key stored)
 --             mzero
+
 -- 
 -- try to get solutions by calling dfsExactly on depth 0, 1, 2, 3, ... until we get an answer
 --
@@ -184,17 +190,25 @@ iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -
 iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolver goalType messageChan $ (`map` [1..]) $ \quota -> do
   
   liftIO $ printf "\nrunning dfsExactly on %s at size %d\n" (show goal) quota
-
+  lift $ lift $ lift $ put 0
+  -- let foo = do
+  --       counter <- lift $ lift $ lift $ get
+  --       liftIO $ printf "counter for quota %d: %d\n" quota counter
+  --       mzero
+  -- solution <- dfsExactly EMode env Map.empty messageChan searchParams goalType quota `mplus` foo :: TopDownSolver IO RProgram
   solution <- dfsExactly EMode env Map.empty messageChan searchParams goalType quota :: TopDownSolver IO RProgram
   lift $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
+  
+  progSize <- sizeOfProg solution
+  -- liftIO $ printf "(%d) checking program:       %s\n" progSize (show solution)
 
   -- check if the program has all the arguments that it should have (avoids calling check)  
   guard (filterParams solution)
   
-  liftIO $ printf "checking program:       %s\n" (show solution)
   -- call check on the program
   guard =<< liftIO (check' solution)
 
+  printSub
   subSize <- sizeOfSub
   debug $ printf "\n\n"
   when enableDebug $ lift printGoalTrace
@@ -269,17 +283,25 @@ dfsExactly mode env args messageChan searchParams goalType sizeQuota
     -- | does DFSExactly without memoization
     doDfsExactly :: TopDownSolver IO RProgram
     doDfsExactly = do
+      -- lift $ lift $ lift $ modify (+1)
+      holedProgram <- head <$> lift get
+
+      liftIO $ printf "%s\n" (show holedProgram)
+      liftIO $ printf "\t(size %d) goal: %s\n" sizeQuota (show goalType)
+      subSize <- sizeOfSub
+      when (nadia_way) $ guard (subSize < sizeQuota)
+
       -- debug $ printf "args to dfsExactly: %s\n" (show $ (mode, args, sizeQuota, goalType))
       -- when enableDebug $ lift printGoalTrace
       -- holedProgram <- head <$> lift get
       -- debug $ printf "%s -> %s\n" (show goalType) (show holedProgram)
-      memoMap <- lift $ lift $ get :: TopDownSolver IO MemoMap
+      -- memoMap <- lift $ lift $ lift $ get :: TopDownSolver IO MemoMap
       prog <- inEnv `mplus` doSplit mode
-      when (show prog == "((GHC.List.head arg0) , (GHC.List.last arg0))") $ do
-        debug $ printf "we got the solution (quota %d) before guard\n" sizeQuota
+      -- when (show prog == "((GHC.List.head arg0) , (GHC.List.last arg0))") $ do
+      --   debug $ printf "we got the solution (quota %d) before guard\n" sizeQuota
       guardCheck prog
-      when (show prog == "((GHC.List.head arg0) , (GHC.List.last arg0))") $ do
-        debug $ printf "we got the solution (quota %d) after guard\n" sizeQuota
+      -- when (show prog == "((GHC.List.head arg0) , (GHC.List.last arg0))") $ do
+      --   debug $ printf "we got the solution (quota %d) after guard\n" sizeQuota
       return prog
 
     -- search params
@@ -316,8 +338,8 @@ dfsExactly mode env args messageChan searchParams goalType sizeQuota
         body <- dfsExactly IMode env' args' messageChan searchParams tBody (sizeQuota - 1)
 
         let program = Program { content = PFun argName body, typeOf = goalType }
-        progSize <- sizeOfProg program
-        guard (progSize == sizeQuota)
+        -- progSize <- sizeOfProg program
+        -- guard (progSize == sizeQuota)
 
         return program
 
@@ -403,7 +425,7 @@ dfsExactly mode env args messageChan searchParams goalType sizeQuota
       (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
 
       -- replaces "a" "b" with "tau1" "tau2"
-      freshVars <- ourFreshType (env ^. boundTypeVars) schema "tau"
+      freshVars <- ourFreshType (env ^. boundTypeVars) schema ("tau" ++ id)
 
       let t1 = shape freshVars :: SType
       let t2 = shape goalType :: SType

@@ -1,5 +1,1319 @@
 {-
 
+firstJust
+Our Way: 
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 1
+counter for quota 1: 1
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 2
+counter for quota 2: 9
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 3
+counter for quota 3: 134
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 4
+counter for quota 4: 2652
+
+
+Nadia's Way: counter: 9529
+
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 1
+counter for quota 1: 1
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 2
+counter for quota 2: 2
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 3
+counter for quota 3: 18
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 4
+counter for quota 4: 66
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 5
+counter for quota 5: 257
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 6
+counter for quota 6: 920
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 7
+counter for quota 7: 3552
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 8
+counter for quota 8: 4713
+
+ 1 + 2 + 18 + 66 + 257 + 920 + 3552 + 4713 = 9529
+
+
+Hi @Nadia. We have some not so fun news about the size thing. We actually did our timings wrong when we presented the data to you on Wednesday, and we have redone them now and see that the new size way (Metric B) looks like it's actually slower. 
+
+Before, we had been doing itterative deeping with [2,4,...] as the quota size. We honestly cannot fully remember why we decided to do this, if other than the fact that it seemed to significantly speed things up when we were playing around with the new size metric. We actually had forgotten that we had done this. So when we went to change our dfs code Wednesday to do upTo and exactly (like we had talked about), running iterative deepening with [2,4...] broke as it will only output exactly even sized programs. So when we switched it back to [1,2..] (not skipping size iterations), we ran the tests again and the new size way ended up being much slower. Here is why we think that is: 
+
+We discussed this theory in the meeting, but we think that because it ends up doing many more iterations with the new size way, even though it is able to prune programs earlier, it has to restart the synthesis task many more times, which is we suspect a big enough issue that it outweighs the good that comes from pruning programs earlier. 
+
+To test to see if what we thought was true, we decided to keep a count of how many times we entered the dfs function (= number of nodes we visit in the search). We tested it on the example firstJust (`a -> [Maybe a] -> a`). Here are the numbers we found (the numbers are the number of times it entered in that particular size, not an accumulation. So to get the total number, you have to add them up).
+
+```
+Old way (program size doesn't include type subs):
+quota 1: 1
+quota 2: 9
+quota 3: 134
+quota 4: 2652 (counter ends early because it found the program)
+
+New way (adds size of subbed type variables to program size):
+quota 1: 1
+quota 2: 2
+quota 3: 18
+quota 4: 66
+quota 5: 257
+quota 6: 920
+quota 7: 3552
+quota 8: 4713 (counter ends early because it found the program)
+```
+
+
+
+Nadia's Way:
+
+
+==================
+Starting!
+Arguments: fromList [("arg0",a),("arg1",[Maybe (a)])]
+Goal: a
+==================
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 1
+checking program:       arg0
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 2
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 3
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 4
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 5
+checking program:       Data.Maybe.fromJust (Data.Maybe.Just arg0)
+checking program:       GHC.List.head (Data.Maybe.catMaybes arg1)
+checking program:       GHC.List.head (GHC.List.repeat arg0)
+checking program:       GHC.List.last (Data.Maybe.catMaybes arg1)
+checking program:       GHC.List.last (GHC.List.repeat arg0)
+checking program:       Data.Maybe.fromMaybe arg0 Data.Maybe.Nothing
+checking program:       Data.Bool.bool arg0 arg0 Data.Bool.False
+checking program:       Data.Bool.bool arg0 arg0 Data.Bool.True
+checking program:       Data.Bool.bool arg0 arg0 Data.Bool.otherwise
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 6
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe [])
+checking program:       Data.Maybe.fromJust (GHC.List.head arg1)
+checking program:       Data.Maybe.fromJust (GHC.List.last arg1)
+checking program:       Data.Maybe.fromMaybe arg0 (Data.Maybe.Just arg0)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.not Data.Bool.False)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.not Data.Bool.True)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.not Data.Bool.otherwise)
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 7
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe (Data.Maybe.catMaybes arg1))
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe (GHC.List.repeat arg0))
+checking program:       GHC.List.head (Data.Maybe.maybeToList (Data.Maybe.Just arg0))
+checking program:       GHC.List.head (GHC.List.cycle (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.head (GHC.List.cycle (GHC.List.repeat arg0))
+checking program:       GHC.List.head (GHC.List.init (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.head (GHC.List.init (GHC.List.repeat arg0))
+checking program:       GHC.List.head (GHC.List.reverse (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.head (GHC.List.reverse (GHC.List.repeat arg0))
+checking program:       GHC.List.head (GHC.List.tail (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.head (GHC.List.tail (GHC.List.repeat arg0))
+checking program:       GHC.List.head (arg0 : [])
+checking program:       GHC.List.head (GHC.List.iterate (\arg2 -> arg0) arg0)
+checking program:       GHC.List.head (GHC.List.iterate (\arg2 -> arg2) arg0)
+checking program:       GHC.List.head (GHC.List.iterate' (\arg2 -> arg0) arg0)
+checking program:       GHC.List.head (GHC.List.iterate' (\arg2 -> arg2) arg0)
+checking program:       GHC.List.last (Data.Maybe.maybeToList (Data.Maybe.Just arg0))
+checking program:       GHC.List.last (GHC.List.cycle (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.last (GHC.List.cycle (GHC.List.repeat arg0))
+checking program:       GHC.List.last (GHC.List.init (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.last (GHC.List.init (GHC.List.repeat arg0))
+checking program:       GHC.List.last (GHC.List.reverse (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.last (GHC.List.reverse (GHC.List.repeat arg0))
+checking program:       GHC.List.last (GHC.List.tail (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.last (GHC.List.tail (GHC.List.repeat arg0))
+checking program:       GHC.List.last (arg0 : [])
+checking program:       GHC.List.last (GHC.List.iterate (\arg2 -> arg0) arg0)
+checking program:       GHC.List.last (GHC.List.iterate (\arg2 -> arg2) arg0)
+checking program:       GHC.List.last (GHC.List.iterate' (\arg2 -> arg0) arg0)
+checking program:       GHC.List.last (GHC.List.iterate' (\arg2 -> arg2) arg0)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Left arg0)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Right arg0)
+checking program:       Data.Maybe.fromMaybe arg0 (Data.Maybe.listToMaybe [])
+checking program:       Data.Maybe.fromMaybe arg0 (GHC.List.head arg1)
+"3"
+""2"
+checking program:       Data.Maybe.fromMaybe arg0 (GHC.List.last arg1)
+"3"
+""2"
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.not (Data.Bool.not Data.Bool.False))
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.not (Data.Bool.not Data.Bool.True))
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.not (Data.Bool.not Data.Bool.otherwise))
+checking program:       Data.Bool.bool arg0 arg0 (Data.Maybe.isJust Data.Maybe.Nothing)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Maybe.isNothing Data.Maybe.Nothing)
+checking program:       Data.Bool.bool arg0 arg0 (GHC.List.and [])
+checking program:       Data.Bool.bool arg0 arg0 (GHC.List.null [])
+checking program:       Data.Bool.bool arg0 arg0 (GHC.List.or [])
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.False && Data.Bool.False)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.False && Data.Bool.True)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.False && Data.Bool.otherwise)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.True && Data.Bool.False)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.True && Data.Bool.True)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.True && Data.Bool.otherwise)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.otherwise && Data.Bool.False)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.otherwise && Data.Bool.True)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.otherwise && Data.Bool.otherwise)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.False || Data.Bool.False)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.False || Data.Bool.True)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.False || Data.Bool.otherwise)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.True || Data.Bool.False)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.True || Data.Bool.True)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.True || Data.Bool.otherwise)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.otherwise || Data.Bool.False)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.otherwise || Data.Bool.True)
+checking program:       Data.Bool.bool arg0 arg0 (Data.Bool.otherwise || Data.Bool.otherwise)
+checking program:       GHC.List.foldl1 (\arg2 -> \arg3 -> arg0) []
+checking program:       GHC.List.foldl1 (\arg2 -> \arg3 -> arg2) []
+checking program:       GHC.List.foldl1 (\arg2 -> \arg3 -> arg3) []
+checking program:       GHC.List.foldl1' (\arg2 -> \arg3 -> arg0) []
+checking program:       GHC.List.foldl1' (\arg2 -> \arg3 -> arg2) []
+checking program:       GHC.List.foldl1' (\arg2 -> \arg3 -> arg3) []
+checking program:       GHC.List.foldr1 (\arg2 -> \arg3 -> arg0) []
+checking program:       GHC.List.foldr1 (\arg2 -> \arg3 -> arg2) []
+checking program:       GHC.List.foldr1 (\arg2 -> \arg3 -> arg3) []
+checking program:       Data.Maybe.maybe arg0 (\arg2 -> arg0) Data.Maybe.Nothing
+
+running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 8
+checking program:       Data.Tuple.fst ((arg0 , arg0))
+checking program:       Data.Tuple.fst ((arg0 , Data.Bool.False))
+checking program:       Data.Tuple.fst ((arg0 , Data.Bool.True))
+checking program:       Data.Tuple.fst ((arg0 , Data.Bool.otherwise))
+checking program:       Data.Tuple.snd ((arg0 , arg0))
+checking program:       Data.Tuple.snd ((Data.Bool.False , arg0))
+checking program:       Data.Tuple.snd ((Data.Bool.True , arg0))
+checking program:       Data.Tuple.snd ((Data.Bool.otherwise , arg0))
+checking program:       GHC.List.head (Data.Maybe.catMaybes (GHC.List.cycle arg1))
+checking program:       GHC.List.head (Data.Maybe.catMaybes (GHC.List.init arg1))
+checking program:       GHC.List.head (Data.Maybe.catMaybes (GHC.List.reverse arg1))
+checking program:       GHC.List.head (Data.Maybe.catMaybes (GHC.List.tail arg1))
+checking program:       GHC.List.head (Data.Maybe.maybeToList (Data.Maybe.listToMaybe []))
+checking program:       GHC.List.head (Data.Maybe.maybeToList (GHC.List.head arg1))
+checking program:       GHC.List.head (Data.Maybe.maybeToList (GHC.List.last arg1))
+checking program:       GHC.List.head (arg0 : (Data.Maybe.catMaybes arg1))
+checking program:       GHC.List.head (arg0 : (GHC.List.repeat arg0))
+checking program:       GHC.List.head (GHC.List.dropWhile (\arg2 -> Data.Bool.False) [])
+checking program:       GHC.List.head (GHC.List.dropWhile (\arg2 -> Data.Bool.True) [])
+checking program:       GHC.List.head (GHC.List.dropWhile (\arg2 -> Data.Bool.otherwise) [])
+checking program:       GHC.List.head (GHC.List.filter (\arg2 -> Data.Bool.False) [])
+checking program:       GHC.List.head (GHC.List.filter (\arg2 -> Data.Bool.True) [])
+checking program:       GHC.List.head (GHC.List.filter (\arg2 -> Data.Bool.otherwise) [])
+checking program:       GHC.List.head (GHC.List.map (\arg2 -> arg0) [])
+checking program:       GHC.List.head (GHC.List.takeWhile (\arg2 -> Data.Bool.False) [])
+checking program:       GHC.List.head (GHC.List.takeWhile (\arg2 -> Data.Bool.True) [])
+checking program:       GHC.List.head (GHC.List.takeWhile (\arg2 -> Data.Bool.otherwise) [])
+checking program:       GHC.List.head (GHC.List.replicate (GHC.List.length []) arg0)
+checking program:       GHC.List.last (Data.Maybe.catMaybes (GHC.List.cycle arg1))
+checking program:       GHC.List.last (Data.Maybe.catMaybes (GHC.List.init arg1))
+checking program:       GHC.List.last (Data.Maybe.catMaybes (GHC.List.reverse arg1))
+checking program:       GHC.List.last (Data.Maybe.catMaybes (GHC.List.tail arg1))
+checking program:       GHC.List.last (Data.Maybe.maybeToList (Data.Maybe.listToMaybe []))
+checking program:       GHC.List.last (Data.Maybe.maybeToList (GHC.List.head arg1))
+checking program:       GHC.List.last (Data.Maybe.maybeToList (GHC.List.last arg1))
+checking program:       GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))
+"2"
+"3"
+"2"
+"3"
+RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["3","[Nothing, Just 2, Nothing]"],"output":"2"},{"inputs":["3","[]"],"output":"3"}],"solution":"\\arg0 arg1 -> GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))"}],"outDocs":[{"functionSig":"","functionName":"class Cons s t a b | s -> a, t -> b, s b -> t, t a -> s","functionDesc":"This class provides a way to attach or detach elements on the left\nside of a structure in a flexible manner.\n"},{"functionSig":"[Maybe a] -> [a]","functionName":"catMaybes","functionDesc":"The catMaybes function takes a list of Maybes and\nreturns a list of all the Just values.\n\nExamples\n\nBasic usage:\n\n\n>>> catMaybes [Just 1, Nothing, Just 3]\n[1,3]\n\n\nWhen constructing a list of Maybe values, catMaybes can\nbe used to return all of the \"success\" results (if the list is the\nresult of a map, then mapMaybe would be more\nappropriate):\n\n\n>>> import Text.Read ( readMaybe )\n\n>>> [readMaybe x :: Maybe Int | x <- [\"1\", \"Foo\", \"3\"] ]\n[Just 1,Nothing,Just 3]\n\n>>> catMaybes $ [readMaybe x :: Maybe Int | x <- [\"1\", \"Foo\", \"3\"] ]\n[1,3]\n\n"},{"functionSig":"[a] -> a","functionName":"last","functionDesc":"<math>. Extract the last element of a list, which must be finite\nand non-empty.\n"},{"functionSig":"a","functionName":"arg0","functionDesc":""},{"functionSig":"[Maybe (a)]","functionName":"arg1","functionDesc":""}],"outError":""}
+sub = {
+        alpha0 ==> [a] (size 2)
+        alpha1 ==> [a] (size 2)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [Maybe (a)] (size 3)
+        tauCons0 ==> a (size 1)
+        tauData.Maybe.catMaybes0 ==> a (size 1)
+        tauGHC.List.last0 ==> a (size 1)
+      } (size 3)
+
+
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: a)
+((?? :: (alpha0 -> a)) (?? :: alpha0))
+(GHC.List.last (?? :: alpha0))
+(GHC.List.last ((?? :: (alpha1 -> [a])) (?? :: alpha1)))
+(GHC.List.last (((?? :: (alpha2 -> (alpha1 -> [a]))) (?? :: alpha2)) (?? :: alpha1)))
+(GHC.List.last (((:) (?? :: alpha2)) (?? :: alpha1)))
+(GHC.List.last ((:) arg0 (?? :: alpha1)))
+(GHC.List.last ((:) arg0 ((?? :: (alpha3 -> [a])) (?? :: alpha3))))
+(GHC.List.last ((:) arg0 (Data.Maybe.catMaybes (?? :: alpha3))))
+GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))
+-----------------
+
+(Quota 8) Done with <a> . (a -> ([Maybe (a)] -> a))!
+size +  subSize solution
+5       3       GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))
+
+sub = {
+        alpha0 ==> [a] (size 2)
+        alpha1 ==> [a] (size 2)
+        alpha2 ==> a (size 1)
+        alpha3 ==> [Maybe (a)] (size 3)
+        tauCons0 ==> a (size 1)
+        tauData.Maybe.catMaybes0 ==> a (size 1)
+        tauGHC.List.last0 ==> a (size 1)
+      } (size 3)
+
+(42.07 secs, 19,351,035,616 bytes)
+
+
+
+
+
+
+
+Our way: (this way first)
+
+
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0EqFloat)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0EqInt)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0EqUnit)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0NumDouble)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0NumFloat)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0NumInt)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0OrdBool)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0OrdChar)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0OrdDouble)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0OrdFloat)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0OrdInt)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0Show)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0ShowBool)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0ShowChar)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0ShowDouble)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0ShowFloat)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0ShowInt)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@0ShowUnit)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@1Read)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@2Ord)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@3Eq)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@5Semigroup)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right @@hplusTCInstance@@8Eq)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right (:))
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Bool.False)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Bool.True)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Bool.bool)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Bool.not)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Bool.otherwise)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.Left)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.Right)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.either)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.fromLeft)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.fromRight)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.isLeft)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.isRight)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.lefts)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.partitionEithers)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Either.rights)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.List.group)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.Just)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.Nothing)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.catMaybes)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.fromJust)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.fromMaybe)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.isJust)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.isNothing)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.listToMaybe)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.mapMaybe)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.maybe)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Maybe.maybeToList)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Tuple.curry)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Tuple.fst)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Tuple.snd)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Tuple.swap)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Data.Tuple.uncurry)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.Char.chr)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.Char.eqChar)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.Char.neChar)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.all)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.and)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.any)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.break)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.concat)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.concatMap)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.cycle)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.drop)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.dropWhile)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.elem)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.filter)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.foldl)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.foldl')
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.foldl1)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.foldl1')
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.foldr)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.foldr1)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.head)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.init)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.iterate)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.iterate')
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.last)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.length)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.lookup)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.map)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.maximum)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.minimum)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.notElem)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.null)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.or)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.product)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.repeat)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.replicate)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.reverse)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.scanl)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.scanl')
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.scanl1)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.scanr)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.scanr1)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.span)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.splitAt)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.sum)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.tail)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.take)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.takeWhile)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.uncons)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.unzip)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.unzip3)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.zip)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.zip3)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.zipWith)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right GHC.List.zipWith3)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right [])
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right (,))
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.show)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.showChar)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.showList)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.showListWith)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.showParen)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.showString)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.shows)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right Text.Show.showsPrec)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right fst)
+checking program:       Data.Either.fromLeft arg0 (Data.Either.Right snd)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left arg0)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left arg1)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (Data.Bool.&&))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (Data.Bool.||))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (Data.Eq./=))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (Data.Eq.==))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (GHC.List.!!))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (GHC.List.++))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0EqBool)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0EqChar)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0EqDouble)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0EqFloat)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0EqInt)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0EqUnit)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0NumDouble)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0NumFloat)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0NumInt)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0OrdBool)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0OrdChar)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0OrdDouble)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0OrdFloat)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0OrdInt)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0Show)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0ShowBool)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0ShowChar)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0ShowDouble)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0ShowFloat)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0ShowInt)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@0ShowUnit)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@1Read)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@2Ord)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@3Eq)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@5Semigroup)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left @@hplusTCInstance@@8Eq)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (:))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Bool.False)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Bool.True)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Bool.bool)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Bool.not)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Bool.otherwise)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.Left)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.Right)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.either)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.fromLeft)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.fromRight)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.isLeft)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.isRight)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.lefts)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.partitionEithers)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Either.rights)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.List.group)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.Just)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.Nothing)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.catMaybes)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.fromJust)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.fromMaybe)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.isJust)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.isNothing)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.listToMaybe)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.mapMaybe)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.maybe)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Maybe.maybeToList)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Tuple.curry)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Tuple.fst)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Tuple.snd)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Tuple.swap)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Data.Tuple.uncurry)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.Char.chr)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.Char.eqChar)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.Char.neChar)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.all)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.and)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.any)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.break)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.concat)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.concatMap)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.cycle)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.drop)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.dropWhile)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.elem)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.filter)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.foldl)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.foldl')
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.foldl1)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.foldl1')
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.foldr)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.foldr1)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.head)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.init)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.iterate)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.iterate')
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.last)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.length)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.lookup)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.map)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.maximum)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.minimum)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.notElem)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.null)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.or)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.product)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.repeat)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.replicate)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.reverse)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.scanl)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.scanl')
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.scanl1)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.scanr)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.scanr1)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.span)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.splitAt)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.sum)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.tail)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.take)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.takeWhile)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.uncons)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.unzip)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.unzip3)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.zip)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.zip3)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.zipWith)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left GHC.List.zipWith3)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left [])
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left (,))
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.show)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.showChar)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.showList)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.showListWith)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.showParen)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.showString)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.shows)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left Text.Show.showsPrec)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left fst)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Left snd)
+checking program:       Data.Either.fromRight arg0 (Data.Either.Right arg0)
+checking program:       Data.Maybe.fromMaybe arg0 (Data.Maybe.Just arg0)
+checking program:       Data.Maybe.fromMaybe arg0 (Data.Maybe.listToMaybe [])
+checking program:       Data.Maybe.fromMaybe arg0 (GHC.List.head arg1)
+"3"
+""2"
+checking program:       Data.Maybe.fromMaybe arg0 (GHC.List.last arg1)
+"3"
+""2"
+checking program:       Data.Tuple.uncurry GHC.List.head (Data.Either.partitionEithers [])
+checking program:       Data.Tuple.uncurry GHC.List.head (GHC.List.unzip [])
+checking program:       Data.Tuple.uncurry GHC.List.last (Data.Either.partitionEithers [])
+checking program:       Data.Tuple.uncurry GHC.List.last (GHC.List.unzip [])
+checking program:       Data.Maybe.fromJust (Data.Maybe.Just Data.Maybe.fromJust) Data.Maybe.Nothing
+checking program:       Data.Maybe.fromJust (Data.Maybe.Just GHC.List.head) []
+checking program:       Data.Maybe.fromJust (Data.Maybe.Just GHC.List.last) []
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) arg0
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) arg1
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (Data.Bool.&&)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (Data.Bool.||)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (Data.Eq./=)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (Data.Eq.==)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (GHC.List.!!)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (GHC.List.++)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0EqBool
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0EqChar
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0EqDouble
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0EqFloat
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0EqInt
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0EqUnit
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0NumDouble
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0NumFloat
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0NumInt
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0OrdBool
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0OrdChar
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0OrdDouble
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0OrdFloat
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0OrdInt
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0Show
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0ShowBool
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0ShowChar
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0ShowDouble
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0ShowFloat
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0ShowInt
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@0ShowUnit
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@1Read
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@2Ord
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@3Eq
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@5Semigroup
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) @@hplusTCInstance@@8Eq
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (:)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Bool.False
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Bool.True
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Bool.bool
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Bool.not
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Bool.otherwise
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.Left
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.Right
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.either
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.fromLeft
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.fromRight
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.isLeft
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.isRight
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.lefts
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.partitionEithers
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Either.rights
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.List.group
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.Just
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.Nothing
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.catMaybes
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.fromJust
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.fromMaybe
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.isJust
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.isNothing
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.listToMaybe
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.mapMaybe
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.maybe
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Maybe.maybeToList
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Tuple.curry
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Tuple.fst
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Tuple.snd
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Tuple.swap
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Data.Tuple.uncurry
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.Char.chr
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.Char.eqChar
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.Char.neChar
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.all
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.and
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.any
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.break
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.concat
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.concatMap
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.cycle
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.drop
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.dropWhile
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.elem
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.filter
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.foldl
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.foldl'
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.foldl1
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.foldl1'
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.foldr
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.foldr1
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.head
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.init
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.iterate
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.iterate'
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.last
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.length
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.lookup
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.map
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.maximum
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.minimum
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.notElem
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.null
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.or
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.product
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.repeat
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.replicate
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.reverse
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.scanl
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.scanl'
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.scanl1
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.scanr
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.scanr1
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.span
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.splitAt
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.sum
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.tail
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.take
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.takeWhile
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.uncons
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.unzip
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.unzip3
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.zip
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.zip3
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.zipWith
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) GHC.List.zipWith3
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) []
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) (,)
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.show
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.showChar
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.showList
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.showListWith
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.showParen
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.showString
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.shows
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) Text.Show.showsPrec
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) fst
+checking program:       Data.Maybe.fromJust (Data.Maybe.listToMaybe []) snd
+checking program:       GHC.List.head (GHC.List.repeat Data.Maybe.fromJust) Data.Maybe.Nothing
+checking program:       GHC.List.head (GHC.List.repeat GHC.List.head) []
+checking program:       GHC.List.head (GHC.List.repeat GHC.List.last) []
+checking program:       GHC.List.last (GHC.List.repeat Data.Maybe.fromJust) Data.Maybe.Nothing
+checking program:       GHC.List.last (GHC.List.repeat GHC.List.head) []
+checking program:       GHC.List.last (GHC.List.repeat GHC.List.last) []
+checking program:       Data.Bool.bool arg0 arg0 Data.Bool.False
+checking program:       Data.Bool.bool arg0 arg0 Data.Bool.True
+checking program:       Data.Bool.bool arg0 arg0 Data.Bool.otherwise
+checking program:       Data.Maybe.fromMaybe GHC.List.head Data.Maybe.Nothing []
+checking program:       Data.Maybe.fromMaybe GHC.List.last Data.Maybe.Nothing []
+checking program:       Data.Maybe.maybe arg0 Data.Tuple.fst Data.Maybe.Nothing
+checking program:       Data.Maybe.maybe arg0 Data.Tuple.snd Data.Maybe.Nothing
+checking program:       Data.Maybe.maybe arg0 GHC.List.head Data.Maybe.Nothing
+checking program:       Data.Maybe.maybe arg0 GHC.List.last Data.Maybe.Nothing
+checking program:       Data.Maybe.maybe arg0 fst Data.Maybe.Nothing
+checking program:       Data.Maybe.maybe arg0 snd Data.Maybe.Nothing
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 arg0
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 arg1
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (Data.Bool.&&)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (Data.Bool.||)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (Data.Eq./=)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (Data.Eq.==)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (GHC.List.!!)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (GHC.List.++)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0EqBool
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0EqChar
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0EqDouble
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0EqFloat
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0EqInt
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0EqUnit
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0NumDouble
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0NumFloat
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0NumInt
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0OrdBool
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0OrdChar
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0OrdDouble
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0OrdFloat
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0OrdInt
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0Show
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0ShowBool
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0ShowChar
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0ShowDouble
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0ShowFloat
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0ShowInt
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@0ShowUnit
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@1Read
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@2Ord
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@3Eq
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@5Semigroup
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 @@hplusTCInstance@@8Eq
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (:)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Bool.False
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Bool.True
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Bool.bool
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Bool.not
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Bool.otherwise
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.Left
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.Right
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.either
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.fromLeft
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.fromRight
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.isLeft
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.isRight
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.lefts
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.partitionEithers
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Either.rights
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.List.group
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.Just
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.Nothing
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.catMaybes
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.fromJust
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.fromMaybe
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.isJust
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.isNothing
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.listToMaybe
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.mapMaybe
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.maybe
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Maybe.maybeToList
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Tuple.curry
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Tuple.fst
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Tuple.snd
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Tuple.swap
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Data.Tuple.uncurry
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.Char.chr
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.Char.eqChar
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.Char.neChar
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.all
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.and
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.any
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.break
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.concat
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.concatMap
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.cycle
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.drop
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.dropWhile
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.elem
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.filter
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.foldl
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.foldl'
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.foldl1
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.foldl1'
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.foldr
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.foldr1
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.head
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.init
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.iterate
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.iterate'
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.last
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.length
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.lookup
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.map
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.maximum
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.minimum
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.notElem
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.null
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.or
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.product
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.repeat
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.replicate
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.reverse
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.scanl
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.scanl'
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.scanl1
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.scanr
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.scanr1
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.span
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.splitAt
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.sum
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.tail
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.take
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.takeWhile
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.uncons
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.unzip
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.unzip3
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.zip
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.zip3
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.zipWith
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 GHC.List.zipWith3
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 []
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 (,)
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.show
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.showChar
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.showList
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.showListWith
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.showParen
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.showString
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.shows
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 Text.Show.showsPrec
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 fst
+checking program:       Data.Tuple.curry Data.Tuple.fst arg0 snd
+checking program:       Data.Tuple.curry Data.Tuple.snd arg0 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd arg1 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (Data.Bool.&&) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (Data.Bool.||) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (Data.Eq./=) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (Data.Eq.==) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (GHC.List.!!) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (GHC.List.++) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0EqBool arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0EqChar arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0EqDouble arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0EqFloat arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0EqInt arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0EqUnit arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0NumDouble arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0NumFloat arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0NumInt arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0OrdBool arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0OrdChar arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0OrdDouble arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0OrdFloat arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0OrdInt arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0Show arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0ShowBool arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0ShowChar arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0ShowDouble arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0ShowFloat arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0ShowInt arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@0ShowUnit arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@1Read arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@2Ord arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@3Eq arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@5Semigroup arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd @@hplusTCInstance@@8Eq arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (:) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Bool.False arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Bool.True arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Bool.bool arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Bool.not arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Bool.otherwise arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.Left arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.Right arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.either arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.fromLeft arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.fromRight arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.isLeft arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.isRight arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.lefts arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.partitionEithers arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Either.rights arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.List.group arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.Just arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.Nothing arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.catMaybes arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.fromJust arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.fromMaybe arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.isJust arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.isNothing arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.listToMaybe arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.mapMaybe arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.maybe arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Maybe.maybeToList arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Tuple.curry arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Tuple.fst arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Tuple.snd arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Tuple.swap arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Data.Tuple.uncurry arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.Char.chr arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.Char.eqChar arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.Char.neChar arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.all arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.and arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.any arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.break arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.concat arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.concatMap arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.cycle arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.drop arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.dropWhile arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.elem arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.filter arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.foldl arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.foldl' arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.foldl1 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.foldl1' arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.foldr arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.foldr1 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.head arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.init arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.iterate arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.iterate' arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.last arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.length arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.lookup arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.map arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.maximum arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.minimum arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.notElem arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.null arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.or arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.product arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.repeat arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.replicate arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.reverse arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.scanl arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.scanl' arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.scanl1 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.scanr arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.scanr1 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.span arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.splitAt arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.sum arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.tail arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.take arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.takeWhile arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.uncons arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.unzip arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.unzip3 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.zip arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.zip3 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.zipWith arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd GHC.List.zipWith3 arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd [] arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd (,) arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.show arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.showChar arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.showList arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.showListWith arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.showParen arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.showString arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.shows arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd Text.Show.showsPrec arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd fst arg0
+checking program:       Data.Tuple.curry Data.Tuple.snd snd arg0
+checking program:       Data.Tuple.curry fst arg0 arg0
+checking program:       Data.Tuple.curry fst arg0 arg1
+checking program:       Data.Tuple.curry fst arg0 (Data.Bool.&&)
+checking program:       Data.Tuple.curry fst arg0 (Data.Bool.||)
+checking program:       Data.Tuple.curry fst arg0 (Data.Eq./=)
+checking program:       Data.Tuple.curry fst arg0 (Data.Eq.==)
+checking program:       Data.Tuple.curry fst arg0 (GHC.List.!!)
+checking program:       Data.Tuple.curry fst arg0 (GHC.List.++)
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0EqBool
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0EqChar
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0EqDouble
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0EqFloat
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0EqInt
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0EqUnit
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0NumDouble
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0NumFloat
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0NumInt
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0OrdBool
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0OrdChar
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0OrdDouble
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0OrdFloat
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0OrdInt
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0Show
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0ShowBool
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0ShowChar
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0ShowDouble
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0ShowFloat
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0ShowInt
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@0ShowUnit
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@1Read
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@2Ord
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@3Eq
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@5Semigroup
+checking program:       Data.Tuple.curry fst arg0 @@hplusTCInstance@@8Eq
+checking program:       Data.Tuple.curry fst arg0 (:)
+checking program:       Data.Tuple.curry fst arg0 Data.Bool.False
+checking program:       Data.Tuple.curry fst arg0 Data.Bool.True
+checking program:       Data.Tuple.curry fst arg0 Data.Bool.bool
+checking program:       Data.Tuple.curry fst arg0 Data.Bool.not
+checking program:       Data.Tuple.curry fst arg0 Data.Bool.otherwise
+checking program:       Data.Tuple.curry fst arg0 Data.Either.Left
+checking program:       Data.Tuple.curry fst arg0 Data.Either.Right
+checking program:       Data.Tuple.curry fst arg0 Data.Either.either
+checking program:       Data.Tuple.curry fst arg0 Data.Either.fromLeft
+checking program:       Data.Tuple.curry fst arg0 Data.Either.fromRight
+checking program:       Data.Tuple.curry fst arg0 Data.Either.isLeft
+checking program:       Data.Tuple.curry fst arg0 Data.Either.isRight
+checking program:       Data.Tuple.curry fst arg0 Data.Either.lefts
+checking program:       Data.Tuple.curry fst arg0 Data.Either.partitionEithers
+checking program:       Data.Tuple.curry fst arg0 Data.Either.rights
+checking program:       Data.Tuple.curry fst arg0 Data.List.group
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.Just
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.Nothing
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.catMaybes
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.fromJust
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.fromMaybe
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.isJust
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.isNothing
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.listToMaybe
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.mapMaybe
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.maybe
+checking program:       Data.Tuple.curry fst arg0 Data.Maybe.maybeToList
+checking program:       Data.Tuple.curry fst arg0 Data.Tuple.curry
+checking program:       Data.Tuple.curry fst arg0 Data.Tuple.fst
+checking program:       Data.Tuple.curry fst arg0 Data.Tuple.snd
+checking program:       Data.Tuple.curry fst arg0 Data.Tuple.swap
+checking program:       Data.Tuple.curry fst arg0 Data.Tuple.uncurry
+checking program:       Data.Tuple.curry fst arg0 GHC.Char.chr
+checking program:       Data.Tuple.curry fst arg0 GHC.Char.eqChar
+checking program:       Data.Tuple.curry fst arg0 GHC.Char.neChar
+checking program:       Data.Tuple.curry fst arg0 GHC.List.all
+checking program:       Data.Tuple.curry fst arg0 GHC.List.and
+checking program:       Data.Tuple.curry fst arg0 GHC.List.any
+checking program:       Data.Tuple.curry fst arg0 GHC.List.break
+checking program:       Data.Tuple.curry fst arg0 GHC.List.concat
+checking program:       Data.Tuple.curry fst arg0 GHC.List.concatMap
+checking program:       Data.Tuple.curry fst arg0 GHC.List.cycle
+checking program:       Data.Tuple.curry fst arg0 GHC.List.drop
+checking program:       Data.Tuple.curry fst arg0 GHC.List.dropWhile
+checking program:       Data.Tuple.curry fst arg0 GHC.List.elem
+checking program:       Data.Tuple.curry fst arg0 GHC.List.filter
+checking program:       Data.Tuple.curry fst arg0 GHC.List.foldl
+checking program:       Data.Tuple.curry fst arg0 GHC.List.foldl'
+checking program:       Data.Tuple.curry fst arg0 GHC.List.foldl1
+checking program:       Data.Tuple.curry fst arg0 GHC.List.foldl1'
+checking program:       Data.Tuple.curry fst arg0 GHC.List.foldr
+checking program:       Data.Tuple.curry fst arg0 GHC.List.foldr1
+checking program:       Data.Tuple.curry fst arg0 GHC.List.head
+checking program:       Data.Tuple.curry fst arg0 GHC.List.init
+checking program:       Data.Tuple.curry fst arg0 GHC.List.iterate
+checking program:       Data.Tuple.curry fst arg0 GHC.List.iterate'
+checking program:       Data.Tuple.curry fst arg0 GHC.List.last
+checking program:       Data.Tuple.curry fst arg0 GHC.List.length
+checking program:       Data.Tuple.curry fst arg0 GHC.List.lookup
+checking program:       Data.Tuple.curry fst arg0 GHC.List.map
+checking program:       Data.Tuple.curry fst arg0 GHC.List.maximum
+checking program:       Data.Tuple.curry fst arg0 GHC.List.minimum
+checking program:       Data.Tuple.curry fst arg0 GHC.List.notElem
+checking program:       Data.Tuple.curry fst arg0 GHC.List.null
+checking program:       Data.Tuple.curry fst arg0 GHC.List.or
+checking program:       Data.Tuple.curry fst arg0 GHC.List.product
+checking program:       Data.Tuple.curry fst arg0 GHC.List.repeat
+checking program:       Data.Tuple.curry fst arg0 GHC.List.replicate
+checking program:       Data.Tuple.curry fst arg0 GHC.List.reverse
+checking program:       Data.Tuple.curry fst arg0 GHC.List.scanl
+checking program:       Data.Tuple.curry fst arg0 GHC.List.scanl'
+checking program:       Data.Tuple.curry fst arg0 GHC.List.scanl1
+checking program:       Data.Tuple.curry fst arg0 GHC.List.scanr
+checking program:       Data.Tuple.curry fst arg0 GHC.List.scanr1
+checking program:       Data.Tuple.curry fst arg0 GHC.List.span
+checking program:       Data.Tuple.curry fst arg0 GHC.List.splitAt
+checking program:       Data.Tuple.curry fst arg0 GHC.List.sum
+checking program:       Data.Tuple.curry fst arg0 GHC.List.tail
+checking program:       Data.Tuple.curry fst arg0 GHC.List.take
+checking program:       Data.Tuple.curry fst arg0 GHC.List.takeWhile
+checking program:       Data.Tuple.curry fst arg0 GHC.List.uncons
+checking program:       Data.Tuple.curry fst arg0 GHC.List.unzip
+checking program:       Data.Tuple.curry fst arg0 GHC.List.unzip3
+checking program:       Data.Tuple.curry fst arg0 GHC.List.zip
+checking program:       Data.Tuple.curry fst arg0 GHC.List.zip3
+checking program:       Data.Tuple.curry fst arg0 GHC.List.zipWith
+checking program:       Data.Tuple.curry fst arg0 GHC.List.zipWith3
+checking program:       Data.Tuple.curry fst arg0 []
+checking program:       Data.Tuple.curry fst arg0 (,)
+checking program:       Data.Tuple.curry fst arg0 Text.Show.show
+checking program:       Data.Tuple.curry fst arg0 Text.Show.showChar
+checking program:       Data.Tuple.curry fst arg0 Text.Show.showList
+checking program:       Data.Tuple.curry fst arg0 Text.Show.showListWith
+checking program:       Data.Tuple.curry fst arg0 Text.Show.showParen
+checking program:       Data.Tuple.curry fst arg0 Text.Show.showString
+checking program:       Data.Tuple.curry fst arg0 Text.Show.shows
+checking program:       Data.Tuple.curry fst arg0 Text.Show.showsPrec
+checking program:       Data.Tuple.curry fst arg0 fst
+checking program:       Data.Tuple.curry fst arg0 snd
+checking program:       Data.Tuple.curry snd arg0 arg0
+checking program:       Data.Tuple.curry snd arg1 arg0
+checking program:       Data.Tuple.curry snd (Data.Bool.&&) arg0
+checking program:       Data.Tuple.curry snd (Data.Bool.||) arg0
+checking program:       Data.Tuple.curry snd (Data.Eq./=) arg0
+checking program:       Data.Tuple.curry snd (Data.Eq.==) arg0
+checking program:       Data.Tuple.curry snd (GHC.List.!!) arg0
+checking program:       Data.Tuple.curry snd (GHC.List.++) arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0EqBool arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0EqChar arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0EqDouble arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0EqFloat arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0EqInt arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0EqUnit arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0NumDouble arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0NumFloat arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0NumInt arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0OrdBool arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0OrdChar arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0OrdDouble arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0OrdFloat arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0OrdInt arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0Show arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0ShowBool arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0ShowChar arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0ShowDouble arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0ShowFloat arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0ShowInt arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@0ShowUnit arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@1Read arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@2Ord arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@3Eq arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@5Semigroup arg0
+checking program:       Data.Tuple.curry snd @@hplusTCInstance@@8Eq arg0
+checking program:       Data.Tuple.curry snd (:) arg0
+checking program:       Data.Tuple.curry snd Data.Bool.False arg0
+checking program:       Data.Tuple.curry snd Data.Bool.True arg0
+checking program:       Data.Tuple.curry snd Data.Bool.bool arg0
+checking program:       Data.Tuple.curry snd Data.Bool.not arg0
+checking program:       Data.Tuple.curry snd Data.Bool.otherwise arg0
+checking program:       Data.Tuple.curry snd Data.Either.Left arg0
+checking program:       Data.Tuple.curry snd Data.Either.Right arg0
+checking program:       Data.Tuple.curry snd Data.Either.either arg0
+checking program:       Data.Tuple.curry snd Data.Either.fromLeft arg0
+checking program:       Data.Tuple.curry snd Data.Either.fromRight arg0
+checking program:       Data.Tuple.curry snd Data.Either.isLeft arg0
+checking program:       Data.Tuple.curry snd Data.Either.isRight arg0
+checking program:       Data.Tuple.curry snd Data.Either.lefts arg0
+checking program:       Data.Tuple.curry snd Data.Either.partitionEithers arg0
+checking program:       Data.Tuple.curry snd Data.Either.rights arg0
+checking program:       Data.Tuple.curry snd Data.List.group arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.Just arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.Nothing arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.catMaybes arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.fromJust arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.fromMaybe arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.isJust arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.isNothing arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.listToMaybe arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.mapMaybe arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.maybe arg0
+checking program:       Data.Tuple.curry snd Data.Maybe.maybeToList arg0
+checking program:       Data.Tuple.curry snd Data.Tuple.curry arg0
+checking program:       Data.Tuple.curry snd Data.Tuple.fst arg0
+checking program:       Data.Tuple.curry snd Data.Tuple.snd arg0
+checking program:       Data.Tuple.curry snd Data.Tuple.swap arg0
+checking program:       Data.Tuple.curry snd Data.Tuple.uncurry arg0
+checking program:       Data.Tuple.curry snd GHC.Char.chr arg0
+checking program:       Data.Tuple.curry snd GHC.Char.eqChar arg0
+checking program:       Data.Tuple.curry snd GHC.Char.neChar arg0
+checking program:       Data.Tuple.curry snd GHC.List.all arg0
+checking program:       Data.Tuple.curry snd GHC.List.and arg0
+checking program:       Data.Tuple.curry snd GHC.List.any arg0
+checking program:       Data.Tuple.curry snd GHC.List.break arg0
+checking program:       Data.Tuple.curry snd GHC.List.concat arg0
+checking program:       Data.Tuple.curry snd GHC.List.concatMap arg0
+checking program:       Data.Tuple.curry snd GHC.List.cycle arg0
+checking program:       Data.Tuple.curry snd GHC.List.drop arg0
+checking program:       Data.Tuple.curry snd GHC.List.dropWhile arg0
+checking program:       Data.Tuple.curry snd GHC.List.elem arg0
+checking program:       Data.Tuple.curry snd GHC.List.filter arg0
+checking program:       Data.Tuple.curry snd GHC.List.foldl arg0
+checking program:       Data.Tuple.curry snd GHC.List.foldl' arg0
+checking program:       Data.Tuple.curry snd GHC.List.foldl1 arg0
+checking program:       Data.Tuple.curry snd GHC.List.foldl1' arg0
+checking program:       Data.Tuple.curry snd GHC.List.foldr arg0
+checking program:       Data.Tuple.curry snd GHC.List.foldr1 arg0
+checking program:       Data.Tuple.curry snd GHC.List.head arg0
+checking program:       Data.Tuple.curry snd GHC.List.init arg0
+checking program:       Data.Tuple.curry snd GHC.List.iterate arg0
+checking program:       Data.Tuple.curry snd GHC.List.iterate' arg0
+checking program:       Data.Tuple.curry snd GHC.List.last arg0
+checking program:       Data.Tuple.curry snd GHC.List.length arg0
+checking program:       Data.Tuple.curry snd GHC.List.lookup arg0
+checking program:       Data.Tuple.curry snd GHC.List.map arg0
+checking program:       Data.Tuple.curry snd GHC.List.maximum arg0
+checking program:       Data.Tuple.curry snd GHC.List.minimum arg0
+checking program:       Data.Tuple.curry snd GHC.List.notElem arg0
+checking program:       Data.Tuple.curry snd GHC.List.null arg0
+checking program:       Data.Tuple.curry snd GHC.List.or arg0
+checking program:       Data.Tuple.curry snd GHC.List.product arg0
+checking program:       Data.Tuple.curry snd GHC.List.repeat arg0
+checking program:       Data.Tuple.curry snd GHC.List.replicate arg0
+checking program:       Data.Tuple.curry snd GHC.List.reverse arg0
+checking program:       Data.Tuple.curry snd GHC.List.scanl arg0
+checking program:       Data.Tuple.curry snd GHC.List.scanl' arg0
+checking program:       Data.Tuple.curry snd GHC.List.scanl1 arg0
+checking program:       Data.Tuple.curry snd GHC.List.scanr arg0
+checking program:       Data.Tuple.curry snd GHC.List.scanr1 arg0
+checking program:       Data.Tuple.curry snd GHC.List.span arg0
+checking program:       Data.Tuple.curry snd GHC.List.splitAt arg0
+checking program:       Data.Tuple.curry snd GHC.List.sum arg0
+checking program:       Data.Tuple.curry snd GHC.List.tail arg0
+checking program:       Data.Tuple.curry snd GHC.List.take arg0
+checking program:       Data.Tuple.curry snd GHC.List.takeWhile arg0
+checking program:       Data.Tuple.curry snd GHC.List.uncons arg0
+checking program:       Data.Tuple.curry snd GHC.List.unzip arg0
+checking program:       Data.Tuple.curry snd GHC.List.unzip3 arg0
+checking program:       Data.Tuple.curry snd GHC.List.zip arg0
+checking program:       Data.Tuple.curry snd GHC.List.zip3 arg0
+checking program:       Data.Tuple.curry snd GHC.List.zipWith arg0
+checking program:       Data.Tuple.curry snd GHC.List.zipWith3 arg0
+checking program:       Data.Tuple.curry snd [] arg0
+checking program:       Data.Tuple.curry snd (,) arg0
+checking program:       Data.Tuple.curry snd Text.Show.show arg0
+checking program:       Data.Tuple.curry snd Text.Show.showChar arg0
+checking program:       Data.Tuple.curry snd Text.Show.showList arg0
+checking program:       Data.Tuple.curry snd Text.Show.showListWith arg0
+checking program:       Data.Tuple.curry snd Text.Show.showParen arg0
+checking program:       Data.Tuple.curry snd Text.Show.showString arg0
+checking program:       Data.Tuple.curry snd Text.Show.shows arg0
+checking program:       Data.Tuple.curry snd Text.Show.showsPrec arg0
+checking program:       Data.Tuple.curry snd fst arg0
+checking program:       Data.Tuple.curry snd snd arg0
+checking program:       GHC.List.foldl Data.Either.fromLeft arg0 []
+checking program:       GHC.List.foldl Data.Either.fromRight arg0 []
+checking program:       GHC.List.foldl Data.Maybe.fromMaybe arg0 arg1
+"2"
+"3"
+"2"
+"3"
+RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["3","[Nothing, Just 2, Nothing]"],"output":"2"},{"inputs":["3","[]"],"output":"3"}],"solution":"\\arg0 arg1 -> GHC.List.foldl Data.Maybe.fromMaybe arg0 arg1"}],"outDocs":[{"functionSig":"a -> Maybe a -> a","functionName":"fromMaybe","functionDesc":"The fromMaybe function takes a default value and and\nMaybe value. If the Maybe is Nothing, it returns\nthe default values; otherwise, it returns the value contained in the\nMaybe.\n\nExamples\n\nBasic usage:\n\n\n>>> fromMaybe \"\" (Just \"Hello, World!\")\n\"Hello, World!\"\n\n\n\n>>> fromMaybe \"\" Nothing\n\"\"\n\n\nRead an integer from a string using readMaybe. If we fail to\nparse an integer, we want to return 0 by default:\n\n\n>>> import Text.Read ( readMaybe )\n\n>>> fromMaybe 0 (readMaybe \"5\")\n5\n\n>>> fromMaybe 0 (readMaybe \"\")\n0\n\n"},{"functionSig":"forall a b . (b -> a -> b) -> b -> [a] -> b","functionName":"foldl","functionDesc":"foldl, applied to a binary operator, a starting value\n(typically the left-identity of the operator), and a list, reduces the\nlist using the binary operator, from left to right:\n\n\nfoldl f z [x1, x2, ..., xn] == (...((z `f` x1) `f` x2) `f`...) `f` xn\n\n\nThe list must be finite.\n"},{"functionSig":"a","functionName":"arg0","functionDesc":""},{"functionSig":"[Maybe (a)]","functionName":"arg1","functionDesc":""}],"outError":""}
+sub = {
+        alpha0 ==> [Maybe (tauData.Maybe.fromMaybe0)] (size 3)
+        alpha1 ==> a (size 1)
+        alpha2 ==> a -> Maybe (tauData.Maybe.fromMaybe0) -> a (size 4)
+        tauData.Maybe.fromMaybe0 ==> a (size 1)
+        tauGHC.List.foldl0 ==> a (size 1)
+        tauGHC.List.foldl1 ==> Maybe (a) (size 2)
+      } (size 4)
+
+
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: a)
+((?? :: (alpha0 -> a)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+(((GHC.List.foldl (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.foldl Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))
+(GHC.List.foldl Data.Maybe.fromMaybe arg0 (?? :: alpha0))
+GHC.List.foldl Data.Maybe.fromMaybe arg0 arg1
+-----------------
+
+(Quota 4) Done with <a> . (a -> ([Maybe (a)] -> a))!
+size +  subSize solution
+4       4       GHC.List.foldl Data.Maybe.fromMaybe arg0 arg1
+
+sub = {
+        alpha0 ==> [Maybe (tauData.Maybe.fromMaybe0)] (size 3)
+        alpha1 ==> a (size 1)
+        alpha2 ==> a -> Maybe (tauData.Maybe.fromMaybe0) -> a (size 4)
+        tauData.Maybe.fromMaybe0 ==> a (size 1)
+        tauGHC.List.foldl0 ==> a (size 1)
+        tauGHC.List.foldl1 ==> Maybe (a) (size 2)
+      } (size 4)
+
+(38.50 secs, 10,928,537,272 bytes)
+> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 > synGuard "Maybe (a->b) -> a -> b" ["fromJust", "fst"]
 
@@ -665,6 +1979,14 @@ sub = {
 
 (2.24 secs, 235,030,712 bytes)
 > 
+
+
+
+
+
+
+
+
 
 
 
