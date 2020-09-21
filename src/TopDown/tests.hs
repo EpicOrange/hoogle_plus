@@ -13,6 +13,7 @@ solution: "\\arg0 arg1 -> (arg0 (Data.Tuple.fst arg1), arg0 (Data.Tuple.snd arg1
 
 firstJust
 synGuard' "a -> [Maybe a] -> a" ["Data.Maybe.fromMaybe", "Data.Maybe.listToMaybe", "Data.Maybe.catMaybes"] [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
+syn' "a -> [Maybe a] -> a"  [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
 solution: "\\x xs -> Data.Maybe.fromMaybe x (Data.Maybe.listToMaybe (Data.Maybe.catMaybes xs))"
 
 mapEither
@@ -24,7 +25,8 @@ fromPaper:
 Just (+ 1) -> 1 -> 2  and Nothing -> 1 -> 1
 syn' "Maybe (a->a) -> a -> a" [(["Just (+1)", "1"], "2"), (["Nothing", "1"], "1")]
 synGuard' "Maybe (a->a) -> a -> a" ["fromMaybe"] [(["Just (+1)", "1"], "2"), (["Nothing", "1"], "1")]
-\f x -> fromMaybe (\arg0 -> arg0) f x         (size 5)
+\f x -> fromMaybe (\arg0 -> arg0) f x         (size 5 ours)
+                                              (size   nadias)
 
 mapMaybes
 synGuard' "(a -> Maybe b) -> [a] -> Maybe b" ["Data.Maybe.listToMaybe", "Data.Maybe.mapMaybe"] [(["\\x -> if x < 3 then Nothing else Just (x * x)", "[2,4,6]"], "Just 16")]

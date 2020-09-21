@@ -96,7 +96,8 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
   solution <- dfsExactly EMode env Map.empty messageChan searchParams goalType quota :: TopDownSolver IO RProgram
   lift $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
-
+  
+  liftIO $ printf "Solution: %s\n" (show solution)
   -- check if the program has all the arguments that it should have (avoids calling check)  
   guard (filterParams solution)
   
@@ -306,6 +307,7 @@ dfsExactly mode env args messageChan searchParams goalType sizeQuota
       (id, schema) <- choices $ reorganizeSymbols :: TopDownSolver IO (Id, RSchema)
 
       -- replaces "a" "b" with "tau1" "tau2"
+      -- freshVars <- ourFreshType (env ^. boundTypeVars) schema ("tau" ++ id)
       freshVars <- ourFreshType (env ^. boundTypeVars) schema "tau"
 
       let t1 = shape freshVars :: SType
