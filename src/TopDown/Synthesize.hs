@@ -196,7 +196,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   --       liftIO $ printf "counter for quota %d: %d\n" quota counter
   --       mzero
   -- solution <- dfsExactly EMode env Map.empty messageChan searchParams goalType quota `mplus` foo :: TopDownSolver IO RProgram
-  solution <- dfsExactly EMode env Map.empty messageChan 0 searchParams goalType quota :: TopDownSolver IO RProgram
+  solution <- dfsExactly EMode env Map.empty messageChan searchParams goalType quota :: TopDownSolver IO RProgram
   lift $ modify (\goalTrace -> Symbol (show solution) : goalTrace) -- append solution to trace
   
   progSize <- sizeOfProg solution
@@ -259,9 +259,9 @@ printSub = do
   subSize <- sizeOfSub
   liftIO $ printf "      } (size %d)\n\n" (subSize)
   
-dfsUpTo :: SynMode -> Environment -> Map Id RType -> Chan Message -> Int -> SearchParams -> RType -> Int -> TopDownSolver IO RProgram
-dfsUpTo mode env args messageChan depth searchParams goalType sizeQuota = do
-  msum $ map (dfsExactly mode env args messageChan depth searchParams goalType) [1..sizeQuota]
+dfsUpTo :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> RType -> Int -> TopDownSolver IO RProgram
+dfsUpTo mode env args messageChan searchParams goalType sizeQuota = do
+  msum $ map (dfsExactly mode env args messageChan searchParams goalType) [1..sizeQuota]
 
 --
 -- does DFSExactly in either E-mode or I-mode
@@ -273,31 +273,24 @@ dfsUpTo mode env args messageChan depth searchParams goalType sizeQuota = do
 --    * if is a function type, add args to env, search for the return type, and return a lambda 
 --    * if not, search in e-mode
 --
-dfsExactly :: SynMode -> Environment -> Map Id RType -> Chan Message -> Int -> SearchParams -> RType -> Int -> TopDownSolver IO RProgram
-dfsExactly mode env args messageChan depth searchParams goalType sizeQuota
+dfsExactly :: SynMode -> Environment -> Map Id RType -> Chan Message -> SearchParams -> RType -> Int -> TopDownSolver IO RProgram
+dfsExactly mode env args messageChan searchParams goalType sizeQuota
   | sizeQuota <= 0 = mzero
   | useMemoize     = error "broken, don't use memoize" -- memoizeProgram mode sizeQuota args goalType doDfsExactly
   | otherwise      = doDfsExactly
   where
 
-    traceDebug :: Int -> TopDownSolver IO ()
-    traceDebug depth = do
-      holedProgram <- head <$> lift get
-      if nadia_way
-        then liftIO $ printf "%-140s" (show holedProgram)
-        else liftIO $ printf "%-80s" (show holedProgram)
-      liftIO $ printf "(size %d) goal: %s\n" sizeQuota (show goalType)
-
-      -- let indent = replicate (depth * 2) ' '
-      -- liftIO $ printf indent
-      -- let printfstring = printf "%%-%ds" ((if nadia_way then 140 else 80) - depth*2) :: String
-      -- liftIO $ printf printfstring (show holedProgram)
-
     -- | does DFSExactly without memoization
     doDfsExactly :: TopDownSolver IO RProgram
     doDfsExactly = do
       -- lift $ lift $ lift $ modify (+1)
-      traceDebug depth
+      holedProgram <- head <$> lift get
+
+      if (nadia_way) 
+        then liftIO $ printf "%-140s" (show holedProgram)
+        else liftIO $ printf "%-80s" (show holedProgram)
+      
+      liftIO $ printf "\t(size %d) goal: %s\n" sizeQuota (show goalType)
       subSize <- sizeOfSub
       when (nadia_way) $ guard (subSize < sizeQuota)
 
@@ -345,7 +338,7 @@ dfsExactly mode env args messageChan depth searchParams goalType sizeQuota
         -- we're synthesizing the body for the lambda
         -- so we subtract 1 from the body's quota to account for the lambda we'll be returning
         lift $ addLam argName (show tBody)
-        body <- dfsExactly IMode env' args' messageChan (depth + 1) searchParams tBody (sizeQuota - 1)
+        body <- dfsExactly IMode env' args' messageChan searchParams tBody (sizeQuota - 1)
 
         let program = Program { content = PFun argName body, typeOf = goalType }
         -- progSize <- sizeOfProg program
@@ -368,8 +361,7 @@ dfsExactly mode env args messageChan depth searchParams goalType sizeQuota
       holedProgram <- head <$> lift get
       lift $ addApp (show schema) (show alpha)
 
-      traceDebug depth
-      alphaTProgram <- dfsUpTo EMode env args messageChan (depth + 1) searchParams schema (sizeQuota - 1) :: TopDownSolver IO RProgram
+      alphaTProgram <- dfsUpTo EMode env args messageChan searchParams schema (sizeQuota - 1) :: TopDownSolver IO RProgram
       -- debug $ printf "here!! %s\n" (show alphaTProgram)
       -- holedProgram <- head <$> lift get
       -- debug $ printf "-----\ntypeOf alphaTProgram (%s) = %s\n      %s\n" (show alphaTProgram) (show $ typeOf alphaTProgram) (show holedProgram)
@@ -379,7 +371,7 @@ dfsExactly mode env args messageChan depth searchParams goalType sizeQuota
       
       lift $ addAppFilled alphaTProgram (show alpha) holedProgram
 
-      alphaProgram <- dfsExactly IMode env args messageChan (depth + 2) searchParams alphaSub (sizeQuota - sizeOfContent alphaTProgram) :: TopDownSolver IO RProgram
+      alphaProgram <- dfsExactly IMode env args messageChan searchParams alphaSub (sizeQuota - sizeOfContent alphaTProgram) :: TopDownSolver IO RProgram
       -- holedProgram <- head <$> lift get
       -- debug $ printf "typeOf alphaProgram (%s) = %s\n      %s\n" (show alphaProgram) (show $ typeOf alphaProgram) (show holedProgram)
       -- debug $ printf "--------------------\n"

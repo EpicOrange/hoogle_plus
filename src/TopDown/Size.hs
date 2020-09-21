@@ -86,4 +86,4 @@ sizeOfSub = do
   let sub' = Map.filterWithKey (\id _ -> "tau" `isPrefixOf` id) sub
   return $ sum $ Map.map sizeOfType sub'
 
-nadia_way = False
+nadia_way = True

@@ -5,69 +5,47 @@ Goal: a
 ==================
 
 running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 1
-(?? :: a)                                                                       (size 1) goal: a
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 1) goal: a
+(?? :: a)                                                                               (size 1) goal: a
 
 running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 2
-(?? :: a)                                                                       (size 2) goal: a
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 2) goal: a
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 1) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 1) goal: (alpha0 -> a)
+(?? :: a)                                                                               (size 2) goal: a
+((?? :: (alpha0 -> a)) (?? :: alpha0))                                                  (size 1) goal: (alpha0 -> a)
 
 running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 3
-(?? :: a)                                                                       (size 3) goal: a
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 3) goal: a
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 1) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 1) goal: (alpha0 -> a)
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 2) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 2) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 1) goal: (alpha1 -> (alpha0 -> a))
-((Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))                          (size 1) goal: a
-(Data.Maybe.fromMaybe arg0 (?? :: alpha0))                                      (size 1) goal: Maybe (a)
-(Data.Maybe.fromMaybe arg0 ((?? :: (alpha2 -> Maybe (a))) (?? :: alpha2)))      (size 1) goal: Maybe (a)
-((Data.Maybe.fromMaybe ((?? :: (alpha2 -> a)) (?? :: alpha2))) (?? :: alpha0))  (size 1) goal: a
-((GHC.List.foldl1 (?? :: alpha1)) (?? :: alpha0))                               (size 1) goal: (a -> (a -> a))
-((GHC.List.foldl1' (?? :: alpha1)) (?? :: alpha0))                              (size 1) goal: (a -> (a -> a))
-((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))(size 1) goal: (alpha1 -> (alpha0 -> a))
+(?? :: a)                                                                               (size 3) goal: a
+((?? :: (alpha0 -> a)) (?? :: alpha0))                                                  (size 1) goal: (alpha0 -> a)
+((?? :: (alpha0 -> a)) (?? :: alpha0))                                                  (size 2) goal: (alpha0 -> a)
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))                     (size 1) goal: (alpha1 -> (alpha0 -> a))
+((Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))                                  (size 1) goal: a
+(Data.Maybe.fromMaybe arg0 (?? :: alpha0))                                              (size 1) goal: Maybe (a)
+((GHC.List.foldl1 (?? :: alpha1)) (?? :: alpha0))                                       (size 1) goal: (a -> (a -> a))
+((GHC.List.foldl1' (?? :: alpha1)) (?? :: alpha0))                                      (size 1) goal: (a -> (a -> a))
 
 running dfsExactly on <a> . (a -> ([Maybe (a)] -> a)) at size 4
-(?? :: a)                                                                       (size 4) goal: a
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 4) goal: a
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 1) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 1) goal: (alpha0 -> a)
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 2) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 2) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 1) goal: (alpha1 -> (alpha0 -> a))
-((Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))                          (size 1) goal: a
-(Data.Maybe.fromMaybe arg0 (?? :: alpha0))                                      (size 2) goal: Maybe (a)
-(Data.Maybe.fromMaybe arg0 ((?? :: (alpha2 -> Maybe (a))) (?? :: alpha2)))      (size 2) goal: Maybe (a)
-(Data.Maybe.fromMaybe arg0 ((?? :: (alpha2 -> Maybe (a))) (?? :: alpha2)))      (size 1) goal: (alpha2 -> Maybe (a))
-(Data.Maybe.fromMaybe arg0 (Data.Maybe.listToMaybe (?? :: alpha2)))             (size 1) goal: [a]
-(Data.Maybe.fromMaybe arg0 (Data.Maybe.listToMaybe ((?? :: (alpha3 -> [a])) (?? :: alpha3))))(size 1) goal: [a]
-(Data.Maybe.fromMaybe arg0 (((?? :: (alpha3 -> (alpha2 -> Maybe (a)))) (?? :: alpha3)) (?? :: alpha2)))(size 1) goal: (alpha2 -> Maybe (a))
-((Data.Maybe.fromMaybe ((?? :: (alpha2 -> a)) (?? :: alpha2))) (?? :: alpha0))  (size 1) goal: a
-((GHC.List.foldl1 (?? :: alpha1)) (?? :: alpha0))                               (size 1) goal: (a -> (a -> a))
-((GHC.List.foldl1' (?? :: alpha1)) (?? :: alpha0))                              (size 1) goal: (a -> (a -> a))
-((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))(size 1) goal: (alpha1 -> (alpha0 -> a))
-((?? :: (alpha0 -> a)) (?? :: alpha0))                                          (size 3) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 3) goal: (alpha0 -> a)
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 1) goal: (alpha1 -> (alpha0 -> a))
-((Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))                          (size 2) goal: a
-((Data.Maybe.fromMaybe ((?? :: (alpha2 -> a)) (?? :: alpha2))) (?? :: alpha0))  (size 2) goal: a
-((Data.Maybe.fromMaybe ((?? :: (alpha2 -> a)) (?? :: alpha2))) (?? :: alpha0))  (size 1) goal: (alpha2 -> a)
-((Data.Maybe.fromMaybe (((?? :: (alpha3 -> (alpha2 -> a))) (?? :: alpha3)) (?? :: alpha2))) (?? :: alpha0))(size 1) goal: (alpha2 -> a)
-((GHC.List.foldl1 (?? :: alpha1)) (?? :: alpha0))                               (size 2) goal: (a -> (a -> a))
-((GHC.List.foldl1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))                  (size 1) goal: (a -> a)
-((GHC.List.foldl1' (?? :: alpha1)) (?? :: alpha0))                              (size 2) goal: (a -> (a -> a))
-((GHC.List.foldl1' (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))                 (size 1) goal: (a -> a)
-((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))(size 1) goal: (alpha1 -> (alpha0 -> a))
-(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))             (size 2) goal: (alpha1 -> (alpha0 -> a))
-((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))(size 2) goal: (alpha1 -> (alpha0 -> a))
-((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))(size 1) goal: (alpha2 -> (alpha1 -> (alpha0 -> a)))
-(((Data.Maybe.fromMaybe (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))         (size 1) goal: (alpha0 -> a)
-(((GHC.List.foldl (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))               (size 1) goal: (a -> (tauGHC.List.foldl1 -> a))
-((GHC.List.foldl Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))           (size 1) goal: a
-(GHC.List.foldl Data.Maybe.fromMaybe arg0 (?? :: alpha0))                       (size 1) goal: [Maybe (tauData.Maybe.fromMaybe0)]
+(?? :: a)                                                                               (size 4) goal: a
+((?? :: (alpha0 -> a)) (?? :: alpha0))                                                  (size 1) goal: (alpha0 -> a)
+((?? :: (alpha0 -> a)) (?? :: alpha0))                                                  (size 2) goal: (alpha0 -> a)
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))                     (size 1) goal: (alpha1 -> (alpha0 -> a))
+((Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))                                  (size 1) goal: a
+(Data.Maybe.fromMaybe arg0 (?? :: alpha0))                                              (size 2) goal: Maybe (a)
+(Data.Maybe.fromMaybe arg0 ((?? :: (alpha2 -> Maybe (a))) (?? :: alpha2)))              (size 1) goal: (alpha2 -> Maybe (a))
+(Data.Maybe.fromMaybe arg0 (Data.Maybe.listToMaybe (?? :: alpha2)))                     (size 1) goal: [a]
+((GHC.List.foldl1 (?? :: alpha1)) (?? :: alpha0))                                       (size 1) goal: (a -> (a -> a))
+((GHC.List.foldl1' (?? :: alpha1)) (?? :: alpha0))                                      (size 1) goal: (a -> (a -> a))
+((?? :: (alpha0 -> a)) (?? :: alpha0))                                                  (size 3) goal: (alpha0 -> a)
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))                     (size 1) goal: (alpha1 -> (alpha0 -> a))
+((Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))                                  (size 2) goal: a
+((Data.Maybe.fromMaybe ((?? :: (alpha2 -> a)) (?? :: alpha2))) (?? :: alpha0))          (size 1) goal: (alpha2 -> a)
+((GHC.List.foldl1 (?? :: alpha1)) (?? :: alpha0))                                       (size 2) goal: (a -> (a -> a))
+((GHC.List.foldl1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))                          (size 1) goal: (a -> a)
+((GHC.List.foldl1' (?? :: alpha1)) (?? :: alpha0))                                      (size 2) goal: (a -> (a -> a))
+((GHC.List.foldl1' (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))                         (size 1) goal: (a -> a)
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))                     (size 2) goal: (alpha1 -> (alpha0 -> a))
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))        (size 1) goal: (alpha2 -> (alpha1 -> (alpha0 -> a)))
+(((Data.Maybe.fromMaybe (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))                 (size 1) goal: (alpha0 -> a)
+(((GHC.List.foldl (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))                       (size 1) goal: (a -> (tauGHC.List.foldl1 -> a))
+((GHC.List.foldl Data.Maybe.fromMaybe (?? :: alpha1)) (?? :: alpha0))                   (size 1) goal: a
+(GHC.List.foldl Data.Maybe.fromMaybe arg0 (?? :: alpha0))                               (size 1) goal: [Maybe (tauData.Maybe.fromMaybe0)]
 
 RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["3","[Nothing, Just 2, Nothing]"],"output":"2"},{"inputs":["3","[]"],"output":"3"}],"solution":"\\arg0 arg1 -> GHC.List.foldl Data.Maybe.fromMaybe arg0 arg1"}],"outDocs":[{"functionSig":"a -> Maybe a -> a","functionName":"fromMaybe","functionDesc":"The fromMaybe function takes a default value and and\nMaybe value. If the Maybe is Nothing, it returns\nthe default values; otherwise, it returns the value contained in the\nMaybe.\n\nExamples\n\nBasic usage:\n\n\n>>> fromMaybe \"\" (Just \"Hello, World!\")\n\"Hello, World!\"\n\n\n\n>>> fromMaybe \"\" Nothing\n\"\"\n\n\nRead an integer from a string using readMaybe. If we fail to\nparse an integer, we want to return 0 by default:\n\n\n>>> import Text.Read ( readMaybe )\n\n>>> fromMaybe 0 (readMaybe \"5\")\n5\n\n>>> fromMaybe 0 (readMaybe \"\")\n0\n\n"},{"functionSig":"forall a b . (b -> a -> b) -> b -> [a] -> b","functionName":"foldl","functionDesc":"foldl, applied to a binary operator, a starting value\n(typically the left-identity of the operator), and a list, reduces the\nlist using the binary operator, from left to right:\n\n\nfoldl f z [x1, x2, ..., xn] == (...((z `f` x1) `f` x2) `f`...) `f` xn\n\n\nThe list must be finite.\n"},{"functionSig":"a","functionName":"arg0","functionDesc":""},{"functionSig":"[Maybe (a)]","functionName":"arg1","functionDesc":""}],"outError":""}
 
@@ -97,4 +75,4 @@ sub = {
         tauGHC.List.foldl1 ==> Maybe (a) (size 2)
       } (size 4)
 
-(2.61 secs, 614,626,208 bytes)
+(4.76 secs, 611,129,584 bytes)
