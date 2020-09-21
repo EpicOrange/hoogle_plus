@@ -12,6 +12,7 @@ synGuard' "(a -> b) -> (a, a) -> (b, b)" ["Data.Tuple.fst", "Pair", "Data.Tuple.
 solution: "\\arg0 arg1 -> (arg0 (Data.Tuple.fst arg1), arg0 (Data.Tuple.snd arg1))"
 
 firstJust
+for testing: 
 synGuard' "a -> [Maybe a] -> a" ["Data.Maybe.fromMaybe", "Data.Maybe.listToMaybe", "Data.Maybe.catMaybes", "GHC.List.foldl"] [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
 syn' "a -> [Maybe a] -> a" [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
 solution: "\\x xs -> Data.Maybe.fromMaybe x (Data.Maybe.listToMaybe (Data.Maybe.catMaybes xs))"

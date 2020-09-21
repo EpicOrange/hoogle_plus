@@ -226,60 +226,10 @@ checking program:       GHC.List.last (Data.Maybe.maybeToList (Data.Maybe.listTo
 checking program:       GHC.List.last (Data.Maybe.maybeToList (GHC.List.head arg1))
 checking program:       GHC.List.last (Data.Maybe.maybeToList (GHC.List.last arg1))
 checking program:       GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))
-"2"
-"3"
-"2"
-"3"
-RESULTS:{"outCandidates":[{"outExamples":[{"inputs":["3","[Nothing, Just 2, Nothing]"],"output":"2"},{"inputs":["3","[]"],"output":"3"}],"solution":"\\arg0 arg1 -> GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))"}],"outDocs":[{"functionSig":"","functionName":"class Cons s t a b | s -> a, t -> b, s b -> t, t a -> s","functionDesc":"This class provides a way to attach or detach elements on the left\nside of a structure in a flexible manner.\n"},{"functionSig":"[Maybe a] -> [a]","functionName":"catMaybes","functionDesc":"The catMaybes function takes a list of Maybes and\nreturns a list of all the Just values.\n\nExamples\n\nBasic usage:\n\n\n>>> catMaybes [Just 1, Nothing, Just 3]\n[1,3]\n\n\nWhen constructing a list of Maybe values, catMaybes can\nbe used to return all of the \"success\" results (if the list is the\nresult of a map, then mapMaybe would be more\nappropriate):\n\n\n>>> import Text.Read ( readMaybe )\n\n>>> [readMaybe x :: Maybe Int | x <- [\"1\", \"Foo\", \"3\"] ]\n[Just 1,Nothing,Just 3]\n\n>>> catMaybes $ [readMaybe x :: Maybe Int | x <- [\"1\", \"Foo\", \"3\"] ]\n[1,3]\n\n"},{"functionSig":"[a] -> a","functionName":"last","functionDesc":"<math>. Extract the last element of a list, which must be finite\nand non-empty.\n"},{"functionSig":"a","functionName":"arg0","functionDesc":""},{"functionSig":"[Maybe (a)]","functionName":"arg1","functionDesc":""}],"outError":""}
-sub = {
-        alpha0 ==> [a] (size 2)
-        alpha1 ==> [a] (size 2)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [Maybe (a)] (size 3)
-        tauCons0 ==> a (size 1)
-        tauData.Maybe.catMaybes0 ==> a (size 1)
-        tauGHC.List.last0 ==> a (size 1)
-      } (size 3)
 
 
 
------------------
---- BACKTRACE ---
------------------
-(?? :: a)
-((?? :: (alpha0 -> a)) (?? :: alpha0))
-(GHC.List.last (?? :: alpha0))
-(GHC.List.last ((?? :: (alpha1 -> [a])) (?? :: alpha1)))
-(GHC.List.last (((?? :: (alpha2 -> (alpha1 -> [a]))) (?? :: alpha2)) (?? :: alpha1)))
-(GHC.List.last (((:) (?? :: alpha2)) (?? :: alpha1)))
-(GHC.List.last ((:) arg0 (?? :: alpha1)))
-(GHC.List.last ((:) arg0 ((?? :: (alpha3 -> [a])) (?? :: alpha3))))
-(GHC.List.last ((:) arg0 (Data.Maybe.catMaybes (?? :: alpha3))))
-GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))
------------------
-
-(Quota 8) Done with <a> . (a -> ([Maybe (a)] -> a))!
-size +  subSize solution
-5       3       GHC.List.last (arg0 : (Data.Maybe.catMaybes arg1))
-
-sub = {
-        alpha0 ==> [a] (size 2)
-        alpha1 ==> [a] (size 2)
-        alpha2 ==> a (size 1)
-        alpha3 ==> [Maybe (a)] (size 3)
-        tauCons0 ==> a (size 1)
-        tauData.Maybe.catMaybes0 ==> a (size 1)
-        tauGHC.List.last0 ==> a (size 1)
-      } (size 3)
-
-(42.07 secs, 19,351,035,616 bytes)
-
-
-
-
-
-
-
+---------------------
 Our way: (this way first)
 
 
