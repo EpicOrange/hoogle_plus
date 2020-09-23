@@ -1,10 +1,13 @@
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Debug(syn, synGuard, syn', synGuard', ourProg) where
+module TopDown.Debug where
 
-import TopDown.Synthesize
+import TopDown.GoalTrace
+import TopDown.Size
+import TopDown.Types
 import HooglePlus.Synthesize
 
 import Control.Lens
@@ -25,55 +28,65 @@ import Synquid.Pretty
 import qualified Data.Map as Map
 import Data.Map (Map)
 import Data.List
+import Text.Printf
+import System.IO
 
--- default search params when calling syn
-searchP :: SearchParams
-searchP = defaultSearchParams {_topDownEnableDebug = True, _topDownUseMemoize = True}
+printMemoMap :: MemoMap -> IO ()
+printMemoMap memoMap = do
+  printf "current memo map: {\n"
+  mapM_ printListItem (Map.toList memoMap)
+  printf "\t}\n\n"
+  where
+    printListItem :: (MemoKey, MemoValue) -> IO ()
+    printListItem (key, (list, isComplete)) = do
+      printf "\t\t* (%s @ size %s), mode: %s, args: %s ==> [\n" (show $ _goalType key) (show $ _progSize key) (show $ _mode key) (show $ _args key)
+      mapM_ (\(prog, subSize, sub, storedNameCounter) -> printf "\t\t\t(sub size %s) %s, %s, %s\n" (show subSize) (show prog) (show sub) (show storedNameCounter)) list 
+      printf "\t\t] %s\n" (if isComplete then "COMPLETE" else "not complete")
 
-ourProg :: IO ()
-ourProg = syn "Maybe (a->b) -> a -> b"
+printSub :: (MonadIO m) => StateT CheckerState m ()
+printSub = do
+  sub <- use typeAssignment
+  liftIO $ printf "sub = {\n"
+  liftIO $ mapM_ (\(id, t) -> printf "\t%s ==> %s (size %d)\n" id (show t) (sizeOfType t)) (Map.toList sub) --- * tau ==> Int
+  -- subSize <- lift $ get
+  -- liftIO $ printf "      } (size %d)\n\n" (subSize)
+  liftIO $ printf "      }\n\n"
 
--- a wrapper for synthesize that you can run from `stack ghci`
--- usage: syn "Int -> Int"
--- or:    program <- syn "Int -> Int"
-syn :: String -> IO ()
-syn inStr = syn' inStr []
--- What if we can pass the guardInclude list into here??? :D
- 
-synGuard :: String -> [String] -> IO ()
-synGuard inStr guards = do
-  env' <- readEnv $ envPath defaultSynquidParams
-  env <- readBuiltinData defaultSynquidParams env'
-  let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
-  goal <- envToGoal (env { _symbols = rawSyms}) inStr
-  solverChan <- newChan
-  TopDown.Synthesize.synthesize searchP goal [] solverChan
+-- | only prints things when we've enabled debugging
+debug :: Bool -> IO () -> TopDownSolver IO ()
+debug b m = do
+  enableDebug <- liftDebug isDebugEnabled
+  when (b && enableDebug) $ liftIO m
 
--- usage:
--- :{
--- syn' "(a -> b) -> (a -> c) -> a -> (b, c)" $ [
---   [ (["\\x -> x + 1", "\\x -> x * 3", "3"], "(4, 9)")
---   , (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")
---   ]
--- :}
-syn' :: String -> [([String], String)] -> IO ()
-syn' inStr ex = do
-  env' <- readEnv $ envPath defaultSynquidParams
-  env <- readBuiltinData defaultSynquidParams env'
-  goal <- envToGoal env inStr
-  solverChan <- newChan
-  let examples = map (uncurry Example) ex
-  TopDown.Synthesize.synthesize searchP goal examples solverChan
+log :: Int -> String -> TopDownSolver IO ()
+log depth msg = do
+  handle <- liftDebug (use logHandle)
+  case handle of
+    Nothing -> return ()
+    Just handle -> liftIO $ hPutStr handle (replicate (depth * 2) ' ' ++ msg)
 
-synGuard' :: String -> [String] -> [([String], String)] -> IO ()
-synGuard' inStr guards ex = do
-  env' <- readEnv $ envPath defaultSynquidParams
-  env <- readBuiltinData defaultSynquidParams env'
-  let rawSyms = Map.filterWithKey (\k v -> any (`isInfixOf` (show k)) guards) $ env ^. symbols
-  goal <- envToGoal (env { _symbols = rawSyms}) inStr
-  solverChan <- newChan
-  let examples = map (uncurry Example) ex
-  TopDown.Synthesize.synthesize searchP goal examples solverChan
+logEcho :: String -> TopDownSolver IO ()
+logEcho msg = do
+  handle <- liftDebug (use logHandle)
+  case handle of
+    Nothing -> return ()
+    Just handle -> liftIO $ hPutStr handle msg >> putStrLn msg
 
+debugDone :: IO () -> TopDownSolver IO ()
+debugDone = debug True -- (Quota %d) Done with %s!
+debugMemo :: MemoMap -> TopDownSolver IO ()
+debugMemo = debug True . printMemoMap
+debugGoalTrace :: GoalTrace -> TopDownSolver IO ()
+debugGoalTrace = debug True . printGoalTrace
 
+showMap :: (Show k, Show v, Ord k) => Map k v -> String
+showMap m = "{" ++ (intercalate ", " $ Map.elems $ Map.mapWithKey (\k v -> printf "%s ==> %s" (show k) (show v)) m) ++ "}"
 
+showMemoMap :: MemoMap -> String
+showMemoMap m = "{\n" ++ (concat $ Map.mapWithKey printer m) ++ "}\n"
+  where
+    printer (MemoKey mode goalType progSize args) (list, isComplete) =
+      printf "  (%s | quota %d | ?? :: %s) ==> [%s] %s\n"
+        (show mode) progSize (show goalType)
+        (intercalate ", " $ map (\(prog,_,_,_) -> printf "%s :: %s" (show prog) (show $ typeOf prog)) list)
+        (if isComplete then "COMPLETE" else "not complete")

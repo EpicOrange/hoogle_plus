@@ -1,7 +1,68 @@
 {-
 
 
-cartProduct
+
+
+Hm, okay, here's my impression after looking at the logs:
+
+    So far we don't have any evidence that terms with large types cause a problem. This is most likely because we looked at such a tiny component set. In the future we should look at a larger component set with more misbehaving components, with naked type variables in the return type and in the arguments. And then design the mitigation strategy based on this data.
+    Until we have this evidence, we should perhaps put this type-cost idea on hold, because it makes everything else more complicated.
+    We could focus on memoization for now, because it seems like the thing that would make the most difference, and we absolutely need.
+
+2:26
+Even looking at the very small example you sent, there are already many opportunities for memoization to kick in, and also some nontrivial cases such as:
+
+    we have both goals alpha0 -> a and alpha2 -> a which are alpha-equivalent
+    moreover, some goals subsume each other, e.g. we have alpha1 -> alpha0 -> a which is more general than a -> tauGHC.List.foldl1 -> a  which is more general than a -> a -> a . it would be great to make use of this structure in the memo
+
+2:29
+Alpha-equivalent goals are easy to leverage: you just need to normalize all the goal names (i.e. rename all free types vars into like beta0, beta1 etc). But if we want to make use of the latter, then memo lookup requires unification instead of just syntactic lookup, so we'd need to evaluate it and see if it helps more than it hurts
+Nadia Polikarpova  2:34 PM
+What I have in mind is:
+
+    When you have a goal, e.g. a -> tauGHC.List.foldl1 -> a at size 2, you look up in the memo whether you have anything more general than that. Say you have alpha1 -> alpha0 -> a at size 2. Then you know that you only need to go through the results for that goal and check if they have your type, instead of solving from scratch. This is especially useful if your more general goal is empty (which many goals in your memo will be)
+    Once you filtered it, you save the new key as well. It would be useful to somehow sort the memo topologically so that you always first encounter more specific types, so that once you find something that unifies you don't have to keep looking
+
+
+    
+
+
+
+
+
+
+example: fromJust arg0 arg1
+
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> b))) (?? :: alpha1)) (?? :: alpha0))
+((Data.Maybe.fromJust (?? :: alpha1)) (?? :: alpha0))
+(Data.Maybe.fromJust arg0 (?? :: alpha0))
+
+
+
+(?? :: b)
+((?? :: (alpha0 -> b)) (?? :: alpha0))
+(Data.Maybe.fromJust (?? :: alpha0))
+(Data.Maybe.fromJust ((?? :: (alpha1 -> Maybe (b))) (?? :: alpha1)))
+
+
+
+
+
+
+
+
+the erroring test:
+synGuard "a -> b" ["null","Nil","filter","head","Cons"]
+
+
+
+
+
+
+
+cartProduct (keep the examples)
 
 relevant parts of memo map:
 

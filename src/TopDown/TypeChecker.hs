@@ -1,4 +1,4 @@
-module TopDown.TypeChecker (topDownSolveTypeConstraint, unify, unifySub) where
+module TopDown.TypeChecker (topDownSolveTypeConstraint, unify, unifySub, ourFreshType) where
 
 import Database.Convert
 import Database.Util
@@ -9,6 +9,7 @@ import Types.Type
 import Types.Program
 import Types.CheckMonad
 import Types.Common
+import Synquid.Logic (ftrue)
 import Synquid.Type
 import Synquid.Pretty
 import Synquid.Program
@@ -155,6 +156,14 @@ topDownSolveTypeConstraint env t1 t2 = do
     modify $ set isChecked False
 
 
+-- | Replace all bound type variables with fresh free variables
+ourFreshType :: (CheckMonad (t m), MonadIO m) => [Id] -> RSchema -> Id -> t m RType
+ourFreshType bounds t id = ourFreshType' Map.empty [] t
+  where
+    ourFreshType' subst constraints (ForallT a sch) = do
+        a' <- freshId bounds id
+        ourFreshType' (Map.insert a (vart a' ftrue) subst) (a':constraints) sch
+    ourFreshType' subst constraints (Monotype t) = return (typeSubstitute subst t)
 
 
 -- solveTypeConstraint :: MonadIO m => Environment -> SType -> SType -> Checker m ()
@@ -229,6 +238,12 @@ topDownSolveTypeConstraint env t1 t2 = do
 -- isValidSubst m = not $ any (\(v, t) -> v `Set.member` typeVarsOf t) (Map.toList m)
 
 
+-- the reason this exists (rather than say, let sub' = s1 <> s2)
+-- is to make sure we don't load a component from memoize whose type conflicts with the current sub
+-- example 1: goal is b, sub is empty
+--   and we load (arg1 :: alpha0) with alpha0 ==> b  --- OK
+-- example 2: goal is b, sub has alpha0 ==> Maybe tau1
+--   and we load (arg1 :: alpha0) with alpha0 ==> b  --- NOT OK
 unifySub :: (MonadIO m, MonadPlus m) => Map Id SType -> Map Id SType -> Checker m (Map Id SType)
 unifySub = unionWithM combiner
   where

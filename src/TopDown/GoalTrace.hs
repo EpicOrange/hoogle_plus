@@ -14,9 +14,8 @@ import Text.Printf
 type OurType = String
 type GoalTrace = [OurProgram]
 
-printGoalTrace :: MonadIO m => StateT GoalTrace m ()
-printGoalTrace = do
-  goalTrace <- get
+printGoalTrace :: MonadIO m => GoalTrace -> m ()
+printGoalTrace goalTrace = do
   liftIO $ printf "-----------------\n--- BACKTRACE ---\n-----------------\n"
   liftIO $ mapM_ print $ reverse goalTrace
   liftIO $ printf "-----------------\n"
