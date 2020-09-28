@@ -51,6 +51,7 @@ head-last
 synGuard' "[a] -> (a,a)" ["GHC.List.head", "Pair", "GHC.List.last"] [(["[1,2,3,4]"], "(1, 4)")]
 syn' "[a] -> (a,a)" [(["[1,2,3,4]"], "(1, 4)")]
 solution: "\\arg1 -> (Data.List.head arg1, Data.List.last arg1)"
+\arg0 -> GHC.List.head (GHC.List.zip arg0 (GHC.List.reverse arg0))
 
 head-rest
 synGuard' "[a] -> (a, [a])" ["GHC.List.head", "Pair", "GHC.List.tail"] [(["[1,2,3,4]"], "(1, [2,3,4])")]
@@ -152,6 +153,7 @@ solution: "\\arg0 -> Data.List.head (Data.Maybe.catMaybes arg0)"
 
 rights
 synGuard' "[Either a b] -> Either a [b]" [".Right", "Data.Either.rights"] [(["[Left 1, Right 2, Right 3]"], "Right [2, 3]")]
+syn' "[Either a b] -> Either a [b]"  [(["[Left 1, Right 2, Right 3]"], "Right [2, 3]")]
 solution: "\\arg0 -> Right (Data.Either.rights arg0)"
 
 firstKey
@@ -163,8 +165,8 @@ synGuard' "(a -> b, a) -> b" ["Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x 
 solution: "\\arg0 -> (Data.Tuple.fst arg0) (Data.Tuple.snd arg0)"
 
 firstRight
-synGuard' "[Either a b] -> Either a b" [".Right", "GHC.List.head", "Data.Either.rights"] [(["[Left 1, Left 2, Right 3, Right 4]"], "Right 3")maybe
-synGuard' "Maybe a -> a -> Maybe a" [".Just", "Data.Maybe.fromMaybe"] [, (["Nothing", "2"], "Just 2"), (["Just 1", "2"], "Just 1")]
+synGuard' "[Either a b] -> Either a b" [".Right", "GHC.List.head", "Data.Either.rights"] [(["[Left 1, Left 2, Right 3, Right 4]"], "Right 3")]
+syn' "[Either a b] -> Either a b"  [(["[Left 1, Left 2, Right 3, Right 4]"], "Right 3")]
 solution: "\\mb x -> Just (Data.Maybe.fromMaybe x mb)"
 
 app3
@@ -251,6 +253,7 @@ solution: "\\f xs -> Data.List.zip xs (Data.List.map f xs)"
 
 resolveEither
 synGuard' "Either a b -> (a->b) -> b" ["Data.Either.either"] [(["Left 3", "\\x -> x + 1"], "4"), (["Right 3", "\\x -> x * x"], "3")]
+syn' "Either a b -> (a->b) -> b" [(["Left 3", "\\x -> x + 1"], "4"), (["Right 3", "\\x -> x * x"], "3")]
 solution: "\\x f -> Data.Either.either f id x"
 
 applyNtimes
@@ -259,6 +262,7 @@ solution: "\\f x n -> Data.List.foldr ($) x (Data.List.replicate n f)"
 
 eitherTriple
 synGuard' "Either a b -> Either a b -> Either a b" ["Data.Either.either", ".Left", "Data.Either.either", ".Left", ".Right"] [(["Left 1", "Left 2"], "Left 1"), (["Left 1", "Right 2"], "Left 1"), (["Right 2", "Right 3"], "Right 3")]
+syn' "Either a b -> Either a b -> Either a b" [(["Left 1", "Left 2"], "Left 1"), (["Left 1", "Right 2"], "Left 1"), (["Right 2", "Right 3"], "Right 3")]
 solution: "\\x y -> Data.Either.either Left (const (Data.Either.either Left Right y)) x"
 
 pipe

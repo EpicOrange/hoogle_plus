@@ -35,7 +35,9 @@ data MemoKey = MemoKey {
 -- (result of query, is the result partial (False) or fully evaluated (True)?)
 -- result is a tuple (prog, sub, nameCounter)
 -- TODO maybe put list into an object
-type MemoValue = ([(RProgram, Int, Map Id SType, Map Id Int)], Bool)
+              -- prog      size sub           nameCounter 
+type MemoList = [(RProgram, Int, Map Id SType, Map Id Int)]
+type MemoValue = (MemoList, Bool)
 type MemoMap = Map MemoKey MemoValue
 type ArgsMap = Map Id RType
 data DebugEnv = DebugEnv {

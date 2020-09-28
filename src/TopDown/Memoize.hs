@@ -40,22 +40,24 @@ import Text.Parsec.Indent (runIndentParserT)
 -- | if not, run dfs (compute) and add to memo map
 memoizeProgram :: SynMode -> Int -> RType -> Int -> TopDownSolver IO (RProgram, Int) -> TopDownSolver IO (RProgram, Int)
 memoizeProgram mode quota goalType depth compute = do
-  -- debug
-  when False $ do
-    memoMap <- liftMemo get
-    liftIO $ printf "========quota %d=========\n" quota
-    liftIO $ printMemoMap memoMap
-    debugGoalTrace =<< liftGoalTrace get
-    printSub
-    liftIO $ printf "========================\n"
+  
+  -- -- debug
+  -- when False $ do
+  --   memoMap <- liftMemo get
+  --   liftIO $ printf "========quota %d=========\n" quota
+  --   liftIO $ printMemoMap memoMap
+  --   debugGoalTrace =<< liftGoalTrace get
+  --   printSub
+  --   liftIO $ printf "========================\n"
 
   -- construct the key
   sub <- use typeAssignment
   let applySub = addTrue . stypeSubstitute sub . shape
-  let subbedGoal = applySub goalType
+  -- let subbedGoal = applySub goalType
   args <- liftArgs get
   let subbedArgs = Map.map applySub args
-  let key = MemoKey mode subbedGoal quota args
+  
+  let key = MemoKey mode goalType quota args
 
   -- do the lookup
   memoMap <- liftMemo get
@@ -76,9 +78,14 @@ memoizeProgram mode quota goalType depth compute = do
       (prog, subSize, savedSub, storedNameCounter) <- choices list
       
       log (depth+1) $ printf "retrieved (size %d): %s :: %s\n" (quota + subSize) (show prog) (show $ typeOf prog)
+      -- liftIO $ printf "retrieved (size %d): %s :: %s\n" (quota + subSize) (show prog) (show $ typeOf prog)
 
       assign typeAssignment =<< unifySub sub savedSub
-      assign nameCounter storedNameCounter
+      
+      curNameCounter <- use nameCounter
+      let nameCounter' = Map.unionWith max curNameCounter storedNameCounter
+      assign nameCounter nameCounter'
+      
       return (prog, subSize)
      
     -- | runs compute, storing every program as it goes, sets isComplete to true at the end
@@ -101,6 +108,9 @@ memoizeProgram mode quota goalType depth compute = do
         progSize <- sizeOfProg prog subSize
         progNameCounter <- use nameCounter
         args <- liftArgs get
+        
+        when (progSize /= quota) $ error "progsize (%d) and quota (%d) should be the same for \n\tquery: %s\n\tprogram: %s\n" (progSize) (quota) (show goalType) (prog)
+        
         let key' = MemoKey mode goalType progSize args
 
         memoMap <- liftMemo get :: TopDownSolver IO MemoMap
@@ -120,23 +130,30 @@ memoizeProgram mode quota goalType depth compute = do
         --   3. (key ==> list) is in the map, and prog is not in the list
         --      -> we want to append and return prog
         log (depth+1) $ printf "memoized! (%s | quota %d | ?? :: %s) ==> %s :: %s, via sub %s\n" (show mode) quota (show goalType) (show prog) (show $ typeOf prog) (showMap updatedSub)
+        
         case Map.lookup key' memoMap of
           -- add the entry to our memo map!
           Nothing -> do
             liftMemo $ put $ add prog
             return (prog, subSize)
+          
           Just (list, isComplete) -> do
             -- see if there's an existing (prog, sub) in the list (ignoring nameCounter)
             -- if so, update the nameCounter to be the maximum of itself and progNameCounter
-            case find (\(p,s,u,c) -> (p,s) == (prog, subSize)) list of
+            -- case find (\(p,s,u,c) -> (p,s) == (prog, subSize)) list of
+            case find (\(p,s,u,c) -> (p,s,u,c) == (prog, subSize, updatedSub, progNameCounter)) list of
               -- if it isn't in the completed list, that's wrong because isComplete means everything's in the list
               Nothing | isComplete -> do
                 memoMap <- liftMemo get
                 debugGoalTrace =<< liftGoalTrace get
+                liftIO $ printf "list: \n"
+                liftIO $ mapM_ (\t -> printf "\t* %s\n" (show t)) list
+
                 error $ do
-                  let err1 = printf "oops... (%s) %s @ size %s (%s + subsize %s) says complete but isn't there: \n\t%s :: %s\n" (show mode) (show goalType) (show progSize) (show $ sizeOfContent prog) (show subSize) (show prog) (show $ typeOf prog)
-                  let err2 = printf "\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tbeforeSub: %s\n\tafterSub: %s\n" (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ args) (show $ beforeSub) (show $ afterSub)
-                  err1 ++ err2
+                  printf "goal: %s\n%s says complete but isn't there\n" (show goalType) (show (prog, subSize, updatedSub, progNameCounter))
+                  -- let err1 = printf "oops... (%s) %s @ size %s (%s + subsize %s) says complete but isn't there: \n\t%s :: %s\n" (show mode) (show goalType) (show progSize) (show $ sizeOfContent prog) (show subSize) (show prog) (show $ typeOf prog)
+                  -- let err2 = printf "\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tbeforeSub: %s\n\tafterSub: %s\n" (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ args) (show $ beforeSub) (show $ afterSub)
+                  -- err1 ++ err2
 
               -- if it isn't in the list but the list is incomplete, add it
               Nothing      -> do
@@ -145,14 +162,59 @@ memoizeProgram mode quota goalType depth compute = do
                 return (prog, subSize)
 
               -- if (prog, sub) is already in the list, update the nameCounter to be the maximum of itself and progNameCounter
-              Just (_,_,u,c) -> do
-                let s1 = u
-                let s2 = updatedSub
-                -- get the most specific sub combination
-                unionedSub <- unifySub s1 s2
-                let list' = map (\(p,s,u,c) -> if (p,s) == (prog, subSize) then (p, s, unionedSub, Map.unionWith max c progNameCounter) else (p,s,u,c)) list
-                liftMemo $ put $ Map.insert key' (list', isComplete) memoMap
-                return (prog, subSize)
+              Just thing@(_,_,u,c) -> do
+                -- error "I feel like this shouldn't happen either... TYPETHIS to find"
+                -- memoMap <- liftMemo get
+                -- liftIO $ printMemoMap memoMap
+                liftIO $ printf "list: \n"
+                liftIO $ mapM_ (\t -> printf "\t* %s\n" (show t)) list
+                error $ do
+                  let err1 = printf "oops... I feel like this shouldn't happen either...TYPETHIS to find\n"
+                  let err2 = printf "\tmode (%s), goalType: %s\n" (show mode) (show goalType)
+                  let err3 = printf "\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tbeforeSub: %s\n\tafterSub: %s\n" (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ args) (show $ beforeSub) (show $ afterSub)
+                  err1 ++ err2 ++ err3
+
+                -- let s1 = u
+                -- let s2 = updatedSub
+                -- -- get the most specific sub combination
+                -- unionedSub <- unifySub s1 s2
+                -- let list' = map (\(p,s,u,c) -> if (p,s) == (prog, subSize) then (p, s, unionedSub, Map.unionWith max c progNameCounter) else (p,s,u,c)) list
+                -- liftMemo $ put $ Map.insert key' (list', isComplete) memoMap
+                -- return (prog, subSize)
+
+        -- case Map.lookup key' memoMap of
+        --   -- add the entry to our memo map!
+        --   Nothing -> do
+        --     liftMemo $ put $ add prog
+        --     return (prog, subSize)
+        --   Just (list, isComplete) -> do
+        --     -- see if there's an existing (prog, sub) in the list (ignoring nameCounter)
+        --     -- if so, update the nameCounter to be the maximum of itself and progNameCounter
+        --     case find (\(p,s,u,c) -> (p,s) == (prog, subSize)) list of
+        --       -- if it isn't in the completed list, that's wrong because isComplete means everything's in the list
+        --       Nothing | isComplete -> do
+        --         memoMap <- liftMemo get
+        --         debugGoalTrace =<< liftGoalTrace get
+        --         error $ do
+        --           let err1 = printf "oops... (%s) %s @ size %s (%s + subsize %s) says complete but isn't there: \n\t%s :: %s\n" (show mode) (show goalType) (show progSize) (show $ sizeOfContent prog) (show subSize) (show prog) (show $ typeOf prog)
+        --           let err2 = printf "\tsub: %s\n\tnameCounter: %s\n\targs: %s\n\tbeforeSub: %s\n\tafterSub: %s\n" (show $ Map.toList updatedSub) (show $ Map.toList progNameCounter) (show $ args) (show $ beforeSub) (show $ afterSub)
+        --           err1 ++ err2
+
+        --       -- if it isn't in the list but the list is incomplete, add it
+        --       Nothing      -> do
+        --         liftMemo $ put $ add prog
+        --         -- liftIO $ printf "\t### adding program %s to (size %d) goal %s\n" (show prog) (quota) (show goalType)
+        --         return (prog, subSize)
+
+        --       -- if (prog, sub) is already in the list, update the nameCounter to be the maximum of itself and progNameCounter
+        --       Just (_,_,u,c) -> do
+        --         let s1 = u
+        --         let s2 = updatedSub
+        --         -- get the most specific sub combination
+        --         unionedSub <- unifySub s1 s2
+        --         let list' = map (\(p,s,u,c) -> if (p,s) == (prog, subSize) then (p, s, unionedSub, Map.unionWith max c progNameCounter) else (p,s,u,c)) list
+        --         liftMemo $ put $ Map.insert key' (list', isComplete) memoMap
+        --         return (prog, subSize)
 
     -- | set the complete flag and return mzero, called when we're done with compute
     setComplete :: MemoKey -> TopDownSolver IO (RProgram, Int)

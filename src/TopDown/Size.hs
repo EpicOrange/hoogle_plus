@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Size(sizeOfProg, sizeOfContent, sizeOfType, sizeOfSub, enableSubSize) where
+module TopDown.Size(sizeOfProg, sizeOfProg', sizeOfContent, sizeOfType, sizeOfSub, enableSubSize) where
 
 import Control.Lens
 import Control.Monad.State

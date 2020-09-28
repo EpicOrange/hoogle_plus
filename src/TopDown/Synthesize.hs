@@ -88,12 +88,19 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
     log 0 $ "with components:\n"
     mapM_ (log 1) $ map (\(id, schema) -> printf "%s :: %s\n" id (show schema)) $ Map.toList $ env ^. symbols
 
+  -- LOGGING STUFF
   liftIO $ printf "\nrunning dfs on %s at size %d\n" (show goal) quota
   log 0 $ printf "\nQuota %d\n=========\n\n" quota
   ctr <- liftDebug $ use dfsCounter
-  logEcho $ printf "dfs has been entered %d times\n" ctr
+  
+  if ctr == 1 
+    then logEcho $ printf "dfs has been entered %d time\n" ctr
+    else logEcho $ printf "dfs has been entered %d times\n" ctr
+  
   memoMap <- liftMemo get
   log 0 $ printf "memo map looks like:\n%s\n" (showMemoMap memoMap)
+  -- liftIO $ printf "memo map looks like:\n%s\n" (showMemoMap memoMap)
+  liftIO $ printMemoMap memoMap
 
   (prog, subSize) <- dfs EMode env searchParams goalType 0 quota :: TopDownSolver IO (RProgram, Int)
   guard (filterParams prog) -- see if we mention all args before we call check
@@ -104,8 +111,10 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   logEcho $ printf "\n(Quota %d) Done with %s!\nsize + subSize solution\n%4d + %-7d %s\n\n" quota (show goal) (sizeOfContent prog) subSize (show prog)
 
   ctr <- liftDebug $ use dfsCounter
-  logEcho $ printf "dfs has been entered %d times\n" ctr
-
+  if ctr == 1 
+    then logEcho $ printf "dfs has been entered %d time\n" ctr
+    else logEcho $ printf "dfs has been entered %d times\n" ctr
+  
   return prog
   where
     goalType :: RType
@@ -147,15 +156,38 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 dfs :: SynMode -> Environment -> SearchParams -> RType -> Int -> Int -> TopDownSolver IO (RProgram, Int)
 dfs mode env searchParams goalType depth quota
   | quota <= 0 = mzero
-  | useMemoize = memoizeProgram mode quota goalType depth doDfs
+  --  | quota == 1 = do
+ | useMemoize = do
+    sub <- use typeAssignment
+    let subbedGoal = addTrue . stypeSubstitute sub . shape $ goalType
+    memoizeProgram mode quota subbedGoal depth doDfs
   | otherwise  = doDfs
   where
     -- | does DFS without memoization
     doDfs :: TopDownSolver IO (RProgram, Int)
     doDfs = do
       liftDebug incrementDfsCounter
-      (prog, subSize) <- if quota == 1 then inEnv else doSplit mode
-      progSize <- sizeOfProg prog subSize
+      
+      (prog, subSize) <- if quota == 1 
+          then inEnv 
+          else doSplit mode
+
+      -- (prog, subSize) <- do
+      --   if quota == 1 
+      --     then inEnv 
+      --     else do
+      --       if (useMemoize) 
+      --         then do
+      --           sub <- use typeAssignment
+      --           let subbedGoal = addTrue . stypeSubstitute sub . shape $ goalType
+      --           memoizeProgram mode quota subbedGoal depth doDfs
+      --         else doSplit mode
+      
+      -- TODO remove later
+      when (subSize /= 0) $ liftIO $ printf "nooo!!!! \n"
+      
+      -- progSize <- sizeOfProg prog subSize
+      -- progSize <- sizeOfProg' prog 
       guardCheck prog subSize
       return (prog, subSize)
 
@@ -170,7 +202,10 @@ dfs mode env searchParams goalType depth quota
       -- only check env if e mode, or if we're using the alt I mode
       guard (useAltIMode || mode == EMode)
       (id, schema, t, subSize) <- getUnifiedComponent :: TopDownSolver IO (Id, RSchema, SType, Int)
+      
       sub <- use typeAssignment
+      
+      -- check if the program we're returning is exactly of size == quota
       if (1+subSize == quota)
         then do
           log (depth+1) $ printf "unified (size %d): %s :: %s ~ %s via %s\n" (1+subSize) id (show schema) (show goalType) (showMap sub)
@@ -184,6 +219,7 @@ dfs mode env searchParams goalType depth quota
     doSplit IMode = case goalType of
       ScalarT _ _            -> doSplit EMode
       FunctionT _ tArg tBody -> do
+        
         log (depth+1) $ printf "done with inEnv, split since quota (%d) > 1\n" quota
         existingArgs <- liftArgs get
         argName <- freshId (Map.keys $ env ^. arguments) "arg"
@@ -201,8 +237,10 @@ dfs mode env searchParams goalType depth quota
         liftArgs $ put existingArgs
 
         let program = Program { content = PFun argName body, typeOf = goalType }
-        progSize <- sizeOfProg program subSize
-        guard (progSize == quota)
+        
+        -- progSize <- sizeOfProg program subSize
+        -- progSize <- sizeOfProg program subSize
+        -- guard (progSize == quota)
 
         return (program, subSize)
 
@@ -210,6 +248,7 @@ dfs mode env searchParams goalType depth quota
     doSplit EMode | quota <= 1 = do
       log (depth+1) $ printf "done with inEnv, won't split since quota is %d\n" quota
       mzero
+    
     doSplit EMode = do
       log (depth+1) $ printf "done with inEnv, split since quota (%d) > 1\n" quota
 
@@ -225,13 +264,18 @@ dfs mode env searchParams goalType depth quota
       -- need to save the last trace program so it replaces the right hole after the first dfs
       holedProgram <- head <$> liftGoalTrace get
       liftGoalTrace $ addApp (show schema) (show alpha)
+      
+      -- get programs that are up to quota: (quota-1)
       (alphaTProgram, alphaTSubSize) <- msum $ map (dfs EMode env searchParams schema (depth + 2)) [1..quota - 1] :: TopDownSolver IO (RProgram, Int)
+      
       sub <- use typeAssignment
+      
       let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType
       liftGoalTrace $ addAppFilled alphaTProgram (show alpha) holedProgram
 
       alphaTSize <- sizeOfProg alphaTProgram alphaTSubSize
       let alphaQuota = quota - alphaTSize
+      
       (alphaProgram, alphaSubSize) <- dfs IMode env searchParams alphaSub (depth + 4) alphaQuota :: TopDownSolver IO (RProgram, Int)
       
       return (Program {
@@ -250,7 +294,6 @@ dfs mode env searchParams goalType depth quota
       let uselessSubPrograms = -- these all error or are redundant
                                [ "Data.Maybe.fromJust Data.Maybe.Nothing"
                                , "GHC.List.head []"
-                              --  , "GHC.List.head arg0" -- TODO remove this
                                , "GHC.List.last []"
                                , "GHC.List.tail []"
                                , "GHC.List.init []"
@@ -272,6 +315,7 @@ dfs mode env searchParams goalType depth quota
       guard $ all (not . (`isInfixOf` showProg)) uselessSubPrograms      
 
       progSize <- sizeOfProg prog subSize
+      -- progSize <- sizeOfProg' prog 
       guard (progSize <= quota) 
 
 
@@ -297,11 +341,14 @@ dfs mode env searchParams goalType depth quota
       guard =<< use isChecked
 
       addedSubSize <- if enableSubSize then sizeOfSub else return 0
+      
       let sub' = Map.map (stypeSubstitute sub) sub
       liftArgs $ modify $ Map.map (addTrue . stypeSubstitute sub . shape)
-      let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
       
-      assign typeAssignment sub''
+      -- let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
+      
+      -- assign typeAssignment sub''
+      assign typeAssignment sub'
 
       return (id, schema, subbedType, addedSubSize)
 

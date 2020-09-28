@@ -74,8 +74,10 @@ logEcho msg = do
 
 debugDone :: IO () -> TopDownSolver IO ()
 debugDone = debug True -- (Quota %d) Done with %s!
+
 debugMemo :: MemoMap -> TopDownSolver IO ()
 debugMemo = debug True . printMemoMap
+
 debugGoalTrace :: GoalTrace -> TopDownSolver IO ()
 debugGoalTrace = debug True . printGoalTrace
 
