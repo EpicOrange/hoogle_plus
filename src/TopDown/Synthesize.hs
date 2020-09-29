@@ -265,8 +265,11 @@ dfs mode env searchParams goalType depth quota
       holedProgram <- head <$> liftGoalTrace get
       liftGoalTrace $ addApp (show schema) (show alpha)
       
+
       -- get programs that are up to quota: (quota-1)
       (alphaTProgram, alphaTSubSize) <- msum $ map (dfs EMode env searchParams schema (depth + 2)) [1..quota - 1] :: TopDownSolver IO (RProgram, Int)
+      
+      -- TODO infer the types from alphaTProgram to figure out what alphaProgram's goal should be
       
       sub <- use typeAssignment
       

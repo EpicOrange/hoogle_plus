@@ -50,6 +50,8 @@ memoizeProgram mode quota goalType depth compute = do
   --   printSub
   --   liftIO $ printf "========================\n"
 
+  -- TODO make the goal have betas now instead of alpha's / tau's
+
   -- construct the key
   sub <- use typeAssignment
   let applySub = addTrue . stypeSubstitute sub . shape
