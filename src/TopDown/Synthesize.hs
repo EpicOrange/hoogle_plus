@@ -157,10 +157,7 @@ dfs :: SynMode -> Environment -> SearchParams -> RType -> Int -> Int -> TopDownS
 dfs mode env searchParams goalType depth quota
   | quota <= 0 = mzero
   --  | quota == 1 = do
- | useMemoize = do
-    sub <- use typeAssignment
-    let subbedGoal = addTrue . stypeSubstitute sub . shape $ goalType
-    memoizeProgram mode quota subbedGoal depth doDfs
+  | useMemoize = memoizeProgram env mode quota goalType depth doDfs
   | otherwise  = doDfs
   where
     -- | does DFS without memoization

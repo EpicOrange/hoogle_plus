@@ -36,8 +36,9 @@ data MemoKey = MemoKey {
 -- result is a tuple (prog, sub, nameCounter)
 -- TODO maybe put list into an object
               -- prog      size sub           nameCounter 
-type MemoList = [(RProgram, Int, Map Id SType, Map Id Int)]
-type MemoValue = (MemoList, Bool)
+-- type MemoList = [(RProgram, Int, Map Id SType, Map Id Int)]
+-- type MemoValue = (MemoList, Bool)
+type MemoValue = [RProgram]
 type MemoMap = Map MemoKey MemoValue
 type ArgsMap = Map Id RType
 data DebugEnv = DebugEnv {

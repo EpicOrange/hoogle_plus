@@ -38,10 +38,10 @@ printMemoMap memoMap = do
   printf "\t}\n\n"
   where
     printListItem :: (MemoKey, MemoValue) -> IO ()
-    printListItem (key, (list, isComplete)) = do
+    printListItem (key, list) = do
       printf "\t\t* (%s @ size %s), mode: %s, args: %s ==> [\n" (show $ _goalType key) (show $ _progSize key) (show $ _mode key) (show $ _args key)
-      mapM_ (\(prog, subSize, sub, storedNameCounter) -> printf "\t\t\t(sub size %s) %s, %s, %s\n" (show subSize) (show prog) (show sub) (show storedNameCounter)) list 
-      printf "\t\t] %s\n" (if isComplete then "COMPLETE" else "not complete")
+      mapM_ (\prog -> printf "\t\t\t%s\n" (show prog)) list 
+      printf "\t\t]\n"
 
 printSub :: (MonadIO m) => StateT CheckerState m ()
 printSub = do
@@ -87,8 +87,7 @@ showMap m = "{" ++ (intercalate ", " $ Map.elems $ Map.mapWithKey (\k v -> print
 showMemoMap :: MemoMap -> String
 showMemoMap m = "{\n" ++ (concat $ Map.mapWithKey printer m) ++ "}\n"
   where
-    printer (MemoKey mode goalType progSize args) (list, isComplete) =
-      printf "  (%s | quota %d | ?? :: %s) ==> [%s] %s\n"
+    printer (MemoKey mode goalType progSize args) list =
+      printf "  (%s | quota %d | ?? :: %s) ==> [%s]\n"
         (show mode) progSize (show goalType)
-        (intercalate ", " $ map (\(prog,_,_,_) -> printf "%s :: %s" (show prog) (show $ typeOf prog)) list)
-        (if isComplete then "COMPLETE" else "not complete")
+        (intercalate ", " $ map (\prog -> printf "%s :: %s" (show prog) (show $ typeOf prog)) list)
