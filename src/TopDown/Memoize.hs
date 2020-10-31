@@ -91,8 +91,10 @@ memoizeProgram env mode quota goalType depth compute = do
   let subbedArgs = applySub sub <$> args
   -- after substituting the bound vars, all remaining type vars are the free ones
   -- 2. map each free var to a new beta
-  let freeVars = Set.toAscList $ foldMap typeVarsOf (subbedGoal : Map.elems subbedArgs)
-  let betaSub = Map.fromAscList $ zip freeVars [vart ("beta" ++ show i) () | i <- [0..]]
+  let isFreeVar var = "alpha" `isPrefixOf` var || "tau" `isPrefixOf` var
+  let freeVars = filter isFreeVar $ Set.toAscList $ foldMap typeVarsOf (subbedGoal : Map.elems subbedArgs)
+  let makeBeta i = ScalarT (TypeVarT Map.empty ("beta" ++ show i)) ()
+  let betaSub = Map.fromAscList $ zip freeVars $ map makeBeta [0..] -- map from freeVar to beta0,1,2,3 ..
   let betaGoal = applySub betaSub subbedGoal
   let betaArgs = applySub betaSub <$> subbedArgs
 
@@ -101,7 +103,7 @@ memoizeProgram env mode quota goalType depth compute = do
   memoMap <- liftMemo get :: TopDownSolver IO MemoMap
   case Map.lookup key memoMap of
     Just progs -> retrieve betaGoal progs -- found some stored programs, infer the type for each
-    Nothing     -> evaluate betaGoal key  -- found no stored programs, run compute to generate them and store at key
+    Nothing    -> evaluate betaGoal key   -- found no stored programs, run compute to generate them and store at key
 
   where
     retrieve :: RType -> MemoValue -> TopDownSolver IO (RProgram, Int)
@@ -112,18 +114,24 @@ memoizeProgram env mode quota goalType depth compute = do
       prog <- choices progs
 
       -- infer and overwrite the type of this program (using the current typeAssignment)
-      prog' <- bottomUpCheck env prog
-      guard =<< use isChecked
+      -- liftIO $ print prog
+      -- prog' <- bottomUpCheck env prog
+      -- guard =<< use isChecked
+      
+      -- -- unify this new type with the query (goalType)
+      -- let t1 = shape goalType :: SType
+      -- let t2 = shape $ typeOf prog' :: SType
+      -- topDownSolveTypeConstraint env t1 t2
+      -- guard =<< use isChecked
 
-      -- unify this new type with the query (goalType)
-      let t1 = shape goalType :: SType
-      let t2 = shape $ typeOf prog' :: SType
-      topDownSolveTypeConstraint env t1 t2
-      guard =<< use isChecked
+      -- log (depth+1) $ printf "retrieved (size %d): %s :: %s\n" (quota) (show prog') (show $ typeOf prog')
+
+      -- return (prog', 0)
 
       log (depth+1) $ printf "retrieved (size %d): %s :: %s\n" (quota) (show prog) (show $ typeOf prog)
 
-      return (prog', 0)
+      return (prog, 0)
+
 
     evaluate :: RType -> MemoKey -> TopDownSolver IO (RProgram, Int)
     evaluate betaGoal key = do

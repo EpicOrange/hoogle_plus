@@ -25,6 +25,7 @@ import Types.Experiments
 import Types.Filtering
 import Types.Program
 import Types.TypeChecker
+import HooglePlus.TypeChecker (bottomUpCheck)
 import Types.Type
 import Types.IOFormat
 import HooglePlus.IOFormat
@@ -100,7 +101,7 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
   memoMap <- liftMemo get
   log 0 $ printf "memo map looks like:\n%s\n" (showMemoMap memoMap)
   -- liftIO $ printf "memo map looks like:\n%s\n" (showMemoMap memoMap)
-  liftIO $ printMemoMap memoMap
+  -- liftIO $ printMemoMap memoMap
 
   (prog, subSize) <- dfs EMode env searchParams goalType 0 quota :: TopDownSolver IO (RProgram, Int)
   guard (filterParams prog) -- see if we mention all args before we call check
@@ -157,14 +158,16 @@ dfs :: SynMode -> Environment -> SearchParams -> RType -> Int -> Int -> TopDownS
 dfs mode env searchParams goalType depth quota
   | quota <= 0 = mzero
   --  | quota == 1 = do
-  | useMemoize = memoizeProgram env mode quota goalType depth doDfs
-  | otherwise  = doDfs
+  | useMemoize = do
+    liftDebug incrementDfsCounter
+    memoizeProgram env mode quota goalType depth doDfs
+  | otherwise  = do
+    liftDebug incrementDfsCounter
+    doDfs
   where
     -- | does DFS without memoization
     doDfs :: TopDownSolver IO (RProgram, Int)
-    doDfs = do
-      liftDebug incrementDfsCounter
-      
+    doDfs = do      
       (prog, subSize) <- if quota == 1 
           then inEnv 
           else doSplit mode
@@ -262,14 +265,26 @@ dfs mode env searchParams goalType depth quota
       holedProgram <- head <$> liftGoalTrace get
       liftGoalTrace $ addApp (show schema) (show alpha)
       
-
       -- get programs that are up to quota: (quota-1)
-      (alphaTProgram, alphaTSubSize) <- msum $ map (dfs EMode env searchParams schema (depth + 2)) [1..quota - 1] :: TopDownSolver IO (RProgram, Int)
+      (alphaTProgram', alphaTSubSize) <- msum $ map (dfs EMode env searchParams schema (depth + 2)) [1..quota - 1] :: TopDownSolver IO (RProgram, Int)
       
-      -- TODO infer the types from alphaTProgram to figure out what alphaProgram's goal should be
+      -- if we potentially got the program from memoize map,
+      -- need to infer type of alphaTProgram
+      -- since its free type variables may not be related to the current goal
+      -- this helps determine the goal type for alphaProgram
+      alphaTProgram <- if not useMemoize then return alphaTProgram' else do
+        -- infer the types from alphaTProgram to figure out what alphaProgram's goal should be
+        alphaTProgram <- bottomUpCheck env alphaTProgram'
+        guard =<< use isChecked
+        -- unify this new type with the query (schema)
+        let t1 = shape schema :: SType
+        let t2 = shape $ typeOf alphaTProgram :: SType
+        topDownSolveTypeConstraint env t1 t2
+        guard =<< use isChecked
+        return alphaTProgram
       
       sub <- use typeAssignment
-      
+
       let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType
       liftGoalTrace $ addAppFilled alphaTProgram (show alpha) holedProgram
 
