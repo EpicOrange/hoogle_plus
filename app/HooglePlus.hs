@@ -315,7 +315,7 @@ executeSearch topDown synquidParams searchParams inStr = catch (do
   checkerChan <- newChan
   forkIO $ synthesize searchParams goal exquery solverChan
   readChan solverChan >>= (handleMessages solverChan))
-  (\(e :: SomeException) -> printResult $ encodeWithPrefix $ QueryOutput [] (show e) [])
+  (\(e :: SomeException) -> printResult $ encodeWithPrefix $ QueryOutput [] (show e) [] "")
   where
     logLevel = searchParams ^. explorerLogLevel
 

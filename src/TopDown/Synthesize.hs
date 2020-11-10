@@ -105,7 +105,8 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 
   (prog, subSize) <- dfs EMode env searchParams goalType 0 quota :: TopDownSolver IO (RProgram, Int)
   guard (filterParams prog) -- see if we mention all args before we call check
-  guard =<< liftIO (check' prog) -- run demand checker and example checker
+  debugOutput <- liftDebug $ show <$> use dfsCounter
+  guard =<< liftIO (check' prog debugOutput) -- run demand checker and example checker
 
   goalTrace <- liftGoalTrace get
   debugGoalTrace (Symbol (show prog) : goalTrace)
@@ -134,14 +135,14 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
         flattenProgramIds (PFun id prog) = id : (flattenProgramIds . content) prog
 
     -- wrapper for `check` function
-    check' :: RProgram -> IO Bool
-    check' program = do
+    check' :: RProgram -> String -> IO Bool
+    check' program debugOutput = do
       checkResult <- check env searchParams examples program goal messageChan `evalStateT` emptyFilterState
       case checkResult of
         Nothing  -> return False
         Just exs -> do
           out <- toOutput env program exs
-          printResult $ encodeWithPrefix out
+          printResult $ encodeWithPrefix out {outDebug = debugOutput}
           return True
 
 --
@@ -154,6 +155,26 @@ iterativeDeepening env messageChan searchParams examples goal = evalTopDownSolve
 --    * if is a function type, add args to env, search for the return type, and return a lambda 
 --    * if not, search in e-mode
 --
+
+--------------------------------------------------------------------------------------------------
+-- TODO NEW DFS 
+-- 
+-- dfs needsToHave quota = 
+--   if quota < len(needsToHave):    exit
+--   if quota = len(needsToHave):
+--     inEnv only takes from needsToHave
+--         inEnv QUOTA HAS TO BE 1              
+--             1 element in needsToHave      return element (assuming it unifies)
+--             0 elements in needsToHave     do normal inEnv by looking through env
+--     doSplit is normal (as below)
+--   otherwise:
+--     -- partition the needsToHave here
+--     whenever we call dfs, we call dfs for every partition
+--     (left, right) <- ourPartition needsToHave -- returns stream
+--     -- do what we already have with alphaT and alpha, except 
+--     --    add left and right to dfs call
+--------------------------------------------------------------------------------------------------
+
 dfs :: SynMode -> Environment -> SearchParams -> RType -> Int -> Int -> TopDownSolver IO (RProgram, Int)
 dfs mode env searchParams goalType depth quota
   | quota <= 0 = mzero
@@ -274,6 +295,7 @@ dfs mode env searchParams goalType depth quota
       -- this helps determine the goal type for alphaProgram
       alphaTProgram <- if not useMemoize then return alphaTProgram' else do
         -- infer the types from alphaTProgram to figure out what alphaProgram's goal should be
+        liftIO $ printf "prog: %s\n" (show alphaTProgram')
         alphaTProgram <- bottomUpCheck env alphaTProgram'
         guard =<< use isChecked
         -- unify this new type with the query (schema)
@@ -332,6 +354,13 @@ dfs mode env searchParams goalType depth quota
       progSize <- sizeOfProg prog subSize
       -- progSize <- sizeOfProg' prog 
       guard (progSize <= quota) 
+
+      -- TODO fix this function
+      -- ourPartition :: [String] -> TopDownSolver IO ([String], [String])
+      -- ourPartition [] = return ([],[])
+      -- ourPartition (x:rest) = do
+      --   (left, right) <- ourPartition rest
+      --   choices [(x:left, x:right), (x:left, right), (left, x:right)]
 
 
     -- | Using the components in env, like ("length", <a>. [a] -> Int)

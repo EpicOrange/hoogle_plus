@@ -1,5 +1,352 @@
 {-
 
+
+Ways we can make memoize faster:
+
+  * subtyping
+        ex:   all programs in goal Int -> Int should be in goal beta0 -> Int
+                  when we lookup beta0 -> Int, we should look at Int -> Int
+                  
+                  increase :: Int -> Int 
+
+                  goal: beta0 -> Int
+                    unifies with beta0 ~ Int
+                    return increase
+
+                  goal: Int -> Int
+                    return increase
+
+      ==> could be some sort of tree or something (not totally sure how to organize it)
+      
+
+  * first lookup by size, and then goal
+        ex:   lookup size 5 and then goal Int -> Int, instead of looking through entire 
+              map to find (5, Int -> Int)
+
+    ------
+      PSEUDOCODE
+
+        dfs needsToHave quota = 
+          if quota < len(needsToHave):    exit
+          if quota = len(needsToHave):
+            inEnv only takes from needsToHave
+                inEnv QUOTA HAS TO BE 1              
+                    1 element in needsToHave      return element (assuming it unifies)
+                    0 elements in needsToHave     do normal inEnv by looking through env
+            doSplit is normal (as below)
+          otherwise:
+            -- partition the needsToHave here
+            whenever we call dfs, we call dfs for every partition
+            (left, right) <- ourPartition needsToHave -- returns stream
+            -- do what we already have with alphaT and alpha, except 
+            --    add left and right to dfs call
+ 
+        ourPartition :: [String] -> TopDownSolver IO ([String], [String])
+        ourPartition [] = return ([],[])
+        ourPartition (x:rest) = do
+          (left, right) <- ourPartition rest
+          choices [(x:left, x:right), (x:left, right), (left, x:right)]
+
+
+        (["x","y","z"],[])    right must not have x, y, or z
+          mustHave is just args!!!!
+          don't want to add arguments to environemnt!!
+
+    ------ 
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------
+Ways we can make memoize faster:
+
+  * subtyping
+        ex:   all programs in goal Int -> Int should be in goal beta0 -> Int
+                  when we lookup beta0 -> Int, we should look at Int -> Int
+
+                  increase :: Int -> Int 
+
+                  goal: beta0 -> Int
+                    unifies with beta0 ~ Int
+                    return increase
+
+                  goal: Int -> Int
+                    return increase
+
+      ==> could be some sort of tree or something (not totally sure how to organize it)
+
+
+  * first lookup by size, and then goal
+        ex:   lookup size 5 and then goal Int -> Int, instead of looking through entire 
+              map to find (5, Int -> Int)
+
+  * 
+
+
+    arg0
+    arg1
+    (+)
+
+    arg0:Int -> arg1:Int -> Int
+
+    must have = x
+    size 1
+    x
+
+
+    must have = [f, x]
+    size 2
+    f ??
+    
+    must have = [x]
+    size 1
+    f x
+
+    must have [f, x]
+    size 3
+    (?? :: something) (?? :: something)
+
+
+
+    must have = [x]
+    size 1
+    f x
+
+    (?? :: has x) (?? :: has no x)
+    (?? :: has no x) (?? :: has x)
+    (?? :: has x) (?? :: has x)
+
+
+
+    must have = [f, x]
+    size 3,4,5,6,7...
+
+    ( __ __ __ ) x ( __ __ __ )
+
+    (?? :: has f, x) (?? :: has no f, has x)      
+    (?? :: has no f, has x) (?? :: has f, x)
+    (?? :: has f, x) (?? :: has f, x)
+
+    can't find this!!
+    (?? :: has f, no x) (?? :: has no f, has x)
+    (?? :: has no f, no x) (?? :: has f, x)
+    (?? :: has f, no x) (?? :: has f, x)
+
+    (?? :: has f, x) (?? :: has no f, no x)
+    (?? :: has no f, has x) (?? :: has f, no x)
+    (?? :: has f, x) (?? :: has f, no x)
+
+    [f,x] [f,x]
+    [f,x] [f]
+    [f,x] [x]
+    [f,x] []
+    [f]   [f,x]
+    [f]   [x]
+    [x]   [f,x]
+    [x]   [f]
+    []    [f,x]
+
+    [x] [x]
+    [x] []
+    []  [x]
+
+    f on the left and right +
+    [f,x] [f,x]
+    [f,x] [f]
+    [f]  [f,x]
+
+    f on the left only +
+    [f,x] [x]
+    [f,x] []
+    [f]  [x]
+
+    f on the right only +
+    [x] [f,x]
+    [x] [f]
+    []  [f,x]
+
+
+
+    []             -> all
+    [one by one]   -> others, all
+    [pair-em-up]   -> minus 2, only 1, all
+    [triple-em-up] -> minus 3, only 2, only 1, all
+    ....
+    [all]          -> none, minus..., all
+  
+    [] [f,x]
+    [f] [x]
+    [f] [f,x]
+    [x] [f]
+    [x] [f,x]
+    [f,x] []
+    [f,x] [f]
+    [f,x] [x]
+    [f,x] [f,x]
+
+    needs to have: [f,x]
+    size 3
+
+
+    ------
+      PSEUDOCODE
+
+        dfs needsToHave quota = 
+          if quota < len(needsToHave):    exit
+          if quota = len(needsToHave):
+            inEnv only takes from needsToHave
+                inEnv QUOTA HAS TO BE 1              
+                    1 element in needsToHave      return element (assuming it unifies)
+                    0 elements in needsToHave     do normal inEnv by looking through env
+            doSplit is normal (as below)
+          otherwise:
+            -- partition the needsToHave here
+            whenever we call dfs, we call dfs for every partition
+            (left, right) <- ourPartition needsToHave -- returns stream
+            -- do what we already have with alphaT and alpha, except 
+            --    add left and right to dfs call
+    
+    []             -> all
+    [one by one]   -> others, all
+    [pair-em-up]   -> minus 2, only 1, all
+    [triple-em-up] -> minus 3, only 2, only 1, all
+    ....
+    [all]          -> none, minus..., all
+
+
+[] -> stream        choices
+stream + stream     `mplus`
+[stream] -> stream  `msum`
+
+        -- returns a stream of (left, right)
+        :{
+        ourPartition :: [String] -> [([String], [String])]
+        ourPartition [] = [([],[])]
+        ourPartition (x:rest) =
+          concat [
+            [(x:left, x:right), (x:left, right), (left, x:right)]
+              | (left, right) <- ourPartition rest]
+        :}
+
+
+        ourPartition :: [String] -> TopDownSolver IO ([String], [String])
+        ourPartition [] = return ([],[])
+        ourPartition (x:rest) = do
+          (left, right) <- ourPartition rest
+          choices [(x:left, x:right), (x:left, right), (left, x:right)]
+
+          [(["x","y"],["x","y"]),
+           (["x","y"],["y"]),
+           (["y"],["x","y"]),
+           (["x","y"],["x"]),
+           (["x","y"],[]),
+           (["y"],["x"]),
+           (["x"],["x","y"]),
+           (["x"],["y"]),
+           ([],["x","y"])]
+
+          [(["x","y","z"],["x","y","z"])
+          (["x","y","z"],["y","z"])
+          (["y","z"],["x","y","z"])
+          (["x","y","z"],["x","z"])
+          (["x","y","z"],["z"])
+          (["y","z"],["x","z"])
+          (["x","z"],["x","y","z"])
+          (["x","z"],["y","z"])
+          (["z"],["x","y","z"])
+          (["x","y","z"],["x","y"])
+          (["x","y","z"],["y"])
+          (["y","z"],["x","y"])
+          (["x","y","z"],["x"])
+          (["x","y","z"],[])
+          (["y","z"],["x"])
+          (["x","z"],["x","y"])
+          (["x","z"],["y"])
+          (["z"],["x","y"])
+          (["x","y"],["x","y","z"])
+          (["x","y"],["y","z"])
+          (["y"],["x","y","z"])
+          (["x","y"],["x","z"])
+          (["x","y"],["z"])
+          (["y"],["x","z"])
+          (["x"],["x","y","z"])
+          (["x"],["y","z"])
+          ([],["x","y","z"])] 
+
+
+
+          (["x","y","z"],[])    right must not have x, y, or z
+          mustHave is just args!!!!
+          don't want to add arguments to environemnt!!
+
+    ------ 
+
+
+
+
+
+    [f,x] size 1
+    return nothing
+
+    [] [f,x]
+    (size 2) (exit early)   <- where we'd end early and help the search
+
+
+
+    needs: f x
+
+    problem:   x is in all the subproblems above, which i think is wrong
+    solution: (g f) x     ==> how are we splitting up f and x
+
+    must have = [x]
+    size 3,4,5,6,7...
+
+    (?? :: has f) (?? :: has no f)
+    (?? :: has no f) (?? :: has f)
+    (?? :: has f) (?? :: has f)
+
+
+
+
+    arg0
+    arg1
+    arg0+arg0
+    arg0+arg1
+    arg1+arg0
+    arg1+arg1
+
+    arg0+??
+
+
+
+
+
+
+
+--------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------
 Darya's notes:
 

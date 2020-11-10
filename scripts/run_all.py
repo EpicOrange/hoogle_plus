@@ -11,7 +11,8 @@ import json
 from subprocess import call, check_output, STDOUT
 from colorama import init, Fore, Back, Style
 
-HPLUS_CMD = ['stack', 'exec', '--', 'hplus', 'topdown', '--disable-memoize'] # Command to call hoogle+
+HPLUS_CMD = ['stack', 'exec', '--', 'hplus', 'topdown'] # Command to call hoogle+
+# HPLUS_CMD = ['stack', 'exec', '--', 'hplus', 'topdown', '--disable-memoize'] # Command to call hoogle+
 TIMEOUT_CMD = 'timeout' # Timeout command
 TIMEOUT = 300 # Timeout value (seconds)
 # TIMEOUT = 10 # Timeout value (seconds)
@@ -41,9 +42,10 @@ class BenchmarkGroup:
         self.benchmarks = []
 
 class SynthesisResult:
-    def __init__(self, name, time, solution, encoding_time, solver_time, refine_time, checker_time, path_len):
+    def __init__(self, name, time, solution, out_debug, encoding_time, solver_time, refine_time, checker_time, path_len):
         self.name = name                        # Benchmark name
         self.time = float(time)                        # Synthesis time (seconds)
+        self.out_debug = out_debug
         self.solution = solution
         self.encoding_time = encoding_time
         self.solver_time = solver_time
@@ -104,9 +106,9 @@ def run_benchmark(name, query, examples, default_opts):
 
         if not solution or solution['outError']: # Synthesis failed
             print(Fore.RED + 'FAIL' + Style.RESET_ALL, end='\n')
-            results[name] = SynthesisResult(name, (end - start), '-', '-', '-', '-', '-', '-')
+            results[name] = SynthesisResult(name, (end - start), '-', '-', '-', '-', '-', '-', '-')
         else: # Synthesis succeeded: code metrics from the output and record synthesis time
-            results[name] = SynthesisResult(name, '{0:0.2f}'.format(end - start), solution['outCandidates'][0]['solution'], None, None, None, None, None)
+            results[name] = SynthesisResult(name, '{0:0.2f}'.format(end - start), solution['outCandidates'][0]['solution'], solution['outDebug'], None, None, None, None, None)
             print(Fore.GREEN + 'OK' + Style.RESET_ALL, end='\n')
 
 
@@ -119,13 +121,14 @@ def format_time(t):
 def write_csv():
     '''Generate CSV file from the results dictionary'''
     with open(CSV_FILE, 'w') as outfile:
-        outfile.write ('Name\tQuery\tTime\tSolution\n')
+        outfile.write ('Name\tQuery\tTime\tdfsCounter\tSolution\n')
         for group in groups:
             for b in group.benchmarks:
                 outfile.write (b.name + '\t')
                 outfile.write (b.query + '\t')
                 result = results [b.name]
                 outfile.write (format_time(result.time) + '\t')
+                outfile.write (result.out_debug + '\t')
                 if isinstance(result.solution, str):
                     outfile.write (result.solution)
                 else:
@@ -145,11 +148,10 @@ def load_queries():
     with open(DEFAULT_QUERY_FILE) as f:
         queries = yaml.full_load(f)
         for q in queries:
-            # blacklist = ["both", "cartProduct", "multiAppPair", "mbAppFirst", "2partApp", "resolveEither", "dedupe", "inverseMap", "zipWithResult", "pipe", "lookup", "mbElem", "areEq", "applyPair", "takeNdropM"]
-            blacklist = ["takeNdropM", "containsEdge"]
-            if q['name'] in blacklist:
-                continue
-            # whitelist = ["test", "firstJust", "mapEither", "mapMaybes", "mergeEither", "mbToEither", "resolveEither", "firstMaybe", "rights", "firstRight", "maybe", "eitherTriple", "mbElem", "areEq"]
+            # blacklist = ["indexesOf"]
+            # if q['name'] in blacklist:
+            #     continue
+            # whitelist = ["test", "firstJust"]
             # if q['name'] not in whitelist:
             #     continue
             # print(q['name'])
@@ -172,8 +174,8 @@ if __name__ == '__main__':
     else:
         results = dict()
 
-    # rerun some results
-    # for rm in ["test", "firstJust", "mapEither", "mapMaybes", "mergeEither", "mbToEither", "resolveEither", "firstMaybe", "rights", "firstRight", "maybe", "eitherTriple", "mbElem", "areEq"]:
+    # # rerun some results
+    # for rm in ["firstJust"]:
     #     results.pop(rm, None)
     # # write to results again
     # with open(DUMPFILE, 'wb') as data_dump:

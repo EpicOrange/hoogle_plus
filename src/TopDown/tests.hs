@@ -1,6 +1,7 @@
 {-
 appBoth
 synGuard' "(a -> b) -> (a -> c) -> a -> (b, c)" ["Pair"] [(["\\x -> x + 1", "\\x -> x * 3", "3"], "(4, 9)"), (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")]
+syn' "(a -> b) -> (a -> c) -> a -> (b, c)" [(["\\x -> x + 1", "\\x -> x * 3", "3"], "(4, 9)"), (["\\x -> x ++ x", "Data.List.reverse", "[1,2,3]"], "([1,2,3,1,2,3], [3,2,1])")]
 solution: "\\arg0 arg1 arg2 -> (arg0 arg2 , arg1 arg2)"
 
 test
@@ -9,11 +10,14 @@ solution: "\\arg0 arg1 -> Data.Bool.bool Nothing (Just arg1) arg0"
 
 both
 synGuard' "(a -> b) -> (a, a) -> (b, b)" ["Data.Tuple.fst", "Pair", "Data.Tuple.snd"] [(["\\x -> x + 1", "(43, 25)"], "(44, 26)"), (["\\x -> GHC.List.length x", "([1,2,3,4],[2,3,4])"], "(4, 3)")]
+syn' "(a -> b) -> (a, a) -> (b, b)" [(["\\x -> x + 1", "(43, 25)"], "(44, 26)"), (["\\x -> GHC.List.length x", "([1,2,3,4],[2,3,4])"], "(4, 3)")]
 solution: "\\arg0 arg1 -> (arg0 (Data.Tuple.fst arg1), arg0 (Data.Tuple.snd arg1))"
 
 firstJust
 synGuard' "a -> [Maybe a] -> a" ["Data.Maybe.fromMaybe", "Data.Maybe.listToMaybe", "Data.Maybe.catMaybes"] [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
+syn' "a -> [Maybe a] -> a"  [(["3", "[Nothing, Just 2, Nothing]"], "2"), (["3", "[]"], "3")]
 solution: "\\x xs -> Data.Maybe.fromMaybe x (Data.Maybe.listToMaybe (Data.Maybe.catMaybes xs))"
+solution: "\\arg0 arg1 -> GHC.List.foldl Data.Maybe.fromMaybe arg0 arg1
 
 mapEither
 synGuard' "(a -> Either b c) -> [a] -> ([b], [c])" ["Data.Either.partitionEithers", "GHC.List.map"] [(["\\x -> if x < 10 then Left x else Right x", "[0,10,20,30]"], "([0], [10, 20, 30])"), (["\\x -> if x < 10 then Left \"error\" else Right (x * 2)", "[1,3,11,20]"], "([\"error\", \"error\"], [22, 40])")]
@@ -25,6 +29,7 @@ solution: "\\f xs -> Data.Either.partitionEithers (Data.List.map f xs)"
 
 mapMaybes
 synGuard' "(a -> Maybe b) -> [a] -> Maybe b" ["Data.Maybe.listToMaybe", "Data.Maybe.mapMaybe"] [(["\\x -> if x < 3 then Nothing else Just (x * x)", "[2,4,6]"], "Just 16")]
+syn' "(a -> Maybe b) -> [a] -> Maybe b" [(["\\x -> if x < 3 then Nothing else Just (x * x)", "[2,4,6]"], "Just 16")]
 solution: "\\f xs -> Data.Maybe.listToMaybe (Data.Maybe.mapMaybe f xs)"
 
 mergeEither

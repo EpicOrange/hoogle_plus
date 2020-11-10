@@ -44,7 +44,9 @@ type ArgsMap = Map Id RType
 data DebugEnv = DebugEnv {
     _logHandle :: Maybe Handle, -- if Nothing, it means debug is disabled
     _dfsCounter :: Int
+    -- TODO # times memoize got a cache hit vs # of times cache miss
   }
+
 makeLenses ''DebugEnv
 
 isDebugEnabled :: Monad m => StateT DebugEnv m Bool

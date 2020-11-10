@@ -16,6 +16,11 @@ ghc-options:
 - -O2
 - -j
 - -dynamic
+# - -prof
+# - -fprof-auto
+# don't try profiling, you have to install profiling for all dependencies
+# and profiling for some of these libraries doesn't exist in our GHC version
+# https://stackoverflow.com/questions/12207698/profile-haskell-without-installing-profiling-libraries-for-all-dependencies
 - +RTS
 - -A128m
 - -n2m

@@ -62,7 +62,8 @@ instance ToJSON ResultEntry
 data QueryOutput = QueryOutput {
     outCandidates :: [ResultEntry],
     outError :: String,
-    outDocs :: [FunctionDoc]
+    outDocs :: [FunctionDoc],
+    outDebug :: String
 } deriving(Eq, Generic)
 
 instance ToJSON QueryOutput

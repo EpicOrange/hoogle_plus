@@ -121,6 +121,6 @@ synthesize searchParams goal examples messageChan = catch (do
     (\e ->
          writeChan messageChan (MesgLog 0 "error" (show e)) >>
          writeChan messageChan (MesgClose (CSError e)) >>
-         printResult (encodeWithPrefix (QueryOutput [] (show e) [])) >>
+         printResult (encodeWithPrefix (QueryOutput [] (show e) [] "")) >>
          error (show e))
     -- return ()

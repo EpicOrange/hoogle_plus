@@ -30,7 +30,7 @@ import Data.List
 
 -- default search params when calling syn
 searchP :: SearchParams
-searchP = defaultSearchParams {_topDownEnableDebug = False, _topDownUseMemoize = False}
+searchP = defaultSearchParams {_topDownEnableDebug = False, _topDownUseMemoize = True}
 
 ourProg :: IO ()
 ourProg = syn "Maybe (a->b) -> a -> b"

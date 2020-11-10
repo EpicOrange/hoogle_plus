@@ -184,7 +184,7 @@ toOutput env soln exs = do
     let symbolsWoArgs = symbols \\ argNames
     docs <- liftIO $ hoogleIt symbolsWoArgs
     entries <- mapM (\(sol, ex) -> ResultEntry (toHaskellSolution sol) <$> mapM niceInputs ex) exs
-    return $ QueryOutput entries "" (docs ++ argDocs)
+    return $ QueryOutput entries "" (docs ++ argDocs) ""
     where
         hoogleIt syms = do
             dbPath <- Hoogle.defaultDatabaseLocation
