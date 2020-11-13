@@ -1,6 +1,23 @@
 {-
 
 
+TODO
+  - DONE put initial args (arg0, arg1) into the must have list
+  - DONE make getUnified only choose from mustHave when (size == length mustHave)
+  - do the partition thing in doSplit
+  - test if it works for Int -> Int, and other things
+    
+  - move from StateT ArgsMap to just an argument (mustHave) in dfs (removing liftMustHave)
+  - (if we have time) figure out why our dfs counting is wrong
+  - 
+
+
+
+
+
+
+
+
 Ways we can make memoize faster:
 
   * subtyping

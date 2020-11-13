@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module HooglePlus.TypeChecker where
 
 import Database.Convert
@@ -54,15 +55,20 @@ bottomUpCheck env (Program (PApp f args) typ) = do
       -- we eagerly substitute the assignments into the return type of t
       tass <- gets (view typeAssignment)
       -- let ret = addTrue $ stypeSubstitute tass (shape $ partialReturn checkedArgs t)
-      let ret = addTrue $ (partialReturn checkedArgs $ stypeSubstitute tass $ shape t)
+      -- let ret = addTrue $ (partialReturn checkedArgs $ stypeSubstitute tass $ shape t)
+      ret <- addTrue <$> (partialReturn checkedArgs $ stypeSubstitute tass $ shape t)
       -- if any of these checks returned false, this function application
       -- would produce a bottom type
       ifM (gets $ view isChecked)
           (return $ Program (PApp f checkedArgs) ret)
           (return $ Program (PApp f checkedArgs) BotT)
   where
+    partialReturn :: (Monad m) => [RProgram] -> TypeSkeleton r -> Checker m (TypeSkeleton r)
     partialReturn (_:args) (FunctionT _ _ tRes) = partialReturn args tRes
-    partialReturn [] t = t
+    partialReturn (_:args) t = do
+      assign isChecked False
+      return t
+    partialReturn [] t = return t
 
     checkArgs [] = return $ Right []
     checkArgs (arg:args) = do
