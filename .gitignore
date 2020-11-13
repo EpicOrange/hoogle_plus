@@ -91,4 +91,5 @@ top_down_testing/SynthesizeBFS.hs
 top_down_testing/SynthesizeLogic.hs
 top_down_testing/comments.hs
 top_down_testing/environment.hs
+top_down.txt
 .vsls.json
