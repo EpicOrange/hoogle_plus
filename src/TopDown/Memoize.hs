@@ -111,7 +111,7 @@ memoizeProgram env mode quota goalType depth compute = do
 
       -- for each stored program...
       log depth $ printf "GOAL: (%s | quota %d | ?? :: %s ~ %s) has %d solution%s in memo map\n" (show mode) quota (show goalType) (show betaGoal) (length progs) (if length progs == 1 then "" else "s")
-      prog <- choices progs
+      prog <- choices (reverse progs)
 
       -- infer and overwrite the type of this program (using the current typeAssignment)
       -- liftIO $ print prog
