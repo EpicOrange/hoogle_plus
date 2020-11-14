@@ -28,20 +28,11 @@ data MemoKey = MemoKey {
     _mode :: SynMode,
     _goalType :: RType,
     _progSize :: Int,
-    _args :: Map Id RType
-    -- _mustHave :: Map Id RSchema
-    -- _sub :: Map Id SType
+    _args :: MustHaveMap
   } deriving (Eq, Ord, Show)
 
--- (result of query, is the result partial (False) or fully evaluated (True)?)
--- result is a tuple (prog, sub, nameCounter)
--- TODO maybe put list into an object
-              -- prog      size sub           nameCounter 
--- type MemoList = [(RProgram, Int, Map Id SType, Map Id Int)]
--- type MemoValue = (MemoList, Bool)
 type MemoValue = [RProgram]
 type MemoMap = Map MemoKey MemoValue
--- type ArgsMap = Map Id RType
 type MustHaveMap = Map Id RType 
 data DebugEnv = DebugEnv {
     _logHandle :: Maybe Handle, -- if Nothing, it means debug is disabled
@@ -57,19 +48,18 @@ isDebugEnabled = isJust <$> use logHandle
 incrementDfsCounter :: Monad m => StateT DebugEnv m ()
 incrementDfsCounter = modifying dfsCounter (+1)
 
-type TopDownSolver m = StateT CheckerState (StateT MustHaveMap (StateT GoalTrace (LogicT (StateT MemoMap (StateT DebugEnv m)))))
+type TopDownSolver m = StateT CheckerState (StateT GoalTrace (LogicT (StateT MemoMap (StateT DebugEnv m))))
 
 
-evalTopDownSolver :: forall a. SearchParams -> Chan Message -> RType -> Map Id RType -> [TopDownSolver IO a] -> IO a
-evalTopDownSolver searchParams messageChan goalType initialArgs m = do
-  let comp = evalMemoMap . observeT $ msum $ map (evalGoalTrace . evalArgsMap . evalCheckerState) m :: StateT DebugEnv IO a
+evalTopDownSolver :: forall a. SearchParams -> Chan Message -> RType -> [TopDownSolver IO a] -> IO a
+evalTopDownSolver searchParams messageChan goalType m = do
+  let comp = evalMemoMap . observeT $ msum $ map (evalGoalTrace . evalCheckerState) m :: StateT DebugEnv IO a
   let enableDebug = _topDownEnableDebug searchParams
   if enableDebug
     then withFile "top_down.txt" WriteMode $ \handle -> evalStateT comp (DebugEnv { _logHandle = Just handle, _dfsCounter = 0 })
     else evalStateT comp (DebugEnv { _logHandle = Nothing, _dfsCounter = 0 })
   where
     evalCheckerState = (`evalStateT` emptyChecker {_checkerChan = messageChan}) -- for StateT CheckerState
-    evalArgsMap = (`evalStateT` initialArgs)                                    -- for StateT MustHaveMap
     evalGoalTrace = (`evalStateT` [mkHole goalType])                            -- for StateT GoalTrace
     evalMemoMap = (`evalStateT` Map.empty) . printMemoMap'                      -- for StateT MemoMap
 
@@ -82,16 +72,13 @@ evalTopDownSolver searchParams messageChan goalType initialArgs m = do
     --   return ret)
 
 liftDebug :: Monad m => StateT DebugEnv m a -> TopDownSolver m a
-liftDebug = lift . lift . lift . lift . lift
+liftDebug = lift . lift . lift . lift
 
 liftMemo :: Monad m => StateT MemoMap (StateT DebugEnv m) a -> TopDownSolver m a
-liftMemo = lift . lift . lift . lift
+liftMemo = lift . lift . lift
 
 liftGoalTrace :: Monad m => StateT GoalTrace (LogicT (StateT MemoMap (StateT DebugEnv m))) a -> TopDownSolver m a
-liftGoalTrace = lift . lift
-
-liftMustHave :: Monad m => StateT MustHaveMap (StateT GoalTrace (LogicT (StateT MemoMap (StateT DebugEnv m)))) a -> TopDownSolver m a
-liftMustHave = lift
+liftGoalTrace = lift
 
 -- | convert to Logic a
 choices :: (Traversable f, MonadPlus m) => f a -> m a

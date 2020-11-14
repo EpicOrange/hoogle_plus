@@ -79,14 +79,13 @@ import Text.Parsec.Indent (runIndentParserT)
 
 -- | check if these particular parameters to dfs has been memoized
 -- | if not, run dfs (compute) and add to memo map
-memoizeProgram :: Environment -> SynMode -> Int -> RType -> Int -> TopDownSolver IO (RProgram, Int) -> TopDownSolver IO (RProgram, Int)
-memoizeProgram env mode quota goalType depth compute = do
+memoizeProgram :: Environment -> SynMode -> Int -> MustHaveMap -> RType -> Int -> TopDownSolver IO (RProgram, Int) -> TopDownSolver IO (RProgram, Int)
+memoizeProgram env mode quota args goalType depth compute = do
   sub <- use typeAssignment
   let applySub sub = addTrue . stypeSubstitute sub . shape
 
   -- convert goal type and arg types to betas
   -- 1. substitute the bound vars
-  args <- liftMustHave get
   let subbedGoal = applySub sub goalType
   let subbedArgs = applySub sub <$> args
   -- after substituting the bound vars, all remaining type vars are the free ones
@@ -110,7 +109,7 @@ memoizeProgram env mode quota goalType depth compute = do
     retrieve betaGoal progs = do
 
       -- for each stored program...
-      log depth $ printf "GOAL: (%s | quota %d | ?? :: %s ~ %s) has %d solution%s in memo map\n" (show mode) quota (show goalType) (show betaGoal) (length progs) (if length progs == 1 then "" else "s")
+      log depth $ printf "GOAL: (%s | quota %d | must have %s | ?? :: %s ~ %s) has %d solution%s in memo map\n" (show mode) quota (showMap args) (show goalType) (show betaGoal) (length progs) (if length progs == 1 then "" else "s")
       prog <- choices (reverse progs)
 
       -- infer and overwrite the type of this program (using the current typeAssignment)
@@ -135,7 +134,8 @@ memoizeProgram env mode quota goalType depth compute = do
 
     evaluate :: RType -> MemoKey -> TopDownSolver IO (RProgram, Int)
     evaluate betaGoal key = do
-      log depth $ printf "GOAL: (%s | quota %d | ?? :: %s ~ %s) is being seen for the first time\n" (show mode) quota (show goalType) (show betaGoal)
+      log depth $ printf "GOAL: (%s | quota %d | must have %s | ?? :: %s ~ %s) is being seen for the first time\n" (show mode) quota (showMap args) (show goalType) (show betaGoal)
+      liftMemo $ modify $ Map.insert key [] -- initialize the memo entry
 
       -- run dfs, which returns a stream of programs
       (prog, _) <- compute

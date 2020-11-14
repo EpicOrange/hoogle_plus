@@ -60,12 +60,12 @@ solution: "\\arg1 -> (Data.List.head arg1, Data.List.last arg1)"
 
 head-rest
 synGuard' "[a] -> (a, [a])" ["GHC.List.head", "Pair", "GHC.List.tail"] [(["[1,2,3,4]"], "(1, [2,3,4])")]
+syn' "[a] -> (a, [a])" [(["[1,2,3,4]"], "(1, [2,3,4])")]
 solution: "\\arg1 -> (Data.List.head arg1, Data.List.tail arg1)"
 
 pred-match
 synGuard' "[a] -> (a -> Bool) -> Int" ["GHC.List.length", "GHC.List.filter"] [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2")]
 syn' "[a] -> (a -> Bool) -> Int" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2")]
-synO' "[a] -> (a -> Bool) -> Int" [(["[1,2,3,4,5]", "\\x -> x `mod` 2 == 0"], "2"), (["[[1,2,3], [2,3,4,5], [3,4,5,6,7]]", "\\xs -> 2 `GHC.List.elem` xs"], "2")]
 solution: "\\xs f -> Data.List.length (Data.List.filter f xs)"
 
 stack exec -- hplus --json='{
@@ -102,8 +102,6 @@ solution: "\\arg0 arg1 -> Data.Bool.bool (Right arg1) (Left (Data.Maybe.fromJust
 
 cartProduct
 synGuard' "[a] -> [b] -> [[(a,b)]]" ["GHC.List.map", "GHC.List.map", "Pair"] [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
-synGuardO' "[a] -> [b] -> [[(a,b)]]" ["GHC.List.map", "repeat", "zip"] [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
-synO' "[a] -> [b] -> [[(a,b)]]" [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
 syn' "[a] -> [b] -> [[(a,b)]]" [(["[1,2,3]","[2,3,4]"], "[[(1,2), (1,3), (1,4)], [(2,2), (2,3), (2,4)], [(3,2), (3,3), (3,4)]]")]
 
 solution: "\\xs ys -> Data.List.map (\\x -> Data.List.map ((,) x) ys) xs"
@@ -112,8 +110,8 @@ solution: "\\xs ys -> Data.List.map (\\x -> Data.List.map (\y -> (,) x y) ys) xs
                     GHC.List.map (\arg2 -> GHC.List.map (\arg3 -> (arg2 , arg3)) arg1) arg0
 
 multiAppPair
-synGuardO' "(a -> b, a -> c) -> a -> (b, c)" ["Pair", "Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
-synO' "(a -> b, a -> c) -> a -> (b, c)" [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
+synGuard' "(a -> b, a -> c) -> a -> (b, c)" ["Pair", "Data.Tuple.fst", "Data.Tuple.snd"] [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
+syn' "(a -> b, a -> c) -> a -> (b, c)" [(["(\\x -> x * 3, \\x -> x * x)", "2"], "(6, 4)")]
 solution: "\\arg0 arg1 -> (,) ((Data.Tuple.fst arg0) arg1) ((Data.Tuple.snd arg0) arg1)"
 
 (Quota 8) Done with <c> . <b> . <a> . (((a -> b) , (a -> c)) -> (a -> (b , c)))!
@@ -206,7 +204,6 @@ synGuard' "b -> (a -> b) -> [a] -> b" ["Data.Maybe.maybe", "Data.Maybe.listToMay
 synGuardO' "b -> (a -> b) -> [a] -> b" ["Data.Maybe.maybe", "Data.Maybe.listToMaybe", "first", "sum"] [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 synGuardO' "b -> (a -> b) -> [a] -> b" ["fst", "sum"] [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 syn' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
-synO' "b -> (a -> b) -> [a] -> b" [(["2", "\\x -> x * x", "[3,4,5]"], "9"), (["2", "\\x -> x * x", "[]"], "2")]
 solution: "\\x f xs -> Data.Maybe.maybe x f (Data.Maybe.listToMaybe xs)"
                         Data.Maybe.maybe arg0 arg1 (Data.Maybe.listToMaybe arg2)    
 

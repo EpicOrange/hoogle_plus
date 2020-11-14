@@ -67,7 +67,7 @@ bottomUpCheck env (Program (PApp f args) typ) = do
     partialReturn (_:args) (FunctionT _ _ tRes) = partialReturn args tRes
     partialReturn (_:args) t = do
       assign isChecked False
-      return t
+      return (error "tried to use partialReturn unhandled case")
     partialReturn [] t = return t
 
     checkArgs [] = return $ Right []

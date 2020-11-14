@@ -88,6 +88,6 @@ showMemoMap :: MemoMap -> String
 showMemoMap m = "{\n" ++ (concat $ Map.mapWithKey printer m) ++ "}\n"
   where
     printer (MemoKey mode goalType progSize args) list =
-      printf "  (%s | quota %d | ?? :: %s) ==> [%s]\n"
-        (show mode) progSize (show goalType)
+      printf "  (%s | quota %d | must have %s | ?? :: %s) ==> [%s]\n"
+        (show mode) progSize (show $ Map.toList args) (show goalType)
         (intercalate ", " $ map (\prog -> printf "%s :: %s" (show prog) (show $ typeOf prog)) list)

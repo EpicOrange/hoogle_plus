@@ -90,7 +90,7 @@ synthesize searchParams goal examples messageChan = do
 --
 iterativeDeepening :: Environment -> Chan Message -> SearchParams -> [Example] -> RSchema -> Map Id RType -> IO RProgram
 iterativeDeepening env messageChan searchParams examples goal initialArgs =
-  evalTopDownSolver searchParams messageChan goalType initialArgs $ (`map` [1..]) $ \quota -> do
+  evalTopDownSolver searchParams messageChan goalType $ (`map` [1..]) $ \quota -> do
     when (quota == 1) $ do
       log 0 $ "LOG\n===\n\n"
       log 0 $ "goal to synthesize:\n"
@@ -112,7 +112,7 @@ iterativeDeepening env messageChan searchParams examples goal initialArgs =
     -- liftIO $ printf "memo map looks like:\n%s\n" (showMemoMap memoMap)
     -- liftIO $ printMemoMap memoMap
 
-    (prog, subSize) <- dfs EMode env searchParams goalType 0 quota :: TopDownSolver IO (RProgram, Int)
+    (prog, subSize) <- dfs EMode env searchParams initialArgs goalType 0 quota :: TopDownSolver IO (RProgram, Int)
     -- guard (filterParams prog) -- see if we mention all args before we call check
     debugOutput <- liftDebug $ show <$> use dfsCounter
     guard =<< liftIO (check' prog debugOutput) -- run demand checker and example checker
@@ -184,13 +184,13 @@ iterativeDeepening env messageChan searchParams examples goal initialArgs =
 --     --    add left and right to dfs call
 --------------------------------------------------------------------------------------------------
 
-dfs :: SynMode -> Environment -> SearchParams -> RType -> Int -> Int -> TopDownSolver IO (RProgram, Int)
-dfs mode env searchParams goalType depth quota
+dfs :: SynMode -> Environment -> SearchParams -> MustHaveMap -> RType -> Int -> Int -> TopDownSolver IO (RProgram, Int)
+dfs mode env searchParams mustHave goalType depth quota
   | quota <= 0 = mzero
   --  | quota == 1 = do
   | useMemoize = do
     liftDebug incrementDfsCounter
-    memoizeProgram env mode quota goalType depth doDfs
+    memoizeProgram env mode quota mustHave goalType depth doDfs
   | otherwise  = do
     liftDebug incrementDfsCounter
     doDfs
@@ -199,7 +199,6 @@ dfs mode env searchParams goalType depth quota
     doDfs :: TopDownSolver IO (RProgram, Int)
     doDfs = do
       --   if quota < len(needsToHave):    exit
-      mustHave <- liftMustHave get
       guard (quota >= Map.size mustHave)
       
       (prog, subSize) <- if quota == 1 
@@ -233,9 +232,10 @@ dfs mode env searchParams goalType depth quota
     -- | return components which unify with goal exactly
     inEnv :: TopDownSolver IO (RProgram, Int)
     inEnv = do
+      log depth $ printf "inEnv for %s (must have %s)\n" (show goalType) (showMap mustHave)
       -- only check env if e mode, or if we're using the alt I mode
       guard (useAltIMode || mode == EMode)
-      (id, schema, t, subSize) <- getUnifiedComponent :: TopDownSolver IO (Id, RSchema, SType, Int)
+      (id, t, schema, subSize) <- getUnifiedComponent :: TopDownSolver IO (Id, SType, RSchema, Int)
       
       sub <- use typeAssignment
       
@@ -253,22 +253,19 @@ dfs mode env searchParams goalType depth quota
     doSplit IMode = case goalType of
       ScalarT _ _            -> doSplit EMode
       FunctionT _ tArg tBody -> do
-        
         log (depth+1) $ printf "done with inEnv, split since quota (%d) > 1\n" quota
-        existingArgs <- liftMustHave get
         argName <- freshId (Map.keys $ env ^. arguments) "arg"
 
         -- introduce an arg
-        liftMustHave $ modify $ Map.insert argName tArg
+        let mustHave' = Map.insert argName tArg mustHave
         log (depth+2) $ printf "introducing %s :: %s as a component\n" argName (show tArg)
 
         -- synthesize the body for the lambda
         liftGoalTrace $ addLam argName (show tBody)
-        (body, subSize) <- dfs IMode env searchParams tBody (depth + 2) (quota - 1)
+        (body, subSize) <- dfs IMode env searchParams mustHave' tBody (depth + 2) (quota - 1)
 
-        -- reset the args to before we synthesize this lambda body
+        -- log the fact that the args now reset to before we synthesize this lambda body
         log (depth+2) $ printf "removing %s :: %s as a component\n" argName (show tArg)
-        liftMustHave $ put existingArgs
 
         let program = Program { content = PFun argName body, typeOf = goalType }
         
@@ -284,7 +281,7 @@ dfs mode env searchParams goalType depth quota
       mzero
     
     doSplit EMode = do
-      log (depth+1) $ printf "done with inEnv, split since quota (%d) > 1\n" quota
+      log (depth+1) $ printf "goal is %s, done with inEnv, split since quota (%d) > 1\n" (show goalType) quota
 
       let alpha' = ScalarT (TypeVarT Map.empty "alpha") ftrue :: RType
       let schema' = ForallT "alpha" $ Monotype $ FunctionT "myArg" alpha' goalType :: RSchema
@@ -301,25 +298,24 @@ dfs mode env searchParams goalType depth quota
 
       -- partition the needsToHave here
       -- whenever we call dfs, we call dfs for every partition
-      mustHave <- liftMustHave get
       (left, right) <- ourPartition (Map.toList mustHave) -- returns stream
+      let (mustHaveLeft, mustHaveRight) = (Map.fromList left, Map.fromList right)
+      log (depth+1) $ printf "splitting mustHave %s to %s and %s\n" (showMap mustHave) (show $ map fst left) (show $ map fst right)
       -- liftIO $ printf "(orig, left, right): %s\n" (show (Map.toList mustHave, left, right))
-      -- do what we already have with alphaT and alpha, except 
-      --    add left and right to dfs call
+      -- do what we already have with alphaT and alpha, except add left and right to dfs call
+      
+      -- for the left side of app, get programs that are up to quota: (quota-1)
+      (alphaTProgram', alphaTSubSize) <- msum $ map (dfs EMode env searchParams mustHaveLeft schema (depth + 2)) [1..quota - 1] :: TopDownSolver IO (RProgram, Int)
 
-      
-      -- get programs that are up to quota: (quota-1)
-      liftMustHave $ put $ Map.fromList left
-      (alphaTProgram', alphaTSubSize) <- msum $ map (dfs EMode env searchParams schema (depth + 2)) [1..quota - 1] :: TopDownSolver IO (RProgram, Int)
-      
       -- if we potentially got the program from memoize map,
       -- need to infer type of alphaTProgram
       -- since its free type variables may not be related to the current goal
       -- this helps determine the goal type for alphaProgram
       alphaTProgram <- if not useMemoize then return alphaTProgram' else do
         -- infer the types from alphaTProgram to figure out what alphaProgram's goal should be
-        -- liftIO $ printf "prog: %s\n" (show alphaTProgram')
-        alphaTProgram <- bottomUpCheck env alphaTProgram'
+        -- we need symbols to include args, so that bottomUpCheck knows what the types are
+        let env' = env { _symbols = _symbols env <> (Monotype <$> mustHave) }
+        alphaTProgram <- bottomUpCheck env' alphaTProgram'
         guard =<< use isChecked
         -- unify this new type with the query (schema)
         let t1 = shape schema :: SType
@@ -336,12 +332,9 @@ dfs mode env searchParams goalType depth quota
       alphaTSize <- sizeOfProg alphaTProgram alphaTSubSize
       let alphaQuota = quota - alphaTSize
       
-      liftMustHave $ put $ Map.fromList right
-      (alphaProgram, alphaSubSize) <- dfs IMode env searchParams alphaSub (depth + 4) alphaQuota :: TopDownSolver IO (RProgram, Int)
+      -- for the right side of app
+      (alphaProgram, alphaSubSize) <- dfs IMode env searchParams mustHaveRight alphaSub (depth + 4) alphaQuota :: TopDownSolver IO (RProgram, Int)
       
-      -- reset it back to its original value - TODO do we need this? maybe not once we switch to dfs arg
-      liftMustHave $ put $ mustHave
-
       return (Program {
           content = case content alphaTProgram of
                       PSymbol id -> PApp id [alphaProgram]
@@ -392,14 +385,15 @@ dfs mode env searchParams goalType depth quota
 
     -- | Using the components in env, like ("length", <a>. [a] -> Int)
     -- | tries to instantiate each, replacing type vars in order to unify with goalType
-    getUnifiedComponent :: TopDownSolver IO (Id, RSchema, SType, Int)
+    -- | returning (component name, new type)
+    -- | + for debug purposes: (original schema, added sub size)
+    getUnifiedComponent :: TopDownSolver IO (Id, SType, RSchema, Int)
     getUnifiedComponent = do
-      args <- liftMustHave get :: TopDownSolver IO (Map Id RType)
-      let args' = Map.toList $ Map.map Monotype args :: [(Id, RSchema)]
+      let args' = Map.toList $ Map.map Monotype mustHave :: [(Id, RSchema)]
       
       -- we only call getUnifiedComponent when quota is 1,
       -- if we must have an argument x, then we'll return just that x
-      let symbolList = if (1 == Map.size args) then args' else Map.toList $ env ^. symbols
+      let symbolList = if (1 == Map.size mustHave) then args' else Map.toList $ env ^. symbols
       
       (id, schema) <- choices symbolList :: TopDownSolver IO (Id, RSchema)
 
@@ -419,23 +413,15 @@ dfs mode env searchParams goalType depth quota
       addedSubSize <- if enableSubSize then sizeOfSub else return 0
       
       let sub' = Map.map (stypeSubstitute sub) sub
-      liftMustHave $ modify $ Map.map (addTrue . stypeSubstitute sub . shape)
+      -- also apply sub to args? TODO not sure what the justification for this is
+      -- let mustHave' = Map.map (addTrue . stypeSubstitute sub . shape) mustHave
       
       -- let sub'' = Map.filterWithKey (\k v -> not $ "tau" `isPrefixOf` k) sub'
       
       -- assign typeAssignment sub''
       assign typeAssignment sub'
 
-      return (id, schema, subbedType, addedSubSize)
-
-      -- where
-      --   -- moves all Data.Function functions to the end and moves the args to the front
-      --   reorganizeSymbols :: [(Id, RSchema)]
-      --   reorganizeSymbols = argSymbols ++ withoutDataFunctions
-
-      --   ogSymbols            = Map.toList $ env ^. symbols
-      --   (argSymbols, withoutArgs)  = partition (("arg" `isInfixOf`) . fst) ogSymbols
-      --   withoutDataFunctions = snd $ partition (("Data.Function" `isInfixOf`) . fst) withoutArgs
+      return (id, subbedType, schema, addedSubSize)
 
     -- | Replace all bound type variables with fresh free variables
     -- | Our version lets you pass in the prefix (id)
