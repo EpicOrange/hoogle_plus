@@ -267,7 +267,10 @@ dfs mode env searchParams mustHave goalType depth quota
         -- log the fact that the args now reset to before we synthesize this lambda body
         log (depth+2) $ printf "removing %s :: %s as a component\n" argName (show tArg)
 
-        let program = Program { content = PFun argName body, typeOf = goalType }
+        sub <- use typeAssignment
+        let program = Program { content = PFun argName body,
+                                typeOf = addTrue $ stypeSubstitute sub (shape goalType) -- goalType
+                                }
         
         -- progSize <- sizeOfProg program subSize
         -- progSize <- sizeOfProg program subSize
@@ -315,12 +318,20 @@ dfs mode env searchParams mustHave goalType depth quota
         -- infer the types from alphaTProgram to figure out what alphaProgram's goal should be
         -- we need symbols to include args, so that bottomUpCheck knows what the types are
         let env' = env { _symbols = _symbols env <> (Monotype <$> mustHave) }
-        alphaTProgram <- bottomUpCheck env' alphaTProgram'
-        guard =<< use isChecked
+        let alphaTProgram = alphaTProgram'
+        -- alphaTProgram <- bottomUpCheck env' alphaTProgram'
+        -- use isChecked >>= \ic -> when (not ic) $ do
+        --   log (depth+4) $ printf "retrieval failed check 1: bottomUpCheck for %s incorrectly inferred (%s :: %s). note: goal is %s\n"
+        --     (show alphaTProgram') (show alphaTProgram) (show $ typeOf alphaTProgram) (show schema)
+        -- guard =<< use isChecked
+        -- liftIO $ printf "------\ngoalType: %s\ntypeOf alphaTProgram: %s\ntypeOf alphaTProgram': %s\n" (show schema) (show $ typeOf alphaTProgram) (show $ typeOf alphaTProgram')
         -- unify this new type with the query (schema)
         let t1 = shape schema :: SType
         let t2 = shape $ typeOf alphaTProgram :: SType
         topDownSolveTypeConstraint env t1 t2
+        use isChecked >>= \ic -> when (not ic) $ do
+          log (depth+4) $ printf "retrieval failed check 2: retrieved program (%s :: %s) did not unify with goal %s\n"
+            (show alphaTProgram) (show $ typeOf alphaTProgram) (show schema)
         guard =<< use isChecked
         return alphaTProgram
       
@@ -334,12 +345,13 @@ dfs mode env searchParams mustHave goalType depth quota
       
       -- for the right side of app
       (alphaProgram, alphaSubSize) <- dfs IMode env searchParams mustHaveRight alphaSub (depth + 4) alphaQuota :: TopDownSolver IO (RProgram, Int)
+
       
       return (Program {
           content = case content alphaTProgram of
                       PSymbol id -> PApp id [alphaProgram]
                       PApp id xs -> PApp id $ xs ++ [alphaProgram],
-          typeOf = goalType
+          typeOf = addTrue $ stypeSubstitute sub (shape goalType) -- goalType
         }, alphaTSubSize + alphaSubSize)
 
     -- | guards away programs that we don't want

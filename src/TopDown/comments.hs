@@ -14,6 +14,32 @@ TODO
 
 
 
+word vomit below
+----
+
+originally: alpha0 -> Int
+store program: alpha0 -> Int
+
+new goal: alpha1 -> Int
+retrieve, type will be alpha0 -> Int
+
+why inference if we can just do  (alpha1 -> Int) ~ (alpha0 -> Int)?
+because consider this goal:
+
+(_ :: alpha1 -> Int) (_ :: alpha1) (_ :: alpha0)
+
+if we retrieve (f x :: alpha0 -> Int) from the memo map and unify
+  (alpha1 -> Int) ~ (alpha0 -> Int)
+  then we erroneously unify the (_ :: alpha1) (_ :: alpha0) outside of our goal
+
+solution is to retrieve (f x :: alpha0 -> Int) and then magically rename its
+type variables to something that doesn't clash with the outside
+use type inference for this purpose! we get something like: (f x :: A0 -> Int)
+
+and now we can unify (alpha1 -> Int) ~ (A0 -> Int) and have no problems :)
+
+
+
 
 
 

@@ -357,7 +357,8 @@ prettyProgram (Program p typ) = case p of
       in if f `elem` Map.elems unOpTokens
             then hang tab $ operator f <+> hsep (map optParens x)
             else prefix
-    PFun x e -> nest 2 $ operator "\\" <> text x <+> operator "->" </> prettyProgram e
+
+    PFun x e -> nest 2 $ operator "\\" <> text x <+> operator "-> " <> prettyProgram e
     PIf c t e -> linebreak <> (hang tab $ keyword "if" <+> prettyProgram c $+$ (hang tab (keyword "then" </> prettyProgram t)) $+$ (hang tab (keyword "else" </> prettyProgram e)))
     PMatch l cases -> linebreak <> (hang tab $ keyword "match" <+> prettyProgram l <+> keyword "with" $+$ vsep (map prettyCase cases))
     PFix fs e -> prettyProgram e

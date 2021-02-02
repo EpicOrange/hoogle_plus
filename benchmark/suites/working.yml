@@ -602,3 +602,42 @@
       output: "[7, 16]"
 
 # synGuard' "[a -> b] -> a -> [b]" ["map"] [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]
+
+
+# NEW ONES BELOW
+
+- name: numElem
+  query: Eq a => [a] -> a -> Int
+  solution: "\\arg0 arg1 -> GHC.List.length (GHC.List.filter (\\arg2 -> arg2 == arg1) arg0)"
+  source: Hoogle Pt. 3
+  example:
+    - inputs: ["[7,7,3,7,7,3]", "7"]
+      output: "4"
+    - inputs: ["[7,7,3,7,7,3]", "3"]
+      output: "2"
+
+# synGuard' "Eq a => [a] -> a -> Int" ["length","filter","=="] [(["[7,7,3,7,7,3]", "7"], "4"),(["[7,7,3,7,7,3]", "3"], "2")]
+
+- name: intersect
+  query: "Eq a => [a] -> [a] -> [a]"
+  solution: \\arg0 arg1 -> GHC.List.filter (\\arg2 -> GHC.List.elem arg2 arg1) arg0
+  source: Hoogle Pt. 3
+  example:
+    - inputs: ["[1]", "[2]"]
+      output: "[]"
+    - inputs: ["[1,2]", "[2]"]
+      output: "[2]"
+    - inputs: ["[1]", "[1,2]"]
+      output: "[1]"
+    - inputs: ["[1,1,2,7,5,13,17]", "[2,1,2,5,7,11,15]"]
+      output: "[1,1,2,7,5]"
+
+# syn' "Eq a => [a] -> [a] -> [a]" [(["[1]", "[2]"], "[]"), (["[1,2]", "[2]"], "[2]"), (["[1]", "[1,2]"], "[1]"), (["[1,1,2,7,5,13,17]", "[2,1,2,5,7,11,15]"], "[1,1,2,7,5]")]
+# synGuard' "Eq a => [a] -> [a] -> [a]" ["filter","elem"] [(["[1]", "[2]"], "[]"), (["[1,2]", "[2]"], "[2]"), (["[1]", "[1,2]"], "[1]"), (["[1,1,2,7,5,13,17]", "[2,1,2,5,7,11,15]"], "[1,1,2,7,5]")]
+
+
+# insertion sort
+# \arg0 -> foldr (\y ys -> filter (\x -> x < y) ys ++ [y] ++ filter (\x -> x > y) ys) [] arg0
+# size 21 though
+
+
