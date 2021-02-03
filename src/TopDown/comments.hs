@@ -1,6 +1,9 @@
 {-
 
 
+\f xs -> foldr (\x (ys, zs) -> either (\y -> (y:ys,zs)) (\z -> (ys, z:zs)) (f x)) ([],[]) xs
+synGuard "(a -> Either b c) -> [a] -> ([b], [c])" ["foldr", "Pair", "fst", "snd", "either", "Cons", "Nil"]
+
 TODO
   - DONE put initial args (arg0, arg1) into the must have list
   - DONE make getUnified only choose from mustHave when (size == length mustHave)

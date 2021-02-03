@@ -32,7 +32,8 @@ sizeOfContent :: RProgram -> Int
 sizeOfContent p = case content p of
     PSymbol _       -> 1
     PApp _ ps       -> 1 + sum (map sizeOfContent ps)
-    PFun _ p1       -> 1 + sizeOfContent p1
+    -- PFun _ p1       -> 1 + sizeOfContent p1
+    PFun _ p1       -> sizeOfContent p1
     _               -> error $ "sizeOfContent doesn't support: " ++ (show p)
 
 -- | gets the size of a type

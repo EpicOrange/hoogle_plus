@@ -11,7 +11,8 @@ import json
 from subprocess import call, check_output, STDOUT
 from colorama import init, Fore, Back, Style
 
-HPLUS_CMD = ['stack', 'exec', '--', 'hplus', 'topdown'] # Command to call hoogle+
+HPLUS_CMD = ['stack', 'exec', '--', 'hplus'] # Command to call hoogle+
+# HPLUS_CMD = ['stack', 'exec', '--', 'hplus', 'topdown'] # Command to call hoogle+
 # HPLUS_CMD = ['stack', 'exec', '--', 'hplus', 'topdown', '--disable-memoize'] # Command to call hoogle+
 # print("Running with memo off")
 
@@ -22,9 +23,12 @@ TIMEOUT = 300 # Timeout value (seconds)
 # CMD_OPTS = ['--stop-refine', '--stop-threshold=10', '--solver-name=z3smt']
 CMD_OPTS = []
 LOGFILE = 'data/results.log'                                         # Log file
-CSV_FILE = 'data/result.tsv'                                         # CSV-output file
+CSV_FILE = 'data/result.tsv'  
+LOGFILE_TOPDOWN = 'data/resultsTopdown.log'                                         # Log file
+CSV_FILE_TOPDOWN = 'data/resultTopdown.tsv'                                         # CSV-output file
 DEFAULT_QUERY_FILE = "benchmark/suites/working.yml"
 DUMPFILE = 'data/results'                                            # Result serialization file
+DUMPFILE_TOPDOWN = 'data/resultsTopdown'                                            # Result serialization file
 FNULL = open(os.devnull, 'w')
 
 class Benchmark:
@@ -143,6 +147,7 @@ def cmdline():
     a = argparse.ArgumentParser()
     a.add_argument('--medium', action='store_true')
     a.add_argument('--small', action='store_true')
+    a.add_argument('--topdown', action='store_true')
     return a.parse_args()
 
 def load_queries():
@@ -169,6 +174,12 @@ if __name__ == '__main__':
     init()
 
     cl_opts = cmdline()
+
+    if cl_opts.topdown:
+        HPLUS_CMD.append("topdown")
+        LOGFILE = LOGFILE_TOPDOWN
+        CSV_FILE = CSV_FILE_TOPDOWN
+        DUMPFILE = DUMPFILE_TOPDOWN
 
     # Check if there are serialized results
     if os.path.isfile(DUMPFILE) and os.path.getsize(DUMPFILE) > 0:

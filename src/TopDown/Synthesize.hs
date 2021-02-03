@@ -262,7 +262,8 @@ dfs mode env searchParams mustHave goalType depth quota
 
         -- synthesize the body for the lambda
         liftGoalTrace $ addLam argName (show tBody)
-        (body, subSize) <- dfs IMode env searchParams mustHave' tBody (depth + 2) (quota - 1)
+        -- (body, subSize) <- dfs IMode env searchParams mustHave' tBody (depth + 2) (quota - 1)
+        (body, subSize) <- dfs IMode env searchParams mustHave' tBody (depth + 2) quota
 
         -- log the fact that the args now reset to before we synthesize this lambda body
         log (depth+2) $ printf "removing %s :: %s as a component\n" argName (show tArg)
