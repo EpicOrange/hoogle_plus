@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.Size(sizeOfProg, sizeOfProg', sizeOfContent, sizeOfType, sizeOfSub, enableSubSize) where
+module TopDown.Size(sizeOfProg, sizeOfProg', sizeOfProgExperimental, sizeOfContent, sizeOfContentExperimental, sizeOfType, sizeOfSub, enableSubSize) where
 
 import Control.Lens
 import Control.Monad.State
@@ -28,13 +28,25 @@ sizeOfProg p subSize = do
   -- subSize <- lift get
   return $ sizeOfContent p + subSize
 
+sizeOfProgExperimental :: (Monad m) => RProgram -> Int -> StateT CheckerState m Int
+sizeOfProgExperimental p subSize = do
+  -- subSize <- sizeOfSub
+  -- subSize <- lift get
+  return $ sizeOfContentExperimental p + subSize
+
 sizeOfContent :: RProgram -> Int
 sizeOfContent p = case content p of
     PSymbol _       -> 1
     PApp _ ps       -> 1 + sum (map sizeOfContent ps)
-    -- PFun _ p1       -> 1 + sizeOfContent p1
-    PFun _ p1       -> sizeOfContent p1
+    PFun _ p1       -> 1 + sizeOfContent p1
     _               -> error $ "sizeOfContent doesn't support: " ++ (show p)
+
+sizeOfContentExperimental :: RProgram -> Int
+sizeOfContentExperimental p = case content p of
+    PSymbol _       -> 1
+    PApp _ ps       -> 1 + sum (map sizeOfContentExperimental ps)
+    PFun _ p1       -> sizeOfContentExperimental p1
+    _               -> error $ "sizeOfContentExperimental doesn't support: " ++ (show p)
 
 -- | gets the size of a type
 -- | ScalarT examples: 

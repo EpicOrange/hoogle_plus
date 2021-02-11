@@ -26,9 +26,12 @@ LOGFILE = 'data/results.log'                                         # Log file
 CSV_FILE = 'data/result.tsv'  
 LOGFILE_TOPDOWN = 'data/resultsTopdown.log'                                         # Log file
 CSV_FILE_TOPDOWN = 'data/resultTopdown.tsv'                                         # CSV-output file
+LOGFILE_EXPERIMENTAL = 'data/resultsExperiment.log'                                         # Log file
+CSV_FILE_EXPERIMENTAL = 'data/resultExperiment.tsv'                                         # CSV-output file
 DEFAULT_QUERY_FILE = "benchmark/suites/working.yml"
 DUMPFILE = 'data/results'                                            # Result serialization file
 DUMPFILE_TOPDOWN = 'data/resultsTopdown'                                            # Result serialization file
+DUMPFILE_EXPERIMENTAL = 'data/resultsExperiment'                                            # Result serialization file
 FNULL = open(os.devnull, 'w')
 
 class Benchmark:
@@ -148,6 +151,7 @@ def cmdline():
     a.add_argument('--medium', action='store_true')
     a.add_argument('--small', action='store_true')
     a.add_argument('--topdown', action='store_true')
+    a.add_argument('--experimental', action='store_true')
     return a.parse_args()
 
 def load_queries():
@@ -175,11 +179,19 @@ if __name__ == '__main__':
 
     cl_opts = cmdline()
 
+    # python3 ./run_all.py --topdown
     if cl_opts.topdown:
         HPLUS_CMD.append("topdown")
         LOGFILE = LOGFILE_TOPDOWN
         CSV_FILE = CSV_FILE_TOPDOWN
         DUMPFILE = DUMPFILE_TOPDOWN
+
+    if cl_opts.experimental:
+        HPLUS_CMD.append("topdown")
+        HPLUS_CMD.append("--experimental")
+        LOGFILE = LOGFILE_EXPERIMENTAL
+        CSV_FILE = CSV_FILE_EXPERIMENTAL
+        DUMPFILE = DUMPFILE_EXPERIMENTAL
 
     # Check if there are serialized results
     if os.path.isfile(DUMPFILE) and os.path.getsize(DUMPFILE) > 0:

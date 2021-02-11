@@ -160,17 +160,14 @@ main = do
                 , disable_higher_order
                 , disable_alt_imode
                 , disable_memoize
+                , experimental
                 , enable_debug
                 } -> 
-        -- json :: String, -- query, examples, guards?????????????
-        -- disable_higher_order :: Bool,
-        -- disable_alt_imode :: Bool, -- should we do imode w/ env first or regular i-mode
-        -- disable_memoize :: Bool, -- should we memoize? 
-        -- enable_debug :: Bool -- should we print backtracing? 
                   let searchParams = defaultSearchParams 
                                         { _useHO = not disable_higher_order
                                         , _topDownUseAltIMode = not disable_alt_imode
                                         , _topDownUseMemoize = not disable_memoize
+                                        , _topDownEnableExperiment = experimental
                                         , _topDownEnableDebug = enable_debug
                                         }
                    in executeSearch True defaultSynquidParams searchParams json
@@ -229,6 +226,7 @@ data CommandLineArgs
         disable_higher_order :: Bool,
         disable_alt_imode :: Bool,
         disable_memoize :: Bool, 
+        experimental :: Bool,
         enable_debug :: Bool
         -- TODO add some guards here like synguard
       }
@@ -280,6 +278,7 @@ topdown = TopDown {
   disable_higher_order = False           &= help ("Disable higher order functions (default: False)"),
   disable_alt_imode    = False           &= help ("Disable searching in env first when in i-mode (default: False)"),
   disable_memoize      = False           &= help ("Disable memoization (default: False)"),
+  experimental         = False           &= help ("Use experimental features (default: False)"),
   enable_debug         = False           &= help ("Should we enable debug output?")
 } &= help "Run Hoogle+ with top-down backend"
 

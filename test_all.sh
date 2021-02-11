@@ -1,8 +1,9 @@
 if stack build; then
-  python3 scripts/run_all.py
+  # python3 scripts/run_all.py
   echo "==========="
-  python3 scripts/run_all.py --topdown
-  # python3 scripts/run_all.py --experiment
+  # python3 scripts/run_all.py --topdown
+  echo "==========="
+  python3 scripts/run_all.py --experimental
 fi
 
 # goal: test tygar

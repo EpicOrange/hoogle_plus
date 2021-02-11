@@ -225,8 +225,9 @@ dfs mode env searchParams mustHave goalType depth quota
       return (prog, subSize)
 
     -- | search params
-    useAltIMode = _topDownUseAltIMode searchParams
-    useMemoize  = _topDownUseMemoize searchParams
+    useAltIMode  = _topDownUseAltIMode searchParams
+    useMemoize   = _topDownUseMemoize searchParams
+    experimental = _topDownEnableExperiment searchParams
     -- enableDebug = _topDownEnableDebug searchParams
 
     -- | return components which unify with goal exactly
@@ -262,8 +263,10 @@ dfs mode env searchParams mustHave goalType depth quota
 
         -- synthesize the body for the lambda
         liftGoalTrace $ addLam argName (show tBody)
-        -- (body, subSize) <- dfs IMode env searchParams mustHave' tBody (depth + 2) (quota - 1)
-        (body, subSize) <- dfs IMode env searchParams mustHave' tBody (depth + 2) quota
+         
+        (body, subSize) <- if experimental 
+          then dfs IMode env searchParams mustHave' tBody (depth + 2) quota
+          else dfs IMode env searchParams mustHave' tBody (depth + 2) (quota - 1)
 
         -- log the fact that the args now reset to before we synthesize this lambda body
         log (depth+2) $ printf "removing %s :: %s as a component\n" argName (show tArg)
@@ -341,7 +344,9 @@ dfs mode env searchParams mustHave goalType depth quota
       let alphaSub = addTrue $ stypeSubstitute sub (shape alpha) :: RType
       liftGoalTrace $ addAppFilled alphaTProgram (show alpha) holedProgram
 
-      alphaTSize <- sizeOfProg alphaTProgram alphaTSubSize
+      alphaTSize <- if experimental
+        then sizeOfProgExperimental alphaTProgram alphaTSubSize
+        else sizeOfProg alphaTProgram alphaTSubSize
       let alphaQuota = quota - alphaTSize
       
       -- for the right side of app

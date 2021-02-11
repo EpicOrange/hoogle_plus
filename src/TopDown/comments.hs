@@ -2,7 +2,62 @@
 
 
 \f xs -> foldr (\x (ys, zs) -> either (\y -> (y:ys,zs)) (\z -> (ys, z:zs)) (f x)) ([],[]) xs
+
+\f xs ->
+  foldr
+   (\x p ->
+    either (\y -> (y : fst p, snd p))
+           (\z -> (fst p, z : snd p))
+           (f x)
+    )
+   (Nil, Nil)
+   xs
+
 synGuard "(a -> Either b c) -> [a] -> ([b], [c])" ["foldr", "Pair", "fst", "snd", "either", "Cons", "Nil"]
+
+
+
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [(a , b)])
+((?? :: (alpha0 -> [(a , b)])) (?? :: alpha0))
+(GHC.List.map (\arg2 -> (arg2 , (arg0 arg2))) (?? :: alpha0))
+GHC.List.map (\arg2 -> (arg2 , (arg0 arg2))) arg1
+-----------------
+
+(Quota 7) Done with <b> . <a> . (((a -> b)) -> ([a] -> [(a , b)]))!
+size + subSize solution
+   7 + 0       GHC.List.map (\arg2 -> (arg2 , (arg0 arg2))) arg1
+
+
+dfs has been entered 5069 times
+
+(98.10 secs, 57,502,440,424 bytes)
+
+-----------------
+--- BACKTRACE ---
+-----------------
+(?? :: [(a , b)])
+((?? :: (alpha0 -> [(a , b)])) (?? :: alpha0))
+(GHC.List.map (\arg2 -> (arg2 , (arg0 arg2))) (?? :: alpha0))
+GHC.List.map (\arg2 -> (arg2 , (arg0 arg2))) arg1
+-----------------
+
+(Quota 6) Done with <b> . <a> . (((a -> b)) -> ([a] -> [(a , b)]))!
+size + subSize solution
+   6 + 0       GHC.List.map (\arg2 -> (arg2 , (arg0 arg2))) arg1
+
+
+dfs has been entered 4817 times
+
+(156.68 secs, 57,957,388,032 bytes)
+
+
+
+
+
 
 TODO
   - DONE put initial args (arg0, arg1) into the must have list

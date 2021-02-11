@@ -53,6 +53,7 @@ data SearchParams = SearchParams {
   -- topDown stuff below
   _topDownUseAltIMode :: Bool,
   _topDownUseMemoize :: Bool,
+  _topDownEnableExperiment :: Bool,
   _topDownEnableDebug :: Bool
 } deriving (Eq, Show)
 
@@ -107,6 +108,7 @@ defaultSearchParams = SearchParams {
   -- topDown stuff below
   _topDownUseAltIMode = True,
   _topDownUseMemoize = True,
+  _topDownEnableExperiment = False,
   _topDownEnableDebug = False
 }
 
