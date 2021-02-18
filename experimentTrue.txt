@@ -1,0 +1,122 @@
+LOG
+===
+
+goal to synthesize:
+  <b> . <a> . ([(a -> b)] -> (a -> [b]))
+with components:
+  Data.Maybe.mapMaybe :: <b> . <a> . (((a -> Maybe (b))) -> ([a] -> [b]))
+  GHC.List.map :: <b> . <a> . (((a -> b)) -> ([a] -> [b]))
+
+Quota 1
+=========
+
+dfs has been entered 0 times
+memo map looks like:
+{
+}
+
+
+Quota 2
+=========
+
+dfs has been entered 1 time
+memo map looks like:
+{
+  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
+}
+
+
+Quota 3
+=========
+
+dfs has been entered 11 times
+memo map looks like:
+{
+  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
+}
+
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+
+Quota 4
+=========
+
+dfs has been entered 54 times
+memo map looks like:
+{
+  (IMode | quota 1 | must have [] | ?? :: (beta0 -> Maybe (b))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> Maybe (b))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
+  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
+  (IMode | quota 1 | must have [] | ?? :: (beta0 -> b)) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> b)) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> b)) ==> []
+  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> b)) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
+  (EMode | quota 3 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 2 | must have [] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 2 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta1 -> (beta0 -> [b]))) ==> [GHC.List.map :: (((tau1 -> b)) -> ([tau1] -> [b])), Data.Maybe.mapMaybe :: (((tau1 -> Maybe (b))) -> ([tau1] -> [b]))]
+  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
+}
+
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
+((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))

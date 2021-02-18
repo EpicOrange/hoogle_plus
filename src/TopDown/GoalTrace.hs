@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module TopDown.GoalTrace(OurProgram(..), OurType, GoalTrace, printGoalTrace, mkHole, addLam, addApp, addAppFilled) where
+module TopDown.GoalTrace(OurProgram(..), OurType, GoalTrace, printGoalTrace, printFirstGoalTrace, mkHole, addLam, addApp, addAppFilled) where
 
 import Control.Monad.IO.Class
 import Control.Monad.State
@@ -19,6 +19,9 @@ printGoalTrace goalTrace = do
   liftIO $ printf "-----------------\n--- BACKTRACE ---\n-----------------\n"
   liftIO $ mapM_ print $ reverse goalTrace
   liftIO $ printf "-----------------\n"
+
+printFirstGoalTrace :: GoalTrace -> String
+printFirstGoalTrace goalTrace = show $ head goalTrace
 
 -- The purpose of this is to be able to print out partially filled programs, like
 --   (?? :: b)

@@ -109,7 +109,8 @@ memoizeProgram env mode quota args goalType depth compute = do
     retrieve betaGoal progs = do
 
       -- for each stored program...
-      log depth $ printf "GOAL: (%s | quota %d | must have %s | ?? :: %s ~ %s) has %d solution%s in memo map\n" (show mode) quota (showMap args) (show goalType) (show betaGoal) (length progs) (if length progs == 1 then "" else "s")
+      -- log depth $ printf "GOAL: (%s | quota %d | must have %s | ?? :: %s ~ %s) has %d solution%s in memo map\n" (show mode) quota (showMap args) (show goalType) (show betaGoal) (length progs) (if length progs == 1 then "" else "s")
+      -- log depth $ printf "(%s | quota %d | ?? :: %s | must have %s) has %d solution%s in memo map\n" (show mode) quota (show goalType) (showMap args) (length progs) (if length progs == 1 then "" else "s")
       prog <- choices (reverse progs)
 
       -- infer and overwrite the type of this program (using the current typeAssignment)
@@ -127,14 +128,18 @@ memoizeProgram env mode quota args goalType depth compute = do
 
       -- return (prog', 0)
 
-      log (depth+1) $ printf "retrieved (size %d): %s :: %s\n" (quota) (show prog) (show $ typeOf prog)
+      -- log (depth+1) $ printf "retrieved (size %d): %s :: %s\n" (quota) (show prog) (show $ typeOf prog)
+
+      goalTrace <- liftGoalTrace get
+      log 0 $ printFirstGoalTrace goalTrace ++ "\n"
 
       return (prog, 0)
 
 
     evaluate :: RType -> MemoKey -> TopDownSolver IO (RProgram, Int)
     evaluate betaGoal key = do
-      log depth $ printf "GOAL: (%s | quota %d | must have %s | ?? :: %s ~ %s) is being seen for the first time\n" (show mode) quota (showMap args) (show goalType) (show betaGoal)
+      -- log depth $ printf "GOAL: (%s | quota %d | must have %s | ?? :: %s ~ %s) is being seen for the first time\n" (show mode) quota (showMap args) (show goalType) (show betaGoal)
+      -- log depth $ printf "(%s | quota %d | ?? :: %s | must have %s) is being seen for the first time\n" (show mode) quota (show goalType) (showMap args)
       liftMemo $ modify $ Map.insert key [] -- initialize the memo entry
 
       -- run dfs, which returns a stream of programs
@@ -146,4 +151,8 @@ memoizeProgram env mode quota args goalType depth compute = do
 
       memoMap <- liftMemo get :: TopDownSolver IO MemoMap
       liftMemo $ modify $ Map.insertWith (++) key [prog]
+
+      goalTrace <- liftGoalTrace get
+      log 0 $ printFirstGoalTrace goalTrace ++ "\n"
+      
       return (prog, 0)

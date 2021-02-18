@@ -233,7 +233,7 @@ dfs mode env searchParams mustHave goalType depth quota
     -- | return components which unify with goal exactly
     inEnv :: TopDownSolver IO (RProgram, Int)
     inEnv = do
-      log depth $ printf "inEnv for %s (must have %s)\n" (show goalType) (showMap mustHave)
+      -- log depth $ printf "inEnv for %s (must have %s)\n" (show goalType) (showMap mustHave)
       -- only check env if e mode, or if we're using the alt I mode
       guard (useAltIMode || mode == EMode)
       (id, t, schema, subSize) <- getUnifiedComponent :: TopDownSolver IO (Id, SType, RSchema, Int)
@@ -243,10 +243,10 @@ dfs mode env searchParams mustHave goalType depth quota
       -- check if the program we're returning is exactly of size == quota
       if (1+subSize == quota)
         then do
-          log (depth+1) $ printf "unified (size %d): %s :: %s ~ %s via %s\n" (1+subSize) id (show schema) (show goalType) (showMap sub)
+          -- log (depth+1) $ printf "unified (size %d): %s :: %s ~ %s via %s\n" (1+subSize) id (show schema) (show goalType) (showMap sub)
           return (Program { content = PSymbol id, typeOf = addTrue t }, subSize)
         else do
-          log (depth+1) $ printf "skipped (size %d /= quota %d): %s :: %s ~ %s via %s\n" (1+subSize) quota id (show schema) (show goalType) (showMap sub)
+          -- log (depth+1) $ printf "skipped (size %d /= quota %d): %s :: %s ~ %s via %s\n" (1+subSize) quota id (show schema) (show goalType) (showMap sub)
           mzero
 
     -- | add args to env, and search for the return type
@@ -254,12 +254,12 @@ dfs mode env searchParams mustHave goalType depth quota
     doSplit IMode = case goalType of
       ScalarT _ _            -> doSplit EMode
       FunctionT _ tArg tBody -> do
-        log (depth+1) $ printf "done with inEnv, split since quota (%d) > 1\n" quota
+        -- log (depth+1) $ printf "done with inEnv, split since quota (%d) > 1\n" quota
         argName <- freshId (Map.keys $ env ^. arguments) "arg"
 
         -- introduce an arg
         let mustHave' = Map.insert argName tArg mustHave
-        log (depth+2) $ printf "introducing %s :: %s as a component\n" argName (show tArg)
+        -- log (depth+2) $ printf "introducing %s :: %s as a component\n" argName (show tArg)
 
         -- synthesize the body for the lambda
         liftGoalTrace $ addLam argName (show tBody)
@@ -269,7 +269,7 @@ dfs mode env searchParams mustHave goalType depth quota
           else dfs IMode env searchParams mustHave' tBody (depth + 2) (quota - 1)
 
         -- log the fact that the args now reset to before we synthesize this lambda body
-        log (depth+2) $ printf "removing %s :: %s as a component\n" argName (show tArg)
+        -- log (depth+2) $ printf "removing %s :: %s as a component\n" argName (show tArg)
 
         sub <- use typeAssignment
         let program = Program { content = PFun argName body,
@@ -284,11 +284,11 @@ dfs mode env searchParams mustHave goalType depth quota
 
     -- | we split (?? :: T) into (??::alpha -> T) (??::alpha)
     doSplit EMode | quota <= 1 = do
-      log (depth+1) $ printf "done with inEnv, won't split since quota is %d\n" quota
+      -- log (depth+1) $ printf "done with inEnv, won't split since quota is %d\n" quota
       mzero
     
     doSplit EMode = do
-      log (depth+1) $ printf "goal is %s, done with inEnv, split since quota (%d) > 1\n" (show goalType) quota
+      -- log (depth+1) $ printf "goal is %s, done with inEnv, split since quota (%d) > 1\n" (show goalType) quota
 
       let alpha' = ScalarT (TypeVarT Map.empty "alpha") ftrue :: RType
       let schema' = ForallT "alpha" $ Monotype $ FunctionT "myArg" alpha' goalType :: RSchema
@@ -307,7 +307,7 @@ dfs mode env searchParams mustHave goalType depth quota
       -- whenever we call dfs, we call dfs for every partition
       (left, right) <- ourPartition (Map.toList mustHave) -- returns stream
       let (mustHaveLeft, mustHaveRight) = (Map.fromList left, Map.fromList right)
-      log (depth+1) $ printf "splitting mustHave %s to %s and %s\n" (showMap mustHave) (show $ map fst left) (show $ map fst right)
+      -- log (depth+1) $ printf "splitting mustHave %s to %s and %s\n" (showMap mustHave) (show $ map fst left) (show $ map fst right)
       -- liftIO $ printf "(orig, left, right): %s\n" (show (Map.toList mustHave, left, right))
       -- do what we already have with alphaT and alpha, except add left and right to dfs call
       
@@ -334,8 +334,9 @@ dfs mode env searchParams mustHave goalType depth quota
         let t2 = shape $ typeOf alphaTProgram :: SType
         topDownSolveTypeConstraint env t1 t2
         use isChecked >>= \ic -> when (not ic) $ do
-          log (depth+4) $ printf "retrieval failed check 2: retrieved program (%s :: %s) did not unify with goal %s\n"
-            (show alphaTProgram) (show $ typeOf alphaTProgram) (show schema)
+          -- log (depth+4) $ printf "retrieval failed check 2: retrieved program (%s :: %s) did not unify with goal %s\n"
+          --   (show alphaTProgram) (show $ typeOf alphaTProgram) (show schema)
+          mzero
         guard =<< use isChecked
         return alphaTProgram
       

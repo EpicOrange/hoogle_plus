@@ -602,7 +602,8 @@
       output: "[7, 16]"
 
 # synGuard' "[a -> b] -> a -> [b]" ["map"] [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]
-
+# syn' "[a -> b] -> a -> [b]" [(["[\\x -> x + 3, \\x -> x * x]", "4"], "[7, 16]")]
+# \arg0 arg1 -> GHC.List.map (\arg2 -> arg2 arg1) arg0
 
 # NEW ONES BELOW
 
