@@ -2,10 +2,10 @@ LOG
 ===
 
 goal to synthesize:
-  <b> . <a> . ([(a -> b)] -> (a -> [b]))
+  <a> . ([(a -> a)] -> (a -> a))
 with components:
-  Data.Maybe.mapMaybe :: <b> . <a> . (((a -> Maybe (b))) -> ([a] -> [b]))
-  GHC.List.map :: <b> . <a> . (((a -> b)) -> ([a] -> [b]))
+  GHC.List.foldr :: <b> . <a> . (((a -> (b -> b))) -> (b -> ([a] -> b)))
+  GHC.List.foldr1 :: <a> . (((a -> (a -> a))) -> ([a] -> a))
 
 Quota 1
 =========
@@ -15,6 +15,7 @@ memo map looks like:
 {
 }
 
+(?? :: a)   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
 
 Quota 2
 =========
@@ -22,9 +23,19 @@ Quota 2
 dfs has been entered 1 time
 memo map looks like:
 {
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
 }
 
+(?? :: a)   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({})
 
 Quota 3
 =========
@@ -32,156 +43,375 @@ Quota 3
 dfs has been entered 11 times
 memo map looks like:
 {
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 1 | must have [] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> a)) ==> []
 }
 
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
+(?? :: a)   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({})
 
 Quota 4
 =========
 
-dfs has been entered 54 times
+dfs has been entered 50 times
 memo map looks like:
 {
-  (IMode | quota 1 | must have [] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> b)) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 3 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 1 | must have [] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [] | ?? :: (beta1 -> (beta0 -> [b]))) ==> [GHC.List.map :: (((tau1 -> b)) -> ([tau1] -> [b])), Data.Maybe.mapMaybe :: (((tau1 -> Maybe (b))) -> ([tau1] -> [b]))]
-  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
+  (IMode | quota 1 | must have [] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (a -> (a -> a))) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 3 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)])] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta1 -> (beta0 -> a))) ==> [GHC.List.foldr1 :: (((a -> (a -> a))) -> ([a] -> a))]
+  (EMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta1 -> (beta0 -> a))) ==> []
 }
 
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> (?? :: Maybe (b)))) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> (?? :: Maybe (b)))) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> (?? :: Maybe (b)))) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-((GHC.List.map (\arg2 -> (?? :: b))) (?? :: alpha0))
-((GHC.List.map (\arg2 -> (?? :: b))) (?? :: alpha0))
-((GHC.List.map (\arg2 -> (?? :: b))) (?? :: alpha0))
+(?? :: a)   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((GHC.List.foldr1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a, "arg2" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((GHC.List.foldr1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))   |||  ({"arg1" ==> a, "arg2" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((GHC.List.foldr1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg2" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))   |||  ({"arg2" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
 
 Quota 5
 =========
 
-dfs has been entered 148 times
+dfs has been entered 142 times
 memo map looks like:
 {
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [Maybe (b)]) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a),("arg2",tau1)] | ?? :: Maybe (b)) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg2",tau1)] | ?? :: Maybe (b)) ==> []
-  (IMode | quota 1 | must have [("arg1",a),("arg2",tau1)] | ?? :: Maybe (b)) ==> []
-  (IMode | quota 1 | must have [("arg2",tau1)] | ?? :: Maybe (b)) ==> [arg2 :: Maybe (b)]
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a),("arg2",tau1)] | ?? :: b) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg2",tau1)] | ?? :: b) ==> []
-  (IMode | quota 1 | must have [("arg1",a),("arg2",tau1)] | ?? :: b) ==> []
-  (IMode | quota 1 | must have [("arg2",tau1)] | ?? :: b) ==> [arg2 :: b]
-  (IMode | quota 1 | must have [] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 2 | must have [] | ?? :: (beta0 -> Maybe (b))) ==> [\arg2 -> arg2 :: (Maybe (b) -> Maybe (b))]
-  (IMode | quota 2 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 2 | must have [("arg1",a)] | ?? :: (beta0 -> Maybe (b))) ==> []
-  (IMode | quota 1 | must have [] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 2 | must have [] | ?? :: (beta0 -> b)) ==> [\arg2 -> arg2 :: (b -> b)]
-  (IMode | quota 2 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> b)) ==> []
-  (IMode | quota 2 | must have [("arg1",a)] | ?? :: (beta0 -> b)) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 3 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 4 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: [b]) ==> []
-  (EMode | quota 1 | must have [] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 2 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 3 | must have [] | ?? :: (beta0 -> [b])) ==> [GHC.List.map (\arg2 -> arg2) :: ([tau1] -> [b]), Data.Maybe.mapMaybe (\arg2 -> arg2) :: ([tau1] -> [b])]
-  (EMode | quota 3 | must have [("arg0",[(a -> b)])] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 3 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 3 | must have [("arg1",a)] | ?? :: (beta0 -> [b])) ==> []
-  (EMode | quota 1 | must have [] | ?? :: (beta1 -> (beta0 -> [b]))) ==> [GHC.List.map :: (((tau1 -> b)) -> ([tau1] -> [b])), Data.Maybe.mapMaybe :: (((tau1 -> Maybe (b))) -> ([tau1] -> [b]))]
-  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 2 | must have [] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)])] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 2 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 2 | must have [("arg1",a)] | ?? :: (beta1 -> (beta0 -> [b]))) ==> []
-  (EMode | quota 1 | must have [] | ?? :: (beta2 -> (beta1 -> (beta0 -> [b])))) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)])] | ?? :: (beta2 -> (beta1 -> (beta0 -> [b])))) ==> []
-  (EMode | quota 1 | must have [("arg0",[(a -> b)]),("arg1",a)] | ?? :: (beta2 -> (beta1 -> (beta0 -> [b])))) ==> []
-  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta2 -> (beta1 -> (beta0 -> [b])))) ==> []
+  (IMode | quota 1 | must have [] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 2 | must have [] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 2 | must have [("arg0",[(a -> a)])] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 2 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 2 | must have [("arg1",a)] | ?? :: (a -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [] | ?? :: (((beta0 -> a)) -> (((beta0 -> a)) -> (beta0 -> a)))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (((beta0 -> a)) -> (((beta0 -> a)) -> (beta0 -> a)))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (((beta0 -> a)) -> (((beta0 -> a)) -> (beta0 -> a)))) ==> []
+  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (((beta0 -> a)) -> (((beta0 -> a)) -> (beta0 -> a)))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a),("arg2",a)] | ?? :: (a -> a)) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)]),("arg2",a)] | ?? :: (a -> a)) ==> []
+  (IMode | quota 1 | must have [("arg1",a),("arg2",a)] | ?? :: (a -> a)) ==> []
+  (IMode | quota 1 | must have [("arg2",a)] | ?? :: (a -> a)) ==> []
+  (IMode | quota 1 | must have [] | ?? :: (beta0 -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (beta0 -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta0 -> (a -> a))) ==> []
+  (IMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> (a -> a))) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 3 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 4 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: a) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)])] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 2 | must have [("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 3 | must have [] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 3 | must have [("arg0",[(a -> a)])] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 3 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 3 | must have [("arg1",a)] | ?? :: (beta0 -> a)) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta1 -> (beta0 -> a))) ==> [GHC.List.foldr1 :: (((a -> (a -> a))) -> ([a] -> a))]
+  (EMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 2 | must have [] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)])] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 2 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 2 | must have [("arg1",a)] | ?? :: (beta1 -> (beta0 -> a))) ==> []
+  (EMode | quota 1 | must have [] | ?? :: (beta2 -> (beta1 -> (beta0 -> a)))) ==> [GHC.List.foldr1 :: (((((alpha0 -> a)) -> (((alpha0 -> a)) -> (alpha0 -> a)))) -> ([(alpha0 -> a)] -> (alpha0 -> a))), GHC.List.foldr :: (((tau1 -> (a -> a))) -> (a -> ([tau1] -> a)))]
+  (EMode | quota 1 | must have [("arg0",[(a -> a)])] | ?? :: (beta2 -> (beta1 -> (beta0 -> a)))) ==> []
+  (EMode | quota 1 | must have [("arg0",[(a -> a)]),("arg1",a)] | ?? :: (beta2 -> (beta1 -> (beta0 -> a)))) ==> []
+  (EMode | quota 1 | must have [("arg1",a)] | ?? :: (beta2 -> (beta1 -> (beta0 -> a)))) ==> []
 }
 
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> ((?? :: (alpha2 -> Maybe (b))) (?? :: alpha2)))) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-((Data.Maybe.mapMaybe (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-(((?? :: (alpha1 -> (alpha0 -> [b]))) (?? :: alpha1)) (?? :: alpha0))
-((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
-((GHC.List.map (\arg2 -> ((?? :: (alpha2 -> b)) (?? :: alpha2)))) (?? :: alpha0))
-((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-((GHC.List.map (\arg2 -> (arg2 (?? :: alpha2)))) (?? :: alpha0))
-((?? :: (alpha0 -> [b])) (?? :: alpha0))
-(Data.Maybe.mapMaybe (\arg2 -> arg2 arg1) (?? :: alpha0))
-(Data.Maybe.mapMaybe (\arg2 -> arg2 arg1) (?? :: alpha0))
-((?? :: (alpha0 -> [b])) (?? :: alpha0))
-(GHC.List.map (\arg2 -> arg2 arg1) (?? :: alpha0))
-(GHC.List.map (\arg2 -> arg2 arg1) (?? :: alpha0))
+(?? :: a)   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((((GHC.List.foldr (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((GHC.List.foldr1 (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((((GHC.List.foldr (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((GHC.List.foldr1 (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((((GHC.List.foldr (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((GHC.List.foldr1 (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((GHC.List.foldr (\arg2 -> (?? :: (a -> a)))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a, "arg2" ==> tau1})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((GHC.List.foldr1 (\arg2 -> (?? :: (((alpha0 -> a)) -> (alpha0 -> a))))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a, "arg2" ==> (alpha0 -> a)})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((((?? :: (alpha3 -> (alpha2 -> (alpha1 -> (alpha0 -> a))))) (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((((GHC.List.foldr (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((((GHC.List.foldr1 (?? :: alpha3)) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((GHC.List.foldr (\arg2 -> (?? :: (a -> a)))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a, "arg2" ==> tau1})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((GHC.List.foldr1 (\arg2 -> (?? :: (((alpha0 -> a)) -> (alpha0 -> a))))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a, "arg2" ==> (alpha0 -> a)})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((GHC.List.foldr (\arg2 -> (?? :: (a -> a)))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg2" ==> tau1})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((GHC.List.foldr1 (\arg2 -> (?? :: (((alpha0 -> a)) -> (alpha0 -> a))))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg2" ==> (alpha0 -> a)})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((GHC.List.foldr1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a, "arg2" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr (\arg2 -> (?? :: (a -> a)))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg2" ==> tau1})
+((GHC.List.foldr (\arg2 -> arg2) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+(((GHC.List.foldr1 (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((GHC.List.foldr1 (\arg2 -> (?? :: (((alpha0 -> a)) -> (alpha0 -> a))))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg2" ==> (alpha0 -> a)})
+((((?? :: (alpha2 -> (alpha1 -> (alpha0 -> a)))) (?? :: alpha2)) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr1 (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((GHC.List.foldr1 (\arg2 -> (?? :: (a -> a)))) (?? :: alpha0))   |||  ({"arg1" ==> a, "arg2" ==> a})
+((GHC.List.foldr1 (\arg2 -> (\arg3 -> (?? :: a)))) (?? :: alpha0))   |||  ({"arg1" ==> a, "arg2" ==> a, "arg3" ==> a})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+(((?? :: (alpha1 -> (alpha0 -> a))) (?? :: alpha1)) (?? :: alpha0))   |||  ({})
+((GHC.List.foldr (\arg2 -> arg2) (?? :: alpha1)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(GHC.List.foldr (\arg2 -> arg2) arg1 (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)], "arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+((?? :: (alpha0 -> a)) (?? :: alpha0))   |||  ({"arg1" ==> a})
+(GHC.List.foldr (\arg2 -> arg2) arg1 (?? :: alpha0))   |||  ({"arg0" ==> [(a -> a)]})
 
-(Quota 5) Done with <b> . <a> . ([(a -> b)] -> (a -> [b]))!
+(Quota 5) Done with <a> . ([(a -> a)] -> (a -> a))!
 size + subSize solution
-   5 + 0       GHC.List.map (\arg2 -> arg2 arg1) arg0
+   5 + 0       GHC.List.foldr (\arg2 -> arg2) arg1 arg0
 
-dfs has been entered 291 times
+dfs has been entered 284 times

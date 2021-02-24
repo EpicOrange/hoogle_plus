@@ -452,9 +452,7 @@
 # synGuard' "[(a -> a)] -> (a -> a)" ["foldr"] [(["[\\x -> x + 1, \\x -> x * 2, \\x -> x * x]", "3"], "19")]
 
 # \arg0 arg1 -> GHC.List.foldr Data.Function.id arg1 arg0
-# \arg0 arg1 -> GHC.List.foldr (\arg2 -> arg2) arg1 arg0
-# "\\arg0 arg1 -> GHC.List.foldr (\\arg2 -> \\arg3 -> arg1) arg1 arg0"
-# \\arg0 arg1 -> GHC.List.foldr (\\arg2 -> \\arg3 -> arg2 arg3) arg1 arg0
+# \arg0 arg1 -> GHC.List.foldr (\arg2 -> arg2) arg1 arg0      (ours)
 
 - name: indexesOf
   query: "([(a,Int)] -> [(a,Int)]) -> [a] -> [Int] -> [Int]"

@@ -130,8 +130,11 @@ memoizeProgram env mode quota args goalType depth compute = do
 
       -- log (depth+1) $ printf "retrieved (size %d): %s :: %s\n" (quota) (show prog) (show $ typeOf prog)
 
-      goalTrace <- liftGoalTrace get
-      log 0 $ printFirstGoalTrace goalTrace ++ "\n"
+      -- goalTrace <- liftGoalTrace get
+      -- log 0 $ printFirstGoalTrace goalTrace -- ++ "\n"
+
+      -- -- print must haves (args)
+      -- log 0 $ "   |||  (" ++ (showMap args) ++ ")\n"
 
       return (prog, 0)
 
@@ -152,7 +155,10 @@ memoizeProgram env mode quota args goalType depth compute = do
       memoMap <- liftMemo get :: TopDownSolver IO MemoMap
       liftMemo $ modify $ Map.insertWith (++) key [prog]
 
-      goalTrace <- liftGoalTrace get
-      log 0 $ printFirstGoalTrace goalTrace ++ "\n"
-      
+      -- goalTrace <- liftGoalTrace get
+      -- log 0 $ printFirstGoalTrace goalTrace -- ++ "\n"
+
+      -- -- print must haves (args)
+      -- log 0 $ "   |||  (" ++ (showMap args) ++ ")\n"
+
       return (prog, 0)

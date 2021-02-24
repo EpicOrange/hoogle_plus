@@ -190,6 +190,12 @@ dfs mode env searchParams mustHave goalType depth quota
   --  | quota == 1 = do
   | useMemoize = do
     liftDebug incrementDfsCounter
+
+    -- print goal with must haves
+    goalTrace <- liftGoalTrace get
+    log 0 $ printFirstGoalTrace goalTrace -- ++ "\n"
+    log 0 $ "   |||  (" ++ (showMap mustHave) ++ ")\n"
+
     memoizeProgram env mode quota mustHave goalType depth doDfs
   | otherwise  = do
     liftDebug incrementDfsCounter
